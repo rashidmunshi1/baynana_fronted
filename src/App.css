@@ -10,3 +10,10 @@
 :where(.css-dev-only-do-not-override-xu9wm8).ant-modal .ant-modal-content  {
     margin-top:  -78px;
 }
+
+.ant-input {
+  border-radius: 4px !important;
+}
+button.ant-btn-primary:hover {
+  background-color: #515d91 !important;  /* dark blue hover */
+}

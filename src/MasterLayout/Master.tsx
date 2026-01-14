@@ -11,8 +11,6 @@ interface MasterProps {
     children: ReactNode;
 }
 
-
-
 const Master: React.FC<MasterProps> = ({ children }) => {
 
     const [collapsed, setCollapsed] = useState(false);
@@ -79,18 +77,18 @@ const Master: React.FC<MasterProps> = ({ children }) => {
                     onMouseLeave={handleMouseLeave}
                     isSmallScreen={isSmallScreen}
                 />
-                <Layout style={{ ...headerStyle , backgroundColor: '#f0f4f7' }}>
+                <Layout style={{ ...headerStyle , backgroundColor: '#f8f9fa' }}>
                     <Navbar
                         collapsed={collapsed}
                         toggleSidebar={toggleSidebar}
                         disableHoverEffect={disableHoverEffect}
-                        
+                        style={{ position: 'sticky', top: 0, zIndex: 1, width: '100%' }}
                     />
                    
-                    <Content style={{ margin: '16px 16px'  }} >
+                    <Content style={{ margin: '16px 16px', overflow: 'auto' }} >
                         {children}
                     </Content>
-                    <FooterEnd />
+                    <FooterEnd style={{ position: 'sticky', bottom: 0, zIndex: 1, width: '100%' }} />
                 </Layout>
             </Layout>
         </>

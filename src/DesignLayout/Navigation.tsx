@@ -22,7 +22,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeMenu, handleClick }) => {
                     top: 0,
                     position: 'sticky',
                     display: 'block',
-                    backgroundColor: '#000000',
+                    backgroundColor: '#8c57ff',
                     textAlign: 'center',
                     zIndex: 999,
                 }}>
