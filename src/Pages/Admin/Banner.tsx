@@ -1,167 +1,249 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Table, Button, Modal, Form, Input, Upload, message, Switch, Popconfirm, Image } from "antd";
+import { PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import baseURL from "../../config";
 
+interface BannerType {
+    _id: string;
+    title: string;
+    description: string;
+    image: string;
+    isActive: boolean;
+}
+
 const Banner: React.FC = () => {
-
-    const [title, setTitle] = useState("");
-    const [image, setImage] = useState<File | null>(null);
-    const [preview, setPreview] = useState<string | null>(null);
-    const [description, setDescription] = useState("");
-    const [isActive, setIsActive] = useState(true);
+    const [banners, setBanners] = useState<BannerType[]>([]);
     const [loading, setLoading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingBanner, setEditingBanner] = useState<BannerType | null>(null);
+    const [form] = Form.useForm();
+    const [fileList, setFileList] = useState<any[]>([]);
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setImage(e.target.files[0]);
-            setPreview(URL.createObjectURL(e.target.files[0]));
-        }
-    };
+    useEffect(() => {
+        fetchBanners();
+    }, []);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!title.trim()) return alert("Title is required");
-        if (!image) return alert("Image is required");
-
-        const formData = new FormData();
-        formData.append("title", title);
-        formData.append("image", image);
-        if (description.trim()) formData.append("description", description);
-        formData.append("isActive", isActive.toString());
-
+    const fetchBanners = async () => {
         try {
             setLoading(true);
-
-            const res = await axios.post(
-                `${baseURL}/api/admin/add-banner`,
-                formData,
-                {
-                    headers: { "Content-Type": "multipart/form-data" },
-                }
-            );
-
-            alert("Banner added successfully");
-            setTitle("");
-            setImage(null);
-            setPreview(null);
-            setDescription("");
-            setIsActive(true);
-        } catch (err) {
-            console.error(err);
-            alert("Failed to add banner");
+            const response = await axios.get(`${baseURL}/api/admin/all-banners`);
+            setBanners(response.data);
+        } catch (error) {
+            console.error("Fetch banners error:", error);
+            message.error("Failed to load banners");
         } finally {
             setLoading(false);
         }
     };
 
+    const handleAdd = () => {
+        setEditingBanner(null);
+        setFileList([]);
+        form.resetFields();
+        setIsModalOpen(true);
+    };
+
+    const handleEdit = (record: BannerType) => {
+        setEditingBanner(record);
+        setFileList([
+            {
+                uid: '-1',
+                name: 'image.png',
+                status: 'done',
+                url: `${baseURL}/${record.image}`,
+            },
+        ]);
+        form.setFieldsValue({
+            title: record.title,
+            description: record.description,
+            isActive: record.isActive,
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleDelete = async (id: string) => {
+        try {
+            await axios.delete(`${baseURL}/api/admin/delete-banner/${id}`);
+            message.success("Banner deleted successfully");
+            fetchBanners();
+        } catch (error) {
+            console.error("Delete banner error:", error);
+            message.error("Failed to delete banner");
+        }
+    };
+
+    const handleToggleActive = async (id: string, checked: boolean) => {
+        try {
+            await axios.put(`${baseURL}/api/admin/update-banner/${id}`, { isActive: checked });
+            message.success(`Banner ${checked ? "activated" : "deactivated"}`);
+            fetchBanners();
+        } catch (error) {
+            console.error("Toggle active error:", error);
+            message.error("Failed to update status");
+        }
+    };
+
+    const handleOk = async () => {
+        try {
+            const values = await form.validateFields();
+            const formData = new FormData();
+            formData.append("title", values.title);
+            formData.append("description", values.description || "");
+            formData.append("isActive", values.isActive !== undefined ? values.isActive : true);
+
+            const currentFile = fileList[0];
+
+            // If there is a file and it doesn't have a 'url' property, it means it's a newly uploaded file
+            if (currentFile && !currentFile.url) {
+                // Use originFileObj if it exists (standard Antd), otherwise use the file object itself (from beforeUpload)
+                formData.append("image", currentFile.originFileObj || currentFile);
+            } else if (!editingBanner) {
+                // If creating a new banner and no new file is selected, show error
+                return message.error("Please upload an image");
+            }
+
+            if (editingBanner) {
+                await axios.put(`${baseURL}/api/admin/update-banner/${editingBanner._id}`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
+                message.success("Banner updated successfully");
+            } else {
+                await axios.post(`${baseURL}/api/admin/add-banner`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
+                message.success("Banner created successfully");
+            }
+
+            setIsModalOpen(false);
+            fetchBanners();
+        } catch (error) {
+            console.error("Save banner error:", error);
+            message.error("Failed to save banner");
+        }
+    };
+
+    const columns = [
+        {
+            title: "Image",
+            dataIndex: "image",
+            key: "image",
+            render: (image: string) => (
+                <Image
+                    width={100}
+                    src={`${baseURL}/${image}`}
+                    alt="banner"
+                    style={{ borderRadius: "8px", objectFit: "cover" }}
+                />
+            ),
+        },
+        {
+            title: "Title",
+            dataIndex: "title",
+            key: "title",
+        },
+        {
+            title: "Description",
+            dataIndex: "description",
+            key: "description",
+            ellipsis: true,
+        },
+        {
+            title: "Status",
+            dataIndex: "isActive",
+            key: "isActive",
+            render: (isActive: boolean, record: BannerType) => (
+                <Switch
+                    checked={isActive}
+                    onChange={(checked) => handleToggleActive(record._id, checked)}
+                />
+            ),
+        },
+        {
+            title: "Actions",
+            key: "actions",
+            render: (_: any, record: BannerType) => (
+                <div className="flex gap-2">
+                    <Button icon={<EditOutlined />} onClick={() => handleEdit(record)} />
+                    <Popconfirm
+                        title="Are you sure to delete this banner?"
+                        onConfirm={() => handleDelete(record._id)}
+                        okText="Yes"
+                        cancelText="No"
+                        okButtonProps={{ style: { backgroundColor: '#ef4444', color: 'white', borderColor: '#ef4444' } }} // Red for delete
+                    >
+                        <Button icon={<DeleteOutlined />} danger />
+                    </Popconfirm>
+                </div>
+            ),
+        },
+    ];
+
+    const uploadProps = {
+        onRemove: (file: any) => {
+            setFileList([]);
+        },
+        beforeUpload: (file: any) => {
+            setFileList([file]);
+            return false; // Prevent auto upload
+        },
+        fileList,
+    };
+
     return (
-        <div
-            style={{
-                maxWidth: "600px",
-                margin: "30px auto",
-                background: "#fff",
-                padding: "25px",
-                borderRadius: "10px",
-                boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
-            }}
-        >
-            <h2 style={{ marginBottom: "20px", fontWeight: 600 }}>Add New Banner</h2>
-
-            <form onSubmit={handleSubmit}>
-                {/* Title */}
-                <div style={{ marginBottom: "15px" }}>
-                    <label style={{ display: "block", marginBottom: "8px" }}>
-                        Title *
-                    </label>
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Enter banner title"
-                        style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: "1px solid #d0d0d0",
-                            borderRadius: "6px",
-                        }}
-                        required
-                    />
-                </div>
-
-                {/* Description */}
-                <div style={{ marginBottom: "15px" }}>
-                    <label style={{ display: "block", marginBottom: "8px" }}>
-                        Description (optional)
-                    </label>
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Enter banner description"
-                        rows={4}
-                        style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: "1px solid #d0d0d0",
-                            borderRadius: "6px",
-                            resize: "vertical",
-                        }}
-                    />
-                </div>
-
-                {/* Image */}
-                <div style={{ marginBottom: "15px" }}>
-                    <label style={{ display: "block", marginBottom: "8px" }}>
-                        Banner Image *
-                    </label>
-                    <input type="file" accept="image/*" onChange={handleImageChange} required />
-
-                    {preview && (
-                        <img
-                            src={preview}
-                            alt="preview"
-                            style={{
-                                width: "100px",
-                                height: "100px",
-                                borderRadius: "6px",
-                                marginTop: "10px",
-                                objectFit: "cover",
-                                border: "1px solid #ddd",
-                            }}
-                        />
-                    )}
-                </div>
-
-                {/* Is Active */}
-                <div style={{ marginBottom: "15px" }}>
-                    <label style={{ display: "block", marginBottom: "8px" }}>
-                        <input
-                            type="checkbox"
-                            checked={isActive}
-                            onChange={(e) => setIsActive(e.target.checked)}
-                        />
-                        {" "}Active
-                    </label>
-                </div>
-
-                {/* Submit Button */}
-                <button
-                    type="submit"
-                    disabled={loading}
-                    style={{
-                        padding: "12px 20px",
-                        background: "#7C3AED",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontWeight: "600",
-                        width: "100%",
-                    }}
+        <div className="p-6">
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-semibold">Banner Management</h1>
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={handleAdd}
+                    style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: 'white' }}
                 >
-                    {loading ? "Saving..." : "Add Banner"}
-                </button>
-            </form>
+                    Add New Banner
+                </Button>
+            </div>
+
+            <Table
+                columns={columns}
+                dataSource={banners}
+                rowKey="_id"
+                loading={loading}
+                pagination={{ pageSize: 10 }}
+            />
+
+            <Modal
+                title={editingBanner ? "Edit Banner" : "Add New Banner"}
+                open={isModalOpen}
+                onOk={handleOk}
+                onCancel={() => setIsModalOpen(false)}
+                okText="Save"
+                okButtonProps={{ style: { backgroundColor: '#7C3AED', color: 'white', borderColor: '#7C3AED' } }} // Theme purple
+            >
+                <Form form={form} layout="vertical" initialValues={{ isActive: true }}>
+                    <Form.Item
+                        name="title"
+                        label="Title"
+                        rules={[{ required: true, message: "Please enter title" }]}
+                    >
+                        <Input placeholder="Enter banner title" />
+                    </Form.Item>
+
+                    <Form.Item name="description" label="Description">
+                        <Input.TextArea rows={3} placeholder="Enter banner description (optional)" />
+                    </Form.Item>
+
+                    <Form.Item label="Banner Image" required>
+                        <Upload {...uploadProps} listType="picture" maxCount={1}>
+                            <Button icon={<UploadOutlined />}>Select Image</Button>
+                        </Upload>
+                    </Form.Item>
+
+                    <Form.Item name="isActive" label="Active Status" valuePropName="checked">
+                        <Switch />
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };

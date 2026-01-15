@@ -1,6 +1,6 @@
-import { Card, Row, Table, Col, Input, message, Spin, Modal, Button, Tag } from "antd";
+import { Card, Row, Table, Col, Input, message, Spin, Modal, Button, Tag, Form, Upload } from "antd";
 import { useNavigate } from "react-router-dom";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import type { ColumnsType } from "antd/es/table";
@@ -30,6 +30,15 @@ export const CategoryTable = () => {
   const [searchText, setSearchText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  // Edit State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
+
+  const [form] = Form.useForm();  // Use existing import
+  const [fileList, setFileList] = useState<any[]>([]);
+
   const navigate = useNavigate();
 
 
@@ -57,8 +66,8 @@ export const CategoryTable = () => {
     if (!deleteId) return;
 
     try {
-      // API call to delete (optional, uncomment if needed)
-      // await axios.delete(`${baseURL}/api/admin/delete-category/${deleteId}`);
+      setLoading(true);
+      await axios.delete(`${baseURL}/api/admin/delete-category/${deleteId}`);
 
       setDataSource((prev) => prev.filter((item) => item._id !== deleteId));
       message.success("Category deleted successfully");
@@ -66,7 +75,83 @@ export const CategoryTable = () => {
     } catch (error) {
       console.error(error);
       message.error("Error deleting category");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // ------------------ EDIT --------------------
+  const handleEdit = (record: Category) => {
+    setEditingCategory(record);
+    setIsEditModalOpen(true);
+    form.setFieldsValue({
+      name: record.name,
+      description: record.description,
+      status: record.status,
+      orderPriority: record.orderPriority
+    });
+    // Set file list if image exists
+    if (record.image) {
+      setFileList([{
+        uid: '-1',
+        name: 'image.png',
+        status: 'done',
+        url: `${baseURL}/uploads/category/${record.image}`
+      }]);
+    } else {
+      setFileList([]);
+    }
+  };
+
+  const handleEditCancel = () => {
+    setIsEditModalOpen(false);
+    setEditingCategory(null);
+    setFileList([]);
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("description", values.description || "");
+      formData.append("status", values.status);
+      formData.append("orderPriority", values.orderPriority);
+
+      const currentFile = fileList[0];
+      // If there is a file and it doesn't have a 'url' property (meaning it's a newly uploaded file)
+      if (currentFile && !currentFile.url) {
+        // Appending the file directly. Antd's beforeUpload gives the file itself.
+        formData.append("image", currentFile.originFileObj || currentFile);
+      }
+
+      if (!editingCategory) return;
+
+      setLoading(true);
+      await axios.put(`${baseURL}/api/admin/update-category/${editingCategory._id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      message.success("Category updated successfully");
+      setIsEditModalOpen(false);
+      fetchCategories(); // Refresh list
+    } catch (error) {
+      console.error("Update error", error);
+      message.error("Failed to update category");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const uploadProps = {
+    onRemove: (file: any) => {
+      setFileList([]);
+    },
+    beforeUpload: (file: any) => {
+      setFileList([file]);
+      return false;
+    },
+    fileList,
   };
 
   // ------------------ SEARCH --------------------
@@ -124,6 +209,23 @@ export const CategoryTable = () => {
         <Tag color="blue">{orderPriority}</Tag>
       ),
     },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+          />
+          <Button
+            icon={<DeleteOutlined />}
+            danger
+            onClick={() => setDeleteId(record._id)}
+          />
+        </div>
+      )
+    },
   ];
 
   // ------------------ RETURN --------------------
@@ -180,7 +282,6 @@ export const CategoryTable = () => {
         </Card>
       </Row>
 
-      {/* Delete Modal */}
       <Modal
         title="Confirmation"
         open={!!deleteId}
@@ -188,8 +289,40 @@ export const CategoryTable = () => {
         onCancel={() => setDeleteId(null)}
         okText="Yes"
         cancelText="No"
+        okButtonProps={{ style: { backgroundColor: '#ef4444', color: 'white', borderColor: '#ef4444' } }} // Red for delete
       >
         <p>Are you sure you want to delete this category?</p>
+      </Modal>
+
+      {/* Edit Modal */}
+      <Modal
+        title="Edit Category"
+        open={isEditModalOpen}
+        onOk={handleEditSubmit}
+        onCancel={handleEditCancel}
+        okText="Update"
+        okButtonProps={{ style: { backgroundColor: '#7C3AED', color: 'white', borderColor: '#7C3AED' } }}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="name" label="Category Name" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="description" label="Description">
+            <Input.TextArea rows={3} />
+          </Form.Item>
+          <Form.Item name="orderPriority" label="Order Priority">
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item name="status" label="Status">
+            <Input />
+            {/* Ideally this should be a Select but using Input for speed as per requested interface, or I can check Tag */}
+          </Form.Item>
+          <Form.Item label="Image">
+            <Upload {...uploadProps} listType="picture" maxCount={1}>
+              <Button icon={<UploadOutlined />}>Select New Image</Button>
+            </Upload>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

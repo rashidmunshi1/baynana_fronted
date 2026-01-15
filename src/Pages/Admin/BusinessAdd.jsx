@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Form,
   Input,
@@ -35,9 +36,11 @@ const cardStyle = {
 
 const AddBusiness = () => {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const [subcategories, setSubcategories] = useState([]);
   const [users, setUsers] = useState([]);
   const [fileList, setFileList] = useState([]);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     // Fetch ALL subcategories on mount
@@ -105,6 +108,7 @@ const AddBusiness = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       message.success("Business added successfully!");
+      navigate("/admin/business-list");
     } catch (err) {
       console.error(err);
       message.error("Something went wrong!");
@@ -118,7 +122,7 @@ const AddBusiness = () => {
       <h2 className="text-xl font-bold mb-2">➕ Add New Business</h2>
       <Divider />
 
-      <Form layout="vertical" onFinish={onFinish}>
+      <Form form={form} layout="vertical" onFinish={onFinish}>
         <h3 className="font-semibold text-gray-700 mb-3">🧾 Business Details</h3>
 
         <Row gutter={16}>
@@ -138,6 +142,15 @@ const AddBusiness = () => {
                   label: `${u.name || "No Name"} (${u.mobileno})`,
                   value: u._id,
                 }))}
+                onChange={(value) => {
+                  const selectedUser = users.find((u) => u._id === value);
+                  if (selectedUser) {
+                    form.setFieldsValue({
+                      ownerName: selectedUser.name,
+                      mobile: selectedUser.mobileno,
+                    });
+                  }
+                }}
               />
             </Form.Item>
           </Col>
