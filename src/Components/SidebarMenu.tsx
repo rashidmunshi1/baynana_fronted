@@ -47,25 +47,38 @@ const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user }) => {
         <div className="text-3xl cursor-pointer mb-2 text-right" onClick={onClose}>✖</div>
 
         {/* User Info */}
-        <div className="flex items-center gap-2">
-          <img
-            src="https://randomuser.me/api/portraits/men/32.jpg"
-            className="w-16 h-16 rounded-full object-cover"
-            alt="User"
-          />
+        {/* User Info */}
+        {user ? (
+          <div className="flex items-center gap-2">
+            <img
+              src="https://randomuser.me/api/portraits/men/32.jpg"
+              className="w-16 h-16 rounded-full object-cover"
+              alt="User"
+            />
 
-          <div>
-            <h2 className="text-xl font-semibold flex items-center gap-2">
-              {user?.name || "Alfaiz Memon"}
-              <FaRegEdit className="text-gray-500 cursor-pointer" onClick={() => navigate("/user/profile")} />
-            </h2>
-            <p className="text-gray-500">{user?.mobile || "8264451744"}</p>
+            <div>
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                {user.name || "User"}
+                <FaRegEdit className="text-gray-500 cursor-pointer" onClick={() => navigate("/user/profile")} />
+              </h2>
+              <p className="text-gray-500">{user.mobile || ""}</p>
 
-            <button className="underline text-blue-600 text-sm mt-1">
-              View Activity
+              <button className="underline text-blue-600 text-sm mt-1">
+                View Activity
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3 p-4 bg-gray-50 rounded-lg">
+            <p className="text-gray-600 font-medium">Welcome Guest</p>
+            <button
+              onClick={() => { onClose(); /* Trigger login popup from parent if possible, or navigate */ }}
+              className="bg-[#7C3AED] text-white px-6 py-2 rounded-full font-semibold text-sm w-full"
+            >
+              Login / Sign Up
             </button>
           </div>
-        </div>
+        )}
 
         {/* Menu Items */}
         <div className="bg-white shadow rounded-lg p-4 mt-6 grid grid-cols-1 gap-4">

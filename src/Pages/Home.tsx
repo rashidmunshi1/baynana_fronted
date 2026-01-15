@@ -3,16 +3,14 @@ import { FiSearch } from "react-icons/fi";
 import { FaBell, FaUserCircle, FaMicrophone } from "react-icons/fa";
 import UserLayout from "../DesignLayout/UserLayout";
 import SidebarMenu from "../Components/SidebarMenu";
-import RestaurantCard from "../Components/RestaurantCard";
+import BusinessListCard from "../Components/BusinessListCard";
 import axios from "axios";
 import logo from '../Assets/new-logo.svg';
 import { Link, useNavigate } from 'react-router-dom';
 import FreeListingPopup from '../Components/FreeListingPopup';
 import LoginPopup from '../Components/LoginPopup';
 import SignUpPopup from '../Components/SignUpPopup';
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
+import HomeBanner from '../Components/HomeBanner';
 import baseURL from "../config";
 
 
@@ -214,7 +212,13 @@ const HomePage: React.FC = () => {
                 <div className="flex flex-col items-center justify-end h-full">
                   <p className="text-red-500 text-xs font-medium mb-1">For Business</p>
                   <button
-                    onClick={() => setIsFreeListingPopupOpen(true)}
+                    onClick={() => {
+                      if (isLoggedIn) {
+                        navigate('/user/add-business');
+                      } else {
+                        setIsFreeListingPopupOpen(true);
+                      }
+                    }}
                     className="px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-[#7C3AED] border border-[#7C3AED] rounded-md hover:bg-[#7C3AED] hover:text-white transition-colors"
                   >
                     Free Listing
@@ -269,7 +273,7 @@ const HomePage: React.FC = () => {
 
             {!loading &&
               searchResults.map((biz) => (
-                <RestaurantCard key={biz._id} business={biz} />
+                <BusinessListCard key={biz._id} business={biz} />
               ))}
           </div>
         )}
@@ -278,34 +282,8 @@ const HomePage: React.FC = () => {
         {!searchText && (
           <>
             {/* 🖼️ BANNER CAROUSEL */}
-            {bannerLoading && (
-              <div className="mt-6 text-center">
-                <p className="text-sm text-gray-500">Loading banner...</p>
-              </div>
-            )}
-            {banner && !bannerLoading && banner.length > 0 && (
-              <div className="mt-6 bg-white rounded-2xl shadow-md overflow-hidden">
-                <Slider
-                  dots={true}
-                  infinite={true}
-                  speed={500}
-                  slidesToShow={1}
-                  slidesToScroll={1}
-                  autoplay={true}
-                  autoplaySpeed={3000}
-                >
-                  {banner.map((b: any) => (
-                    <div key={b._id}>
-                      <img
-                        src={`${baseURL}/${b.image}`}
-                        alt={b.title}
-                        className="w-full h-48 lg:h-72 object-cover"
-                      />
-                    </div>
-                  ))}
-                </Slider>
-              </div>
-            )}
+            {/* 🖼️ BANNER CAROUSEL */}
+            <HomeBanner banner={banner} loading={bannerLoading} />
 
             {/* 📂 CATEGORY GRID */}
             <div className="grid grid-cols-4 lg:grid-cols-10 gap-5 mt-6">
