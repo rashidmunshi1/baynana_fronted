@@ -11,11 +11,18 @@ import Banner from "./Pages/Admin/Banner";
 import SubCategoryList from "./Pages/Admin/SubCategory/SubCategoryList";
 import AddSubCategory from "./Pages/Admin/SubCategory/AddSubCategory";
 
+import AdminProfile from "./Pages/Admin/AdminProfile";
+
 const AdminRoutes = [
   {
     path: "/admin/home",
     name: "Home",
     component: HomePageadmin,
+  },
+  {
+    path: "/admin/profile",
+    name: "Admin Profile",
+    component: AdminProfile,
   },
   {
     path: "/products",

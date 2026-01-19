@@ -31,6 +31,8 @@ export interface Business {
   status: boolean;
   approvalStatus?: 'pending' | 'approved' | 'rejected';
   rejectionReason?: string;
+  rating?: number;
+  ratingCount?: number;
   holidays: [];
   createdAt: string;
   updatedAt: string;

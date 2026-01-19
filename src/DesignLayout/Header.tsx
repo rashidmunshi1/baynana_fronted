@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { MenuOutlined } from '@ant-design/icons';
 import { Button, Col, Layout, Row } from 'antd';
-import { Avatar, Dropdown, Menu } from "antd";
+import { Avatar, Dropdown, Menu } from "antd"; // Removed duplicate Menu import if any
 import { UserOutlined, SettingOutlined, LogoutOutlined, FileTextOutlined } from "@ant-design/icons";
+import { Link } from 'react-router-dom';
 
 const { Header } = Layout;
 
@@ -35,7 +36,7 @@ const Navbar: React.FC<NavbarProps> = ({ collapsed, toggleSidebar, disableHoverE
       items={[
         {
           key: "1",
-          label: "My Profile",
+          label: <Link to="/admin/profile">My Profile</Link>,
           icon: <UserOutlined />,
         },
         {
@@ -82,7 +83,7 @@ const Navbar: React.FC<NavbarProps> = ({ collapsed, toggleSidebar, disableHoverE
                 style={{ border: "2px solid #fff", marginRight: 8 }}
               />
               <span className="text-gray-500 font-medium hidden sm:block">
-                {"Admin"}
+                {formattedUserName || "Admin"}
               </span>
             </div>
           </Dropdown>
