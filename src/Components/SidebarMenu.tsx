@@ -22,6 +22,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('userName');
     localStorage.removeItem('userPhone');
+    localStorage.removeItem('userId');
     onClose();
     window.location.reload();
   };
@@ -62,10 +63,6 @@ const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user }) => {
                 <FaRegEdit className="text-gray-500 cursor-pointer" onClick={() => navigate("/user/profile")} />
               </h2>
               <p className="text-gray-500">{user.mobile || ""}</p>
-
-              <button className="underline text-blue-600 text-sm mt-1">
-                View Activity
-              </button>
             </div>
           </div>
         ) : (
@@ -87,14 +84,6 @@ const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user }) => {
             <FaBriefcase className="text-xl" />
             <p className="font-medium">My Business</p>
           </div>
-
-
-
-          <div className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer">
-            <FaHeadset className="text-xl" />
-            <p className="font-medium">Help</p>
-          </div>
-
           <div
             className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer text-red-500"
             onClick={handleLogout}

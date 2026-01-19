@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Drawer, Layout, Menu } from 'antd';
 import { Link } from 'react-router-dom';
 import '../MasterLayout/Master.css';
-import { FaListAlt, FaRegUser } from "react-icons/fa";
+import { FaListAlt, FaRegUser, FaUserCog } from "react-icons/fa";
 import { FileTextOutlined, HomeOutlined, UsbOutlined } from "@ant-design/icons";
 import { AppstoreOutlined } from "@ant-design/icons";
 const { Sider } = Layout;

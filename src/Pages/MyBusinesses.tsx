@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { FaPlus, FaClock, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
+import { FaPlus, FaClock, FaCheckCircle, FaExclamationCircle, FaStar } from "react-icons/fa";
 import { IoArrowForward } from "react-icons/io5";
 import UserLayout from "../DesignLayout/UserLayout";
 import { Business } from "../Components/types";
@@ -131,6 +131,20 @@ const MyBusinesses: React.FC = () => {
                   <div className="flex flex-col justify-center">
                     <h3 className="font-bold text-lg text-gray-800 leading-tight">{biz.businessName}</h3>
                     <p className="text-xs text-gray-500 mb-2">{biz.city} • {biz.category?.name || "Uncategorized"}</p>
+
+                    {/* Rating */}
+                    {(biz.rating || biz.ratingCount) ? (
+                      <div className="flex items-center gap-2 mb-2">
+                        {biz.rating ? (
+                          <div className="bg-green-600 text-white font-bold px-1.5 py-0.5 rounded flex items-center gap-1 text-[10px]">
+                            {biz.rating} <FaStar size={8} />
+                          </div>
+                        ) : null}
+                        {biz.ratingCount ? (
+                          <span className="text-gray-400 text-xs">{biz.ratingCount} Ratings</span>
+                        ) : null}
+                      </div>
+                    ) : null}
 
                     {/* Status Badge */}
                     <div className="flex items-center gap-2">
