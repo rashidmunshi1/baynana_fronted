@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import baseURL from "../../config";
+import { message } from "antd";
+import { FaCloudUploadAlt } from "react-icons/fa";
 
 const AddCategory: React.FC = () => {
 
@@ -10,19 +12,18 @@ const AddCategory: React.FC = () => {
 
     const [slug, setSlug] = useState("");
     const [description, setDescription] = useState("");
-    const [status, setStatus] = useState("Active"); // Default status
-    const [orderPriority, setOrderPriority] = useState(0); // Default order/priority
+    const [status, setStatus] = useState("Active");
+    const [orderPriority, setOrderPriority] = useState(0);
 
     const [loading, setLoading] = useState(false);
 
-    // Auto-generate slug from name
     useEffect(() => {
         if (name) {
             const generatedSlug = name
                 .toLowerCase()
                 .trim()
-                .replace(/\s+/g, "-") // Replace spaces with hyphens
-                .replace(/[^a-z0-9-]/g, ""); // Remove non-alphanumeric characters except hyphens
+                .replace(/\s+/g, "-")
+                .replace(/[^a-z0-9-]/g, "");
             setSlug(generatedSlug);
         } else {
             setSlug("");
@@ -39,7 +40,7 @@ const AddCategory: React.FC = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
-        if (!name.trim()) return alert("Category name is required");
+        if (!name.trim()) return message.warning("Category name is required");
 
         const formData = new FormData();
         formData.append("name", name);
@@ -51,16 +52,13 @@ const AddCategory: React.FC = () => {
 
         try {
             setLoading(true);
-
-            const res = await axios.post(
+            await axios.post(
                 `${baseURL}/api/admin/add-category`,
                 formData,
-                {
-                    headers: { "Content-Type": "multipart/form-data" },
-                }
+                { headers: { "Content-Type": "multipart/form-data" } }
             );
 
-            alert("Category added successfully");
+            message.success("Category added successfully");
             setName("");
             setImage(null);
             setPreview(null);
@@ -70,165 +68,246 @@ const AddCategory: React.FC = () => {
             setOrderPriority(0);
         } catch (err) {
             console.error(err);
-            alert("Failed to add category");
+            message.error("Failed to add category");
         } finally {
             setLoading(false);
         }
     };
 
+    const inputStyle: React.CSSProperties = {
+        width: '100%',
+        padding: '12px 14px',
+        border: '1px solid #e2e8f0',
+        borderRadius: '10px',
+        fontSize: '14px',
+        color: '#0f172a',
+        outline: 'none',
+        transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+        background: '#ffffff',
+        fontFamily: "'Inter', sans-serif",
+    };
+
+    const labelStyle: React.CSSProperties = {
+        display: 'block',
+        marginBottom: '8px',
+        fontSize: '13px',
+        fontWeight: 600,
+        color: '#475569',
+    };
+
+    const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        e.target.style.borderColor = '#6366f1';
+        e.target.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.12)';
+    };
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        e.target.style.borderColor = '#e2e8f0';
+        e.target.style.boxShadow = 'none';
+    };
+
     return (
-        <div
-            style={{
-                maxWidth: "600px",
-                margin: "30px auto",
-                background: "#fff",
-                padding: "25px",
-                borderRadius: "10px",
-                boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
-            }}
-        >
-            <h2 style={{ marginBottom: "20px", fontWeight: 600 }}>Add New Category</h2>
-
-            <form onSubmit={handleSubmit}>
-                {/* Category Name */}
-                <div style={{ marginBottom: "15px" }}>
-                    <label style={{ display: "block", marginBottom: "8px" }}>
-                        Category Name
-                    </label>
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Enter category name"
-                        style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: "1px solid #d0d0d0",
-                            borderRadius: "6px",
-                        }}
-                    />
-                </div>
-
-                {/* Category Slug (auto) */}
-                <div style={{ marginBottom: "15px" }}>
-                    <label style={{ display: "block", marginBottom: "8px" }}>
-                        Category Slug (auto)
-                    </label>
-                    <input
-                        type="text"
-                        value={slug}
-                        readOnly // Slug is auto-generated
-                        placeholder="Auto-generated slug"
-                        style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: "1px solid #d0d0d0",
-                            borderRadius: "6px",
-                            backgroundColor: "#f0f0f0", // Indicate read-only
-                        }}
-                    />
-                </div>
-
-                {/* Description (optional) */}
-                <div style={{ marginBottom: "15px" }}>
-                    <label style={{ display: "block", marginBottom: "8px" }}>
-                        Description (optional)
-                    </label>
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Enter category description"
-                        rows={3}
-                        style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: "1px solid #d0d0d0",
-                            borderRadius: "6px",
-                            resize: "vertical",
-                        }}
-                    ></textarea>
-                </div>
-
-                {/* Status */}
-                <div style={{ marginBottom: "15px" }}>
-                    <label style={{ display: "block", marginBottom: "8px" }}>
-                        Status
-                    </label>
-                    <select
-                        value={status}
-                        onChange={(e) => setStatus(e.target.value)}
-                        style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: "1px solid #d0d0d0",
-                            borderRadius: "6px",
-                        }}
-                    >
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
-                </div>
-
-                {/* Order / Priority */}
-                <div style={{ marginBottom: "15px" }}>
-                    <label style={{ display: "block", marginBottom: "8px" }}>
-                        Order / Priority
-                    </label>
-                    <input
-                        type="number"
-                        value={orderPriority}
-                        onChange={(e) => setOrderPriority(Number(e.target.value))}
-                        placeholder="Enter order or priority"
-                        style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: "1px solid #d0d0d0",
-                            borderRadius: "6px",
-                        }}
-                    />
-                </div>
-
-                {/* Category Icon */}
-                <div style={{ marginBottom: "15px" }}>
-                    <label style={{ display: "block", marginBottom: "8px" }}>
-                        Category Icon
-                    </label>
-                    <input type="file" onChange={handleImageChange} />
-
-                    {preview && (
-                        <img
-                            src={preview}
-                            alt="preview"
-                            style={{
-                                width: "100px",
-                                height: "100px",
-                                borderRadius: "6px",
-                                marginTop: "10px",
-                                objectFit: "cover",
-                                border: "1px solid #ddd",
-                            }}
-                        />
-                    )}
-                </div>
-
-                {/* Submit Button */}
-                <button
-                    type="submit"
-                    disabled={loading}
+        <div style={{ maxWidth: '600px', margin: '0 auto', animation: 'fadeInUp 0.4s ease-out' }}>
+            <div
+                style={{
+                    background: '#ffffff',
+                    borderRadius: '18px',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                    overflow: 'hidden',
+                }}
+            >
+                {/* Header */}
+                <div
                     style={{
-                        padding: "12px 20px",
-                        background: "#7C3AED",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontWeight: "600",
-                        width: "100%",
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                        padding: '24px 28px',
                     }}
                 >
-                    {loading ? "Saving..." : "Add Category"}
-                </button>
-            </form>
+                    <h2
+                        style={{
+                            fontSize: '18px',
+                            fontWeight: 700,
+                            color: '#ffffff',
+                            margin: 0,
+                            letterSpacing: '-0.01em',
+                        }}
+                    >
+                        Add New Category
+                    </h2>
+                    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', margin: '4px 0 0' }}>
+                        Create a new category for your businesses
+                    </p>
+                </div>
+
+                {/* Form */}
+                <form onSubmit={handleSubmit} style={{ padding: '28px' }}>
+                    <div style={{ marginBottom: '18px' }}>
+                        <label style={labelStyle}>Category Name *</label>
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Enter category name"
+                            style={inputStyle}
+                            onFocus={handleFocus}
+                            onBlur={handleBlur}
+                        />
+                    </div>
+
+                    <div style={{ marginBottom: '18px' }}>
+                        <label style={labelStyle}>Slug (auto-generated)</label>
+                        <input
+                            type="text"
+                            value={slug}
+                            readOnly
+                            placeholder="Auto-generated slug"
+                            style={{
+                                ...inputStyle,
+                                backgroundColor: '#f8fafc',
+                                color: '#94a3b8',
+                                cursor: 'default',
+                                fontFamily: 'monospace',
+                            }}
+                        />
+                    </div>
+
+                    <div style={{ marginBottom: '18px' }}>
+                        <label style={labelStyle}>Description (optional)</label>
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Enter category description"
+                            rows={3}
+                            style={{
+                                ...inputStyle,
+                                resize: 'vertical' as const,
+                            }}
+                            onFocus={handleFocus as any}
+                            onBlur={handleBlur as any}
+                        />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '18px' }}>
+                        <div>
+                            <label style={labelStyle}>Status</label>
+                            <select
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
+                                style={{
+                                    ...inputStyle,
+                                    appearance: 'auto' as any,
+                                }}
+                                onFocus={handleFocus as any}
+                                onBlur={handleBlur as any}
+                            >
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label style={labelStyle}>Priority Order</label>
+                            <input
+                                type="number"
+                                value={orderPriority}
+                                onChange={(e) => setOrderPriority(Number(e.target.value))}
+                                placeholder="0"
+                                style={inputStyle}
+                                onFocus={handleFocus}
+                                onBlur={handleBlur}
+                            />
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '24px' }}>
+                        <label style={labelStyle}>Category Icon</label>
+                        <div
+                            style={{
+                                border: '2px dashed #e2e8f0',
+                                borderRadius: '12px',
+                                padding: '24px',
+                                textAlign: 'center',
+                                cursor: 'pointer',
+                                transition: 'all 250ms',
+                                background: preview ? 'transparent' : '#f8fafc',
+                            }}
+                            onClick={() => document.getElementById('category-image-input')?.click()}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.borderColor = '#6366f1';
+                                e.currentTarget.style.background = '#eef2ff';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.borderColor = '#e2e8f0';
+                                e.currentTarget.style.background = preview ? 'transparent' : '#f8fafc';
+                            }}
+                        >
+                            {preview ? (
+                                <img
+                                    src={preview}
+                                    alt="preview"
+                                    style={{
+                                        width: '80px',
+                                        height: '80px',
+                                        borderRadius: '12px',
+                                        objectFit: 'cover',
+                                        margin: '0 auto',
+                                        display: 'block',
+                                        border: '1px solid #e2e8f0',
+                                    }}
+                                />
+                            ) : (
+                                <>
+                                    <FaCloudUploadAlt style={{ fontSize: '28px', color: '#94a3b8', marginBottom: '8px' }} />
+                                    <p style={{ color: '#64748b', fontSize: '13px', margin: 0 }}>
+                                        Click to upload an image
+                                    </p>
+                                    <p style={{ color: '#94a3b8', fontSize: '11px', margin: '4px 0 0' }}>
+                                        PNG, JPG, SVG up to 2MB
+                                    </p>
+                                </>
+                            )}
+                        </div>
+                        <input
+                            id="category-image-input"
+                            type="file"
+                            onChange={handleImageChange}
+                            style={{ display: 'none' }}
+                            accept="image/*"
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        style={{
+                            width: '100%',
+                            padding: '13px',
+                            background: loading ? '#94a3b8' : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '10px',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            cursor: loading ? 'not-allowed' : 'pointer',
+                            boxShadow: loading ? 'none' : '0 4px 14px rgba(99, 102, 241, 0.35)',
+                            transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                            fontFamily: "'Inter', sans-serif",
+                        }}
+                        onMouseEnter={(e) => {
+                            if (!loading) {
+                                (e.target as HTMLElement).style.transform = 'translateY(-1px)';
+                                (e.target as HTMLElement).style.boxShadow = '0 6px 20px rgba(99, 102, 241, 0.45)';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            (e.target as HTMLElement).style.transform = 'translateY(0)';
+                            (e.target as HTMLElement).style.boxShadow = '0 4px 14px rgba(99, 102, 241, 0.35)';
+                        }}
+                    >
+                        {loading ? "Saving..." : "Add Category"}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 };

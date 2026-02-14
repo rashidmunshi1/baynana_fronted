@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Drawer, Layout, Menu } from 'antd';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import '../MasterLayout/Master.css';
-import { FaListAlt, FaRegUser, FaUserCog } from "react-icons/fa";
+import { FaListAlt, FaRegUser } from "react-icons/fa";
 import { FileTextOutlined, HomeOutlined, UsbOutlined } from "@ant-design/icons";
 import { AppstoreOutlined } from "@ant-design/icons";
 const { Sider } = Layout;
@@ -19,33 +19,100 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse, onMouseEnter, onMouseLeave, hoverEffectActive, isSmallScreen }) => {
 
   const Logo_Main = require('../Assets/new-logo-2.png');
-  const [activeSubMenuKey, setActiveSubMenuKey] = useState<string | null>(null);
-  const [activeMenuItemKey, setActiveMenuItemKey] = useState<string | null>(null);
-
-  const handleClick = (subMenuKey: string, itemKey: string) => {
-    setActiveSubMenuKey(subMenuKey);
-    setActiveMenuItemKey(itemKey);
-
-    // Close the sidebar when a menu item is clicked on small screens
-    if (isSmallScreen) {
-      onCollapse(false); // Close the sidebar
-    }
-  };
+  const location = useLocation();
 
   const menuItems = [
-    { key: '2', icon: <HomeOutlined />, text: 'Home', link: '/admin/home' },
+    { key: '2', icon: <HomeOutlined />, text: 'Dashboard', link: '/admin/home' },
     { key: '3', icon: <FaRegUser />, text: 'Users', link: '/admin/user-list' },
-    { key: '4', icon: <AppstoreOutlined />, text: 'Category', link: '/admin/category-list' },
-    { key: '5', icon: <UsbOutlined />, text: 'Business', link: '/admin/business-list' },
-    { key: '6', icon: <FileTextOutlined />, text: 'Banner', link: '/admin/banner' },
-    { key: '7', icon: <FaListAlt />, text: 'Sub Category', link: '/admin/subcategory-list' },
-
+    { key: '4', icon: <AppstoreOutlined />, text: 'Categories', link: '/admin/category-list' },
+    { key: '5', icon: <UsbOutlined />, text: 'Businesses', link: '/admin/business-list' },
+    { key: '6', icon: <FileTextOutlined />, text: 'Banners', link: '/admin/banner' },
+    { key: '7', icon: <FaListAlt />, text: 'Sub Categories', link: '/admin/subcategory-list' },
   ];
+
+  // Determine active key from URL
+  const activeKey = menuItems.find(item => location.pathname.startsWith(item.link))?.key || '';
 
   const collapsedWidth = isSmallScreen ? 0 : 80;
 
   const FirstStyle = isSmallScreen ? 'mobile-screen-sidebar' : 'desktop-screen-sidebar';
   const SecondStyle = hoverEffectActive && !isSmallScreen ? 'mobile-screen-sidebar' : 'desktop-screen-sidebar';
+
+  const sidebarBg = '#0f172a'; // --sidebar-bg
+
+  const logoSection = (
+    <div
+      style={{
+        top: 0,
+        position: 'sticky',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 999,
+        backgroundColor: sidebarBg,
+        height: '64px',
+        borderBottom: '1px solid #1e293b',
+      }}
+    >
+      <img
+        src={Logo_Main}
+        alt="Logo"
+        style={{
+          maxHeight: collapsed && !isSmallScreen ? '36px' : '42px',
+          margin: 'auto',
+          transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+          filter: 'brightness(1.1)',
+        }}
+      />
+    </div>
+  );
+
+  const menuContent = (
+    <Menu
+      mode="inline"
+      theme="dark"
+      selectedKeys={[activeKey]}
+      style={{
+        minHeight: 'calc(100vh - 64px)',
+        backgroundColor: sidebarBg,
+        color: '#94a3b8',
+        border: 'none',
+        paddingTop: '8px',
+      }}
+    >
+      {!collapsed && !isSmallScreen && (
+        <div
+          style={{
+            padding: '8px 24px 12px',
+            fontSize: '10px',
+            fontWeight: 600,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase' as const,
+            color: '#475569',
+          }}
+        >
+          Navigation
+        </div>
+      )}
+      {menuItems.map((item) => (
+        <Menu.Item
+          key={item.key}
+          icon={item.icon}
+          className="sidebar-menu-active"
+          style={{
+            background: 'transparent',
+            color: '#94a3b8',
+            height: '42px',
+            lineHeight: '42px',
+          }}
+        >
+          <Link to={item.link} style={{ textDecoration: 'none', color: 'inherit' }}>
+            {item.text}
+          </Link>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
 
   return (
     <>
@@ -54,48 +121,20 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse, onMouseEnter, 
           placement="left"
           closable={false}
           onClose={onCollapse}
-          width="200px"
+          width="240px"
           open={collapsed}
           maskClosable
+          styles={{ body: { padding: 0 } }}
         >
-          <div style={{
-            top: 0,
-            position: 'sticky',
-            display: 'block',
-            textAlign: 'center',
-            zIndex: 99,
-          }}>
-            <img
-              src={Logo_Main}
-              alt="logo"
-              style={{
-                maxHeight: '70px',
-                margin: 'auto',
-              }}
-            />
-          </div>
-          <Menu mode="inline" theme='dark'
-            selectedKeys={[activeSubMenuKey, activeMenuItemKey].filter(Boolean) as string[]}
-            style={{
-              color: 'white',
-              minHeight: '100vh',
-            }}
-          >
-            {menuItems.map((item) => (
-              <Menu.Item key={item.key} icon={item.icon}
-                onClick={() => handleClick('', item.key)}
-                className='sidebar-menu-active'
-              >
-                <Link to={item.link} style={{ textDecoration: 'none' }}>
-                  {item.text}
-                </Link>
-              </Menu.Item>
-            ))}
-          </Menu>
+          {logoSection}
+          {menuContent}
         </Drawer>
       ) : (
         <Sider
-          style={{ backgroundColor: "#2c3e50" }}
+          style={{
+            backgroundColor: sidebarBg,
+            borderRight: '1px solid #1e293b',
+          }}
           className={`${FirstStyle} ${SecondStyle}`}
           trigger={null}
           collapsible
@@ -104,54 +143,9 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse, onMouseEnter, 
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
         >
-          <div
-            style={{
-              top: 0,
-              position: "sticky",
-              display: "block",
-              textAlign: "center",
-              zIndex: 999,
-              backgroundColor: "#2c3e50",
-            }}
-          >
-            <img
-              src={Logo_Main}
-              alt="ImageLogo"
-              style={{
-                maxHeight: "70px",
-                margin: "auto",
-              }}
-            />
-          </div>
-
-          <Menu
-            mode="inline"
-            selectedKeys={[activeSubMenuKey, activeMenuItemKey].filter(Boolean) as string[]}
-            style={{
-              minHeight: "calc(100vh - 70px)",
-              backgroundColor: "#2c3e50",
-              color: "white",
-            }}
-          >
-            {menuItems.map((item) => (
-              <Menu.Item
-                key={item.key}
-                icon={item.icon}
-                onClick={() => handleClick("", item.key)}
-                className="sidebar-menu-active"
-                style={{
-                  background: "transparent",
-                  color: "white",
-                }}
-              >
-                <Link to={item.link} style={{ textDecoration: "none", color: "white" }}>
-                  {item.text}
-                </Link>
-              </Menu.Item>
-            ))}
-          </Menu>
+          {logoSection}
+          {menuContent}
         </Sider>
-
       )}
     </>
   );

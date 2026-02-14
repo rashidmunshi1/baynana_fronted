@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { message } from "antd";
 import baseURL from "../../config";
+import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 
 const AdminProfile = () => {
     const [loading, setLoading] = useState(false);
@@ -42,14 +43,14 @@ const AdminProfile = () => {
                 {
                     name: form.name,
                     email: form.email,
-                    password: form.password || undefined, // Send undefined if empty so backend doesn't hash empty string
+                    password: form.password || undefined,
                 },
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
             message.success("Profile updated successfully");
-            setForm({ ...form, password: "" }); // Clear password field
+            setForm({ ...form, password: "" });
         } catch (error) {
             console.error(error);
             message.error("Failed to update profile");
@@ -59,56 +60,214 @@ const AdminProfile = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md border border-gray-200">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">Admin Profile</h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={form.name}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={form.email}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed outline-none"
-                        readOnly
-                        disabled
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">New Password (Leave blank to keep current)</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={form.password}
-                        onChange={handleChange}
-                        placeholder="Min 6 characters"
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
-                </div>
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition-all"
+        <div style={{ maxWidth: '560px', margin: '0 auto', animation: 'fadeInUp 0.4s ease-out' }}>
+            {/* Profile Card */}
+            <div
+                style={{
+                    background: '#ffffff',
+                    borderRadius: '18px',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                    overflow: 'hidden',
+                }}
+            >
+                {/* Header with gradient */}
+                <div
+                    style={{
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                        padding: '32px 28px 24px',
+                        position: 'relative',
+                    }}
                 >
-                    {loading ? "Updating..." : "Update Profile"}
-                </button>
-            </form>
+                    <div
+                        style={{
+                            width: '68px',
+                            height: '68px',
+                            borderRadius: '16px',
+                            background: 'rgba(255, 255, 255, 0.2)',
+                            backdropFilter: 'blur(10px)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginBottom: '14px',
+                            border: '2px solid rgba(255,255,255,0.3)',
+                        }}
+                    >
+                        <FaUser style={{ fontSize: '26px', color: '#ffffff' }} />
+                    </div>
+                    <h2
+                        style={{
+                            fontSize: '20px',
+                            fontWeight: 700,
+                            color: '#ffffff',
+                            margin: '0 0 4px',
+                            letterSpacing: '-0.01em',
+                        }}
+                    >
+                        Admin Profile
+                    </h2>
+                    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', margin: 0 }}>
+                        Manage your account settings
+                    </p>
+                </div>
+
+                {/* Form */}
+                <form onSubmit={handleSubmit} style={{ padding: '28px' }}>
+                    <div style={{ marginBottom: '20px' }}>
+                        <label
+                            style={{
+                                display: 'block',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                color: '#475569',
+                                marginBottom: '8px',
+                            }}
+                        >
+                            <FaUser style={{ fontSize: '11px', marginRight: '6px', opacity: 0.6 }} />
+                            Full Name
+                        </label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={form.name}
+                            onChange={handleChange}
+                            required
+                            style={{
+                                width: '100%',
+                                padding: '12px 14px',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '10px',
+                                fontSize: '14px',
+                                color: '#0f172a',
+                                outline: 'none',
+                                transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+                                background: '#ffffff',
+                            }}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = '#6366f1';
+                                e.target.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.12)';
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = '#e2e8f0';
+                                e.target.style.boxShadow = 'none';
+                            }}
+                        />
+                    </div>
+
+                    <div style={{ marginBottom: '20px' }}>
+                        <label
+                            style={{
+                                display: 'block',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                color: '#475569',
+                                marginBottom: '8px',
+                            }}
+                        >
+                            <FaEnvelope style={{ fontSize: '11px', marginRight: '6px', opacity: 0.6 }} />
+                            Email Address
+                        </label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={form.email}
+                            onChange={handleChange}
+                            required
+                            readOnly
+                            disabled
+                            style={{
+                                width: '100%',
+                                padding: '12px 14px',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '10px',
+                                fontSize: '14px',
+                                color: '#94a3b8',
+                                background: '#f8fafc',
+                                cursor: 'not-allowed',
+                                outline: 'none',
+                            }}
+                        />
+                        <p style={{ fontSize: '11.5px', color: '#94a3b8', marginTop: '4px' }}>
+                            Email cannot be changed.
+                        </p>
+                    </div>
+
+                    <div style={{ marginBottom: '24px' }}>
+                        <label
+                            style={{
+                                display: 'block',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                color: '#475569',
+                                marginBottom: '8px',
+                            }}
+                        >
+                            <FaLock style={{ fontSize: '11px', marginRight: '6px', opacity: 0.6 }} />
+                            New Password
+                        </label>
+                        <input
+                            type="password"
+                            name="password"
+                            value={form.password}
+                            onChange={handleChange}
+                            placeholder="Leave blank to keep current"
+                            style={{
+                                width: '100%',
+                                padding: '12px 14px',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '10px',
+                                fontSize: '14px',
+                                color: '#0f172a',
+                                outline: 'none',
+                                transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+                                background: '#ffffff',
+                            }}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = '#6366f1';
+                                e.target.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.12)';
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = '#e2e8f0';
+                                e.target.style.boxShadow = 'none';
+                            }}
+                        />
+                        <p style={{ fontSize: '11.5px', color: '#94a3b8', marginTop: '4px' }}>
+                            Minimum 6 characters required.
+                        </p>
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        style={{
+                            width: '100%',
+                            padding: '13px',
+                            background: loading ? '#94a3b8' : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '10px',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            cursor: loading ? 'not-allowed' : 'pointer',
+                            boxShadow: loading ? 'none' : '0 4px 14px rgba(99, 102, 241, 0.35)',
+                            transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                            letterSpacing: '0.01em',
+                        }}
+                        onMouseEnter={(e) => {
+                            if (!loading) {
+                                (e.target as HTMLElement).style.transform = 'translateY(-1px)';
+                                (e.target as HTMLElement).style.boxShadow = '0 6px 20px rgba(99, 102, 241, 0.45)';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            (e.target as HTMLElement).style.transform = 'translateY(0)';
+                            (e.target as HTMLElement).style.boxShadow = '0 4px 14px rgba(99, 102, 241, 0.35)';
+                        }}
+                    >
+                        {loading ? "Updating..." : "Update Profile"}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 };

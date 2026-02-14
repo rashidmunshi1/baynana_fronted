@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Avatar, Tag, Button, Modal, Form, Input, Upload, message, Popconfirm } from "antd";
+import { Table, Avatar, Tag, Button, Modal, Form, Input, Upload, message } from "antd";
 import { EditOutlined, DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
 import moment from "moment";
@@ -10,7 +10,6 @@ const UserList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  // Edit State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [form] = Form.useForm();
@@ -84,7 +83,6 @@ const UserList: React.FC = () => {
       if (!editingUser) return;
 
       setLoading(true);
-      // Assuming userController.update handles profileImage in req.file
       await axios.put(`${baseURL}/api/admin/update-user/${editingUser._id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -101,13 +99,8 @@ const UserList: React.FC = () => {
   };
 
   const uploadProps = {
-    onRemove: (file: any) => {
-      setFileList([]);
-    },
-    beforeUpload: (file: any) => {
-      setFileList([file]);
-      return false;
-    },
+    onRemove: (file: any) => { setFileList([]); },
+    beforeUpload: (file: any) => { setFileList([file]); return false; },
     fileList,
   };
 
@@ -115,51 +108,81 @@ const UserList: React.FC = () => {
     {
       title: "Profile",
       dataIndex: "profileImage",
-      render: (img: string) => <Avatar src={img ? `${baseURL}/${img}` : undefined}>U</Avatar>
+      render: (img: string, record: any) => (
+        <Avatar
+          size={40}
+          src={img ? `${baseURL}/${img}` : undefined}
+          style={{
+            backgroundColor: '#eef2ff',
+            color: '#6366f1',
+            fontWeight: 600,
+            fontSize: '15px',
+            border: '2px solid #e2e8f0',
+          }}
+        >
+          {record.name ? record.name.charAt(0).toUpperCase() : 'U'}
+        </Avatar>
+      ),
     },
     {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      render: (text: string) => text || <Tag color="orange">Not Updated</Tag>,
+      render: (text: string) => text ? (
+        <span style={{ fontWeight: 600, color: '#0f172a' }}>{text}</span>
+      ) : (
+        <Tag style={{ background: '#fffbeb', color: '#d97706', fontWeight: 500 }}>Not Updated</Tag>
+      ),
     },
     {
       title: "Mobile",
       dataIndex: "mobileno",
       key: "mobileno",
+      render: (text: string) => (
+        <span style={{ fontFamily: 'monospace', color: '#64748b', fontSize: '12.5px' }}>{text}</span>
+      ),
     },
     {
       title: "Address",
       dataIndex: "address",
       key: "address",
-      render: (text: string) => text || "-",
+      render: (text: string) => <span style={{ color: '#475569' }}>{text || "—"}</span>,
     },
     {
       title: "Pincode",
       dataIndex: "pincode",
       key: "pincode",
-      render: (text: string) => text || "-",
+      render: (text: string) => <span style={{ fontFamily: 'monospace', color: '#64748b' }}>{text || "—"}</span>,
     },
     {
       title: "Joined On",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (date: string) =>
-        moment(date).format("DD MMM YYYY"),
+      render: (date: string) => (
+        <span style={{ color: '#64748b', fontSize: '12.5px' }}>
+          {moment(date).format("DD MMM YYYY")}
+        </span>
+      ),
     },
     {
       title: "Actions",
       key: "actions",
       render: (_: any, record: any) => (
-        <div className="flex gap-2">
+        <div style={{ display: 'flex', gap: '8px' }}>
           <Button
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
+            style={{
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0',
+              color: '#6366f1',
+            }}
           />
           <Button
             icon={<DeleteOutlined />}
             danger
             onClick={() => setDeleteId(record._id)}
+            style={{ borderRadius: '8px' }}
           />
         </div>
       )
@@ -167,28 +190,62 @@ const UserList: React.FC = () => {
   ];
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-semibold mb-4">Users</h2>
+    <div style={{ animation: 'fadeInUp 0.4s ease-out' }}>
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '20px',
+        }}
+      >
+        <div>
+          <p style={{ color: '#64748b', fontSize: '13px', margin: 0 }}>
+            {users.length} total users registered
+          </p>
+        </div>
+      </div>
 
-      <Table
-        columns={columns}
-        dataSource={users}
-        rowKey="_id"
-        loading={loading}
-        pagination={{ pageSize: 8 }}
-      />
+      {/* Table */}
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: '14px',
+          border: '1px solid #e2e8f0',
+          overflow: 'hidden',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        }}
+      >
+        <Table
+          columns={columns}
+          dataSource={users}
+          rowKey="_id"
+          loading={loading}
+          pagination={{ pageSize: 8 }}
+        />
+      </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       <Modal
-        title="Confirmation"
+        title="Delete Confirmation"
         open={!!deleteId}
         onOk={handleDelete}
         onCancel={() => setDeleteId(null)}
-        okText="Yes"
-        cancelText="No"
-        okButtonProps={{ style: { backgroundColor: '#ef4444', color: 'white', borderColor: '#ef4444' } }}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{
+          style: {
+            backgroundColor: '#ef4444',
+            color: 'white',
+            borderColor: '#ef4444',
+            borderRadius: '8px',
+            fontWeight: 600,
+          }
+        }}
+        cancelButtonProps={{ style: { borderRadius: '8px' } }}
       >
-        <p>Are you sure you want to delete this user?</p>
+        <p style={{ color: '#475569', fontSize: '14px' }}>Are you sure you want to delete this user? This action cannot be undone.</p>
       </Modal>
 
       {/* Edit Modal */}
@@ -198,21 +255,30 @@ const UserList: React.FC = () => {
         onOk={handleEditSubmit}
         onCancel={() => setIsEditModalOpen(false)}
         okText="Update"
-        okButtonProps={{ style: { backgroundColor: '#7C3AED', color: 'white', borderColor: '#7C3AED' } }}
+        okButtonProps={{
+          style: {
+            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontWeight: 600,
+          }
+        }}
+        cancelButtonProps={{ style: { borderRadius: '8px' } }}
       >
         <Form form={form} layout="vertical">
           <Form.Item name="name" label="Name">
-            <Input />
+            <Input style={{ borderRadius: '8px', height: '42px' }} />
           </Form.Item>
           <Form.Item name="address" label="Address">
-            <Input.TextArea rows={2} />
+            <Input.TextArea rows={2} style={{ borderRadius: '8px' }} />
           </Form.Item>
           <Form.Item name="pincode" label="Pincode">
-            <Input />
+            <Input style={{ borderRadius: '8px', height: '42px' }} />
           </Form.Item>
           <Form.Item label="Profile Image">
             <Upload {...uploadProps} listType="picture" maxCount={1}>
-              <Button icon={<UploadOutlined />}>Select New Image</Button>
+              <Button icon={<UploadOutlined />} style={{ borderRadius: '8px' }}>Select New Image</Button>
             </Upload>
           </Form.Item>
         </Form>
