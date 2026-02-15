@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaMapMarkerAlt, FaPhoneAlt, FaWhatsapp, FaStar, FaPen } from 'react-icons/fa'; // Changed icons to match style
+import { FaMapMarkerAlt, FaPhoneAlt, FaWhatsapp, FaStar, FaPen, FaShareAlt } from 'react-icons/fa';
 import { MdVerified } from 'react-icons/md';
 import baseURL from "../config";
 import ReviewModal from './ReviewModal';
@@ -37,8 +37,6 @@ const BusinessListCard: React.FC<Props> = ({ business }) => {
         : "https://via.placeholder.com/300";
 
     const handleReviewSuccess = (newRating: number) => {
-        // Calculate new average purely on client side for instant feedback
-        // Logic: ((oldAvg * oldCnt) + newRating) / (oldCnt + 1)
         const currentCount = stats.ratingCount;
         const currentRating = stats.rating;
 
@@ -53,102 +51,76 @@ const BusinessListCard: React.FC<Props> = ({ business }) => {
 
     return (
         <>
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden mb-4 flex flex-col md:flex-row">
-
+            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex gap-3 mb-3 relative overflow-hidden">
                 {/* LEFT: Image */}
-                <div className="w-full md:w-[280px] h-48 md:h-auto relative flex-shrink-0 bg-gray-100">
+                <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden relative">
                     <img
                         src={mainImage}
                         alt={business.businessName}
                         className="w-full h-full object-cover"
                     />
+                    {business.isPaid && (
+                        <div className="absolute top-0 left-0 bg-yellow-400 text-[9px] font-bold px-1.5 py-0.5 rounded-br text-black">
+                            PRO
+                        </div>
+                    )}
                 </div>
 
                 {/* RIGHT: Content */}
-                <div className="p-3 md:p-4 flex-1 flex flex-col justify-between">
+                <div className="flex-1 flex flex-col justify-between">
+                    {/* Top Row: Name & Rating */}
                     <div>
-                        {/* Header: Name & Badges */}
                         <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                    <h2 className="text-lg md:text-xl font-bold text-gray-800 leading-tight">
-                                        {business.businessName}
-                                    </h2>
-                                    {/* Verified Badge */}
-                                    {business.isPaid && (
-                                        <div className="flex items-center gap-1 text-[10px] bg-blue-50 px-2 py-0.5 rounded text-blue-600 font-semibold border border-blue-100 whitespace-nowrap">
-                                            <MdVerified />
-                                            <span>Verified</span>
-                                        </div>
-                                    )}
+                            <h3 className="text-base font-bold text-gray-800 leading-tight line-clamp-2">
+                                {business.businessName}
+                                {business.isPaid && <MdVerified className="inline-block text-blue-500 ml-1 text-sm" />}
+                            </h3>
+                            {/* Favorite Icon (Placeholder) */}
+                            {/* <FaHeart className="text-gray-300" /> */}
+                        </div>
+
+                        {/* Ratings & Rate This */}
+                        <div className="flex items-center gap-3 mt-1">
+                            <div className="flex items-center gap-1">
+                                <div className="bg-[#24a148] text-white text-[11px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                                    {stats.rating > 0 ? stats.rating : "New"} <FaStar size={8} />
                                 </div>
-
-                                {/* Rating Row (Updated from State) */}
-                                {(stats.rating > 0 || stats.ratingCount > 0) && (
-                                    <div className="flex items-center gap-2 mb-2 flex-wrap text-xs md:text-sm">
-                                        {stats.rating > 0 && (
-                                            <div className="bg-green-600 text-white font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                                                {stats.rating} <FaStar size={10} />
-                                            </div>
-                                        )}
-                                        {stats.ratingCount > 0 && (
-                                            <span className="text-gray-500">{stats.ratingCount} Ratings</span>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* Location */}
-                                <div className="flex items-start gap-1.5 text-gray-600 text-xs md:text-sm mb-3">
-                                    <FaMapMarkerAlt className="mt-0.5 text-gray-400 flex-shrink-0" />
-                                    <p className="line-clamp-1">{business.address}, {business.city}</p>
-                                </div>
-
-                                {/* Description (fallback for tags) */}
-                                {business.description && (
-                                    <p className="text-xs text-gray-500 line-clamp-2 mb-3">
-                                        {business.description}
-                                    </p>
-                                )}
+                                <span className="text-[10px] text-gray-500">
+                                    ({stats.ratingCount})
+                                </span>
                             </div>
+
+                            <button
+                                onClick={() => setIsReviewModalOpen(true)}
+                                className="text-[10px] font-semibold text-blue-600 border border-blue-200 bg-blue-50 px-2 py-0.5 rounded-sm hover:bg-blue-100 transition-colors flex items-center gap-1"
+                            >
+                                <FaPen size={8} /> Rate This
+                            </button>
+                        </div>
+
+                        {/* Location & Category */}
+                        <div className="mt-1.5">
+                            <p className="text-[11px] text-gray-500 line-clamp-1">
+                                {business.city ? business.city : "Location"} • {business.category?.name || "Service"}
+                            </p>
+                            <p className="text-[10px] text-gray-400 line-clamp-1 mt-0.5">
+                                {business.address}
+                            </p>
                         </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-2">
-
-                        {/* Call Button */}
+                    {/* Bottom Row: Actions */}
+                    <div className="flex items-center gap-2 mt-3">
                         <a href={`tel:${business.mobile}`} className="flex-1">
-                            <button className="w-full bg-green-600 hover:bg-green-700 text-white px-2 md:px-4 py-2 rounded-md font-semibold text-xs md:text-sm flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap">
-                                <FaPhoneAlt size={12} />
-                                Call Now
+                            <button className="w-full border border-blue-600 text-blue-600 hover:bg-blue-50 py-1.5 rounded-md text-xs font-bold flex items-center justify-center gap-1.5 transition-colors">
+                                <FaPhoneAlt size={10} /> Call Now
                             </button>
                         </a>
-
-                        {/* WhatsApp Button */}
                         <a href={`https://wa.me/91${business.mobile}`} className="flex-1">
-                            <button className="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-2 md:px-4 py-2 rounded-md font-semibold text-xs md:text-sm flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap">
-                                <FaWhatsapp size={14} className="text-green-500" />
-                                WhatsApp
+                            <button className="w-full bg-[#25d366] hover:bg-[#20bd5a] text-white py-1.5 rounded-md text-xs font-bold flex items-center justify-center gap-1.5 transition-colors">
+                                <FaWhatsapp size={12} /> WhatsApp
                             </button>
                         </a>
-
-                        {/* Review Button - Added */}
-                        <button
-                            onClick={() => setIsReviewModalOpen(true)}
-                            className="flex-1 bg-violet-50 hover:bg-violet-100 text-violet-600 border border-violet-200 px-2 md:px-4 py-2 rounded-md font-semibold text-xs md:text-sm flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap"
-                        >
-                            <FaPen size={12} />
-                            Review
-                        </button>
-
-                        {/* Best Deal Button */}
-                        <button className="w-full md:w-auto flex-none bg-[#0077EE] hover:bg-[#0066CC] text-white px-4 py-2 rounded-md font-semibold text-xs md:text-sm flex items-center justify-center gap-1.5 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3 md:w-4 md:h-4">
-                                <path d="M4.5 3.75a3 3 0 00-3 3v.75h21v-.75a3 3 0 00-3-3h-15z" />
-                                <path fillRule="evenodd" d="M22.5 9.75h-21v7.5a3 3 0 003 3h15a3 3 0 003-3v-7.5zm-18 3.75a.75.75 0 01.75-.75h6a.75.75 0 010 1.5h-6a.75.75 0 01-.75-.75zm.75 2.25a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-3z" clipRule="evenodd" />
-                            </svg>
-                            Get Best Deal
-                        </button>
                     </div>
                 </div>
             </div>

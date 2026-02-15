@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { FaRegEdit, FaBriefcase, FaEnvelope, FaMedal, FaHeadset, FaStore, FaSignOutAlt } from "react-icons/fa";
+import { FaRegEdit, FaBriefcase, FaEnvelope, FaMedal, FaHeadset, FaStore, FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 interface User {
@@ -51,11 +51,9 @@ const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user }) => {
         {/* User Info */}
         {user ? (
           <div className="flex items-center gap-2">
-            <img
-              src="https://randomuser.me/api/portraits/men/32.jpg"
-              className="w-16 h-16 rounded-full object-cover"
-              alt="User"
-            />
+            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
+              <FaUserCircle size={40} className="text-gray-400" />
+            </div>
 
             <div>
               <h2 className="text-xl font-semibold flex items-center gap-2">

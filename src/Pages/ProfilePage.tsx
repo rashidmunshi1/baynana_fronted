@@ -61,19 +61,27 @@ const ProfilePage: React.FC = () => {
     formData.append("address", user.address);
     formData.append("pincode", user.pincode);
 
+    // Append image ONLY if a new one is selected
     if (imageFile) {
       formData.append("profileImage", imageFile);
     }
 
     try {
-      await axios.put(
+      const res = await axios.put(
         `${baseURL}/api/user/profile/${userId}/update`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
+
+      // Update local storage if name changed
+      if (res.data.name) {
+        localStorage.setItem('userName', res.data.name);
+      }
+
       alert("Profile updated successfully!");
+      navigate(0); // Refresh to show new image/data everywhere
     } catch (err) {
       console.error(err);
       alert("Failed to update profile.");

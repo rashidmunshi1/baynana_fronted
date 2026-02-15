@@ -1,27 +1,31 @@
-.sidebar {
-    position: fixed;
-    top: 0;
-    right: -300px;
-    height: 100%;
-    width: 300px;
-    background-color: #8c57ff;
-    transition: right 0.3s ease-in;
-    z-index: 1;
+/* ============================================
+   NAVIGATION — Minimal styles (for compatibility)
+   Navigation is now primarily handled by Sidebar.tsx
+   ============================================ */
+.sidebar-inner {
+    background: var(--sidebar-bg, #0f172a);
+    position: relative;
+    font-family: 'Inter', sans-serif;
 }
 
-.sidebar.open {
-    left: 0;
-}
-
-.sidebar-content {
-    padding: 16px;
-    color: green;
-}
-
-.close-button {
-    background: none;
+.sidebar-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.1);
     border: none;
-    color: blue;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    font-size: 16px;
+    color: #94a3b8;
+    transition: all var(--transition-fast, 150ms);
+}
+
+.sidebar-close-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
 }

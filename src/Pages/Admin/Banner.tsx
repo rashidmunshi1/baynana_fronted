@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Upload, message, Switch, Popconfirm, Image } from "antd";
+import { Table, Button, Modal, Form, Input, Upload, message, Switch, Popconfirm, Image, Tag } from "antd";
 import { PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import baseURL from "../../config";
@@ -46,14 +46,12 @@ const Banner: React.FC = () => {
 
     const handleEdit = (record: BannerType) => {
         setEditingBanner(record);
-        setFileList([
-            {
-                uid: '-1',
-                name: 'image.png',
-                status: 'done',
-                url: `${baseURL}/${record.image}`,
-            },
-        ]);
+        setFileList([{
+            uid: '-1',
+            name: 'image.png',
+            status: 'done',
+            url: `${baseURL}/${record.image}`,
+        }]);
         form.setFieldsValue({
             title: record.title,
             description: record.description,
@@ -94,12 +92,9 @@ const Banner: React.FC = () => {
 
             const currentFile = fileList[0];
 
-            // If there is a file and it doesn't have a 'url' property, it means it's a newly uploaded file
             if (currentFile && !currentFile.url) {
-                // Use originFileObj if it exists (standard Antd), otherwise use the file object itself (from beforeUpload)
                 formData.append("image", currentFile.originFileObj || currentFile);
             } else if (!editingBanner) {
-                // If creating a new banner and no new file is selected, show error
                 return message.error("Please upload an image");
             }
 
@@ -130,10 +125,11 @@ const Banner: React.FC = () => {
             key: "image",
             render: (image: string) => (
                 <Image
-                    width={100}
+                    width={80}
+                    height={48}
                     src={`${baseURL}/${image}`}
                     alt="banner"
-                    style={{ borderRadius: "8px", objectFit: "cover" }}
+                    style={{ borderRadius: "10px", objectFit: "cover" }}
                 />
             ),
         },
@@ -141,38 +137,72 @@ const Banner: React.FC = () => {
             title: "Title",
             dataIndex: "title",
             key: "title",
+            render: (text: string) => <span style={{ fontWeight: 600, color: '#0f172a' }}>{text}</span>,
         },
         {
             title: "Description",
             dataIndex: "description",
             key: "description",
             ellipsis: true,
+            render: (text: string) => <span style={{ color: '#64748b' }}>{text}</span>,
         },
         {
             title: "Status",
             dataIndex: "isActive",
             key: "isActive",
             render: (isActive: boolean, record: BannerType) => (
-                <Switch
-                    checked={isActive}
-                    onChange={(checked) => handleToggleActive(record._id, checked)}
-                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Switch
+                        checked={isActive}
+                        onChange={(checked) => handleToggleActive(record._id, checked)}
+                        size="small"
+                    />
+                    <Tag
+                        style={{
+                            background: isActive ? '#ecfdf5' : '#fef2f2',
+                            color: isActive ? '#059669' : '#dc2626',
+                            fontWeight: 600,
+                            fontSize: '11px',
+                        }}
+                    >
+                        {isActive ? 'Active' : 'Inactive'}
+                    </Tag>
+                </div>
             ),
         },
         {
             title: "Actions",
             key: "actions",
             render: (_: any, record: BannerType) => (
-                <div className="flex gap-2">
-                    <Button icon={<EditOutlined />} onClick={() => handleEdit(record)} />
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <Button
+                        icon={<EditOutlined />}
+                        onClick={() => handleEdit(record)}
+                        style={{
+                            borderRadius: '8px',
+                            border: '1px solid #e2e8f0',
+                            color: '#6366f1',
+                        }}
+                    />
                     <Popconfirm
                         title="Are you sure to delete this banner?"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Yes"
                         cancelText="No"
-                        okButtonProps={{ style: { backgroundColor: '#ef4444', color: 'white', borderColor: '#ef4444' } }} // Red for delete
+                        okButtonProps={{
+                            style: {
+                                backgroundColor: '#ef4444',
+                                color: 'white',
+                                borderColor: '#ef4444',
+                                borderRadius: '6px',
+                            }
+                        }}
                     >
-                        <Button icon={<DeleteOutlined />} danger />
+                        <Button
+                            icon={<DeleteOutlined />}
+                            danger
+                            style={{ borderRadius: '8px' }}
+                        />
                     </Popconfirm>
                 </div>
             ),
@@ -180,45 +210,79 @@ const Banner: React.FC = () => {
     ];
 
     const uploadProps = {
-        onRemove: (file: any) => {
-            setFileList([]);
-        },
-        beforeUpload: (file: any) => {
-            setFileList([file]);
-            return false; // Prevent auto upload
-        },
+        onRemove: (file: any) => { setFileList([]); },
+        beforeUpload: (file: any) => { setFileList([file]); return false; },
         fileList,
     };
 
     return (
-        <div className="p-6">
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-semibold">Banner Management</h1>
+        <div style={{ animation: 'fadeInUp 0.4s ease-out' }}>
+            {/* Header */}
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '20px',
+                }}
+            >
+                <p style={{ color: '#64748b', fontSize: '13px', margin: 0 }}>
+                    {banners.length} banners configured
+                </p>
                 <Button
                     type="primary"
                     icon={<PlusOutlined />}
                     onClick={handleAdd}
-                    style={{ backgroundColor: '#1890ff', borderColor: '#1890ff', color: 'white' }}
+                    size="large"
+                    style={{
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                        border: 'none',
+                        borderRadius: '10px',
+                        fontWeight: 600,
+                        height: '44px',
+                        boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)',
+                    }}
                 >
-                    Add New Banner
+                    Add Banner
                 </Button>
             </div>
 
-            <Table
-                columns={columns}
-                dataSource={banners}
-                rowKey="_id"
-                loading={loading}
-                pagination={{ pageSize: 10 }}
-            />
+            {/* Table */}
+            <div
+                style={{
+                    background: '#ffffff',
+                    borderRadius: '14px',
+                    border: '1px solid #e2e8f0',
+                    overflow: 'hidden',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                }}
+            >
+                <Table
+                    columns={columns}
+                    dataSource={banners}
+                    rowKey="_id"
+                    loading={loading}
+                    pagination={{ pageSize: 10 }}
+                />
+            </div>
 
+            {/* Add/Edit Modal */}
             <Modal
                 title={editingBanner ? "Edit Banner" : "Add New Banner"}
                 open={isModalOpen}
                 onOk={handleOk}
                 onCancel={() => setIsModalOpen(false)}
                 okText="Save"
-                okButtonProps={{ style: { backgroundColor: '#7C3AED', color: 'white', borderColor: '#7C3AED' } }} // Theme purple
+                okButtonProps={{
+                    style: {
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontWeight: 600,
+                    }
+                }}
+                cancelButtonProps={{ style: { borderRadius: '8px' } }}
             >
                 <Form form={form} layout="vertical" initialValues={{ isActive: true }}>
                     <Form.Item
@@ -226,16 +290,16 @@ const Banner: React.FC = () => {
                         label="Title"
                         rules={[{ required: true, message: "Please enter title" }]}
                     >
-                        <Input placeholder="Enter banner title" />
+                        <Input placeholder="Enter banner title" style={{ borderRadius: '8px', height: '42px' }} />
                     </Form.Item>
 
                     <Form.Item name="description" label="Description">
-                        <Input.TextArea rows={3} placeholder="Enter banner description (optional)" />
+                        <Input.TextArea rows={3} placeholder="Enter banner description (optional)" style={{ borderRadius: '8px' }} />
                     </Form.Item>
 
                     <Form.Item label="Banner Image" required>
                         <Upload {...uploadProps} listType="picture" maxCount={1}>
-                            <Button icon={<UploadOutlined />}>Select Image</Button>
+                            <Button icon={<UploadOutlined />} style={{ borderRadius: '8px' }}>Select Image</Button>
                         </Upload>
                     </Form.Item>
 

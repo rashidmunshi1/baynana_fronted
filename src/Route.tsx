@@ -77,7 +77,7 @@ const AdminRoutes = [
     component: Banner,
   },
 
-  { path: "*", name: 'Not Found', component: NotFound },
+
 ];
 
 export { AdminRoutes };

@@ -1,6 +1,6 @@
-import { Card, Row, Table, Col, Input, message, Spin, Modal, Button, Tag, Form, Upload } from "antd";
+import { Card, Row, Table, Col, Input, message, Spin, Modal, Button, Tag, Form, Upload, Select } from "antd";
 import { useNavigate } from "react-router-dom";
-import { SearchOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from "@ant-design/icons";
+import { SearchOutlined, EditOutlined, DeleteOutlined, UploadOutlined, PlusOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import type { ColumnsType } from "antd/es/table";
@@ -35,15 +35,12 @@ export const CategoryTable = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
-
-  const [form] = Form.useForm();  // Use existing import
+  const [form] = Form.useForm();
   const [fileList, setFileList] = useState<any[]>([]);
 
   const navigate = useNavigate();
 
-
-
-  // ------------------ FETCH API --------------------
+  // Fetch API
   const fetchCategories = async () => {
     try {
       setLoading(true);
@@ -61,14 +58,12 @@ export const CategoryTable = () => {
     fetchCategories();
   }, []);
 
-  // ------------------ DELETE --------------------
+  // Delete
   const handleDelete = async () => {
     if (!deleteId) return;
-
     try {
       setLoading(true);
       await axios.delete(`${baseURL}/api/admin/delete-category/${deleteId}`);
-
       setDataSource((prev) => prev.filter((item) => item._id !== deleteId));
       message.success("Category deleted successfully");
       setDeleteId(null);
@@ -80,7 +75,7 @@ export const CategoryTable = () => {
     }
   };
 
-  // ------------------ EDIT --------------------
+  // Edit
   const handleEdit = (record: Category) => {
     setEditingCategory(record);
     setIsEditModalOpen(true);
@@ -90,7 +85,6 @@ export const CategoryTable = () => {
       status: record.status,
       orderPriority: record.orderPriority
     });
-    // Set file list if image exists
     if (record.image) {
       setFileList([{
         uid: '-1',
@@ -119,9 +113,7 @@ export const CategoryTable = () => {
       formData.append("orderPriority", values.orderPriority);
 
       const currentFile = fileList[0];
-      // If there is a file and it doesn't have a 'url' property (meaning it's a newly uploaded file)
       if (currentFile && !currentFile.url) {
-        // Appending the file directly. Antd's beforeUpload gives the file itself.
         formData.append("image", currentFile.originFileObj || currentFile);
       }
 
@@ -134,7 +126,7 @@ export const CategoryTable = () => {
 
       message.success("Category updated successfully");
       setIsEditModalOpen(false);
-      fetchCategories(); // Refresh list
+      fetchCategories();
     } catch (error) {
       console.error("Update error", error);
       message.error("Failed to update category");
@@ -144,51 +136,51 @@ export const CategoryTable = () => {
   };
 
   const uploadProps = {
-    onRemove: (file: any) => {
-      setFileList([]);
-    },
-    beforeUpload: (file: any) => {
-      setFileList([file]);
-      return false;
-    },
+    onRemove: (file: any) => { setFileList([]); },
+    beforeUpload: (file: any) => { setFileList([file]); return false; },
     fileList,
   };
 
-  // ------------------ SEARCH --------------------
+  // Search
   const filteredCategories = dataSource.filter((item) =>
     item.name.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  // ------------------ TABLE COLUMNS --------------------
+  // Columns
   const columns: ColumnsType<Category> = [
     {
       title: "Category Name",
       dataIndex: "name",
+      render: (text: string) => (
+        <span style={{ fontWeight: 500, color: '#0f172a' }}>{text}</span>
+      ),
     },
     {
       title: "Image",
       dataIndex: "image",
       render: (text) => {
         if (text) {
-          // Ensure correct path to uploads/category/
           const imageUrl = `${baseURL}/uploads/category/${text}`;
           return (
             <img
               src={imageUrl}
               alt="Category"
-              style={{ width: 80, height: 80, objectFit: "cover", borderRadius: "8px", border: "1px solid #eee" }}
+              style={{ width: 48, height: 48, objectFit: "cover", borderRadius: "10px", border: "1px solid #e2e8f0" }}
               onError={(e) => {
-                (e.target as HTMLImageElement).src = "https://via.placeholder.com/80?text=Error";
+                (e.target as HTMLImageElement).src = "https://via.placeholder.com/48?text=No";
               }}
             />
           );
         }
-        return <span style={{ color: '#ccc' }}>No Image</span>;
+        return <span style={{ color: '#94a3b8', fontSize: '12px' }}>No Image</span>;
       },
     },
     {
       title: "Slug",
       dataIndex: "slug",
+      render: (text: string) => (
+        <span style={{ color: '#64748b', fontSize: '12.5px', fontFamily: 'monospace' }}>{text}</span>
+      ),
     },
     {
       title: "Description",
@@ -199,14 +191,23 @@ export const CategoryTable = () => {
       title: "Status",
       dataIndex: "status",
       render: (status: string) => (
-        <Tag color={status === "Active" ? "green" : "red"}>{status === "Active" ? "Active" : "Inactive"}</Tag>
+        <Tag
+          style={{
+            background: status === "Active" ? '#ecfdf5' : '#fef2f2',
+            color: status === "Active" ? '#059669' : '#dc2626',
+            fontWeight: 600,
+            fontSize: '11.5px',
+          }}
+        >
+          {status === "Active" ? "Active" : "Inactive"}
+        </Tag>
       ),
     },
     {
-      title: "Order",
+      title: "Priority",
       dataIndex: "orderPriority",
       render: (orderPriority: number) => (
-        <Tag color="blue">{orderPriority}</Tag>
+        <Tag style={{ background: '#eef2ff', color: '#4f46e5', fontWeight: 600 }}>{orderPriority}</Tag>
       ),
     },
     {
@@ -217,81 +218,110 @@ export const CategoryTable = () => {
           <Button
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
+            style={{
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0',
+              color: '#6366f1',
+            }}
           />
           <Button
             icon={<DeleteOutlined />}
             danger
             onClick={() => setDeleteId(record._id)}
+            style={{ borderRadius: '8px' }}
           />
         </div>
       )
     },
   ];
 
-  // ------------------ RETURN --------------------
   return (
-    <div>
+    <div style={{ animation: 'fadeInUp 0.4s ease-out' }}>
       {/* Header Row */}
-      <Row className="m-2" align="middle" justify="space-between" style={{ marginBottom: 20 }}>
-        <Col xs={24} md={8} xl={6} className="font-bold">
-          <h2 className="text-2xl">Category List</h2>
-        </Col>
-
-        <Col xs={24} md={12} xl={12}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
+          marginBottom: '20px',
+        }}
+      >
+        <div style={{ flex: '1 1 250px', maxWidth: '400px' }}>
           <Input
-            prefix={<SearchOutlined style={{ color: "#a6a6a6" }} />}
+            prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
             size="large"
             placeholder="Search categories..."
             allowClear
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-          />
-        </Col>
-
-        <Col xs={24} md={4} xl={6} className="flex justify-end">
-          <Button
-            size="large"
-            onClick={() => navigate("/admin/categorys/add")}
             style={{
-              background: "#7C3AED",
-              color: "#fff",
-              fontWeight: 600,
-              borderRadius: "6px",
-              border: "none",
-              marginLeft: '10px'
+              borderRadius: '10px',
+              height: '44px',
+              border: '1px solid #e2e8f0',
             }}
-          >
-            + Add Category
-          </Button>
-        </Col>
-      </Row>
+          />
+        </div>
+
+        <Button
+          size="large"
+          onClick={() => navigate("/admin/categorys/add")}
+          icon={<PlusOutlined />}
+          style={{
+            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+            color: '#fff',
+            fontWeight: 600,
+            borderRadius: '10px',
+            border: 'none',
+            height: '44px',
+            boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)',
+          }}
+        >
+          Add Category
+        </Button>
+      </div>
 
       {/* Table */}
-      <Row>
-        <Card className="w-full" bodyStyle={{ padding: 0 }}>
-          <Col xl={24}>
-            <Spin spinning={loading}>
-              <Table<Category>
-                columns={columns}
-                dataSource={filteredCategories}
-                rowKey="_id"
-                pagination={{ pageSize: 10 }}
-              />
-            </Spin>
-          </Col>
-        </Card>
-      </Row>
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: '14px',
+          border: '1px solid #e2e8f0',
+          overflow: 'hidden',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        }}
+      >
+        <Spin spinning={loading}>
+          <Table<Category>
+            columns={columns}
+            dataSource={filteredCategories}
+            rowKey="_id"
+            pagination={{ pageSize: 10 }}
+          />
+        </Spin>
+      </div>
 
+      {/* Delete Modal */}
       <Modal
-        title="Confirmation"
+        title="Delete Confirmation"
         open={!!deleteId}
         onOk={handleDelete}
         onCancel={() => setDeleteId(null)}
-        okText="Yes"
-        cancelText="No"
-        okButtonProps={{ style: { backgroundColor: '#ef4444', color: 'white', borderColor: '#ef4444' } }} // Red for delete
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{
+          style: {
+            backgroundColor: '#ef4444',
+            color: 'white',
+            borderColor: '#ef4444',
+            borderRadius: '8px',
+            fontWeight: 600,
+          }
+        }}
+        cancelButtonProps={{ style: { borderRadius: '8px' } }}
       >
-        <p>Are you sure you want to delete this category?</p>
+        <p style={{ color: '#475569', fontSize: '14px' }}>Are you sure you want to delete this category? This action cannot be undone.</p>
       </Modal>
 
       {/* Edit Modal */}
@@ -301,25 +331,39 @@ export const CategoryTable = () => {
         onOk={handleEditSubmit}
         onCancel={handleEditCancel}
         okText="Update"
-        okButtonProps={{ style: { backgroundColor: '#7C3AED', color: 'white', borderColor: '#7C3AED' } }}
+        okButtonProps={{
+          style: {
+            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontWeight: 600,
+          }
+        }}
+        cancelButtonProps={{ style: { borderRadius: '8px' } }}
       >
         <Form form={form} layout="vertical">
           <Form.Item name="name" label="Category Name" rules={[{ required: true }]}>
-            <Input />
+            <Input style={{ borderRadius: '8px', height: '42px' }} />
           </Form.Item>
           <Form.Item name="description" label="Description">
-            <Input.TextArea rows={3} />
+            <Input.TextArea rows={3} style={{ borderRadius: '8px' }} />
           </Form.Item>
           <Form.Item name="orderPriority" label="Order Priority">
-            <Input type="number" />
+            <Input type="number" style={{ borderRadius: '8px', height: '42px' }} />
           </Form.Item>
           <Form.Item name="status" label="Status">
-            <Input />
-            {/* Ideally this should be a Select but using Input for speed as per requested interface, or I can check Tag */}
+            <Select
+              style={{ borderRadius: '8px' }}
+              options={[
+                { label: 'Active', value: 'Active' },
+                { label: 'Inactive', value: 'Inactive' },
+              ]}
+            />
           </Form.Item>
           <Form.Item label="Image">
             <Upload {...uploadProps} listType="picture" maxCount={1}>
-              <Button icon={<UploadOutlined />}>Select New Image</Button>
+              <Button icon={<UploadOutlined />} style={{ borderRadius: '8px' }}>Select New Image</Button>
             </Upload>
           </Form.Item>
         </Form>
