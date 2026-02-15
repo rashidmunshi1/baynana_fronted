@@ -112,58 +112,65 @@ const MyBusinesses: React.FC = () => {
             {businesses.map((biz) => (
               <div
                 key={biz._id}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition flex flex-col sm:flex-row gap-4 justify-between"
+                className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex gap-3 mb-3 relative overflow-hidden group"
               >
-                <div className="flex gap-4">
-                  {/* Valid Image Check */}
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                    {biz.images && biz.images.length > 0 ? (
-                      <img
-                        src={`${baseURL}/uploads/business/${biz.images[0]}`}
-                        alt={biz.businessName}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Img</div>
-                    )}
-                  </div>
+                {/* 1. Image Section */}
+                <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden relative">
+                  {biz.images && biz.images.length > 0 ? (
+                    <img
+                      src={`${baseURL}/uploads/business/${biz.images[0]}`}
+                      alt={biz.businessName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs text-center p-1">No Image</div>
+                  )}
+                  {/* Status Overlay on Image (Optional, or keep separate) */}
+                </div>
 
-                  <div className="flex flex-col justify-center">
-                    <h3 className="font-bold text-lg text-gray-800 leading-tight">{biz.businessName}</h3>
-                    <p className="text-xs text-gray-500 mb-2">{biz.city} • {biz.category?.name || "Uncategorized"}</p>
+                {/* 2. Content Section */}
+                <div className="flex-1 flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-base font-bold text-gray-800 leading-tight line-clamp-2 pr-6">
+                        {biz.businessName}
+                      </h3>
+                      {/* Action Button (Forward/Edit) */}
+                      <button className="text-gray-400 hover:text-violet-600 transition -mt-1 -mr-1 p-1">
+                        <IoArrowForward size={18} />
+                      </button>
+                    </div>
+
+                    <p className="text-[11px] text-gray-500 line-clamp-1 mt-0.5">
+                      {biz.city} • {biz.category?.name || "Uncategorized"}
+                    </p>
 
                     {/* Rating */}
                     {(biz.rating || biz.ratingCount) ? (
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mt-1">
                         {biz.rating ? (
-                          <div className="bg-green-600 text-white font-bold px-1.5 py-0.5 rounded flex items-center gap-1 text-[10px]">
+                          <div className="bg-[#24a148] text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5">
                             {biz.rating} <FaStar size={8} />
                           </div>
                         ) : null}
                         {biz.ratingCount ? (
-                          <span className="text-gray-400 text-xs">{biz.ratingCount} Ratings</span>
+                          <span className="text-[10px] text-gray-400">{biz.ratingCount} Ratings</span>
                         ) : null}
                       </div>
                     ) : null}
 
-                    {/* Status Badge */}
-                    <div className="flex items-center gap-2">
-                      {getStatusBadge(biz.approvalStatus || 'pending')}
-                    </div>
-
-                    {/* Show Rejection Reason if Rejected */}
+                    {/* Rejection Reason */}
                     {biz.approvalStatus === 'rejected' && biz.rejectionReason && (
-                      <p className="text-xs text-red-500 mt-1 bg-red-50 p-1 rounded px-2 border border-red-100">
+                      <p className="text-[10px] text-red-500 mt-1 line-clamp-1">
                         Reason: {biz.rejectionReason}
                       </p>
                     )}
                   </div>
-                </div>
 
-                <div className="flex items-center justify-end sm:justify-center border-t sm:border-t-0 pt-3 sm:pt-0">
-                  <button className="text-gray-400 hover:text-violet-600 transition p-2">
-                    <IoArrowForward size={20} />
-                  </button>
+                  {/* Bottom Row: Status Badge */}
+                  <div className="mt-2 flex items-center justify-between">
+                    {getStatusBadge(biz.approvalStatus || 'pending')}
+                  </div>
                 </div>
               </div>
             ))}

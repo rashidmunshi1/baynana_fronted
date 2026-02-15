@@ -82,7 +82,7 @@ const HomeBanner: React.FC<BannerProps> = ({ banner, loading }) => {
     };
 
     return (
-        <div className="mt-6 bg-white rounded-2xl shadow-md overflow-hidden relative group">
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden relative group">
             <Slider {...settings}>
                 {banner.map((b: any) => (
                     <div key={b._id} className="outline-none">
