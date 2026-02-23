@@ -12,7 +12,7 @@ import {
   message,
   Upload,
 } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined, AimOutlined, LoadingOutlined } from "@ant-design/icons";
 import axios from "axios";
 import baseURL from "../../config";
 
@@ -46,6 +46,7 @@ const AddBusiness = () => {
   const [users, setUsers] = useState([]);
   const [fileList, setFileList] = useState([]);
   const [form] = Form.useForm();
+  const [locationLoading, setLocationLoading] = useState(false);
 
   useEffect(() => {
     axios
@@ -69,7 +70,11 @@ const AddBusiness = () => {
       const firstSubId = values.subcategories[0];
       const selectedSubObj = subcategories.find((s) => s._id === firstSubId);
       if (selectedSubObj && selectedSubObj.parentCategory) {
-        derivedCategoryId = selectedSubObj.parentCategory._id;
+        if (typeof selectedSubObj.parentCategory === "object") {
+          derivedCategoryId = selectedSubObj.parentCategory._id;
+        } else {
+          derivedCategoryId = selectedSubObj.parentCategory;
+        }
       }
     }
 
@@ -153,7 +158,26 @@ const AddBusiness = () => {
 
         {/* Form Body */}
         <div style={{ padding: '28px' }}>
-          <Form form={form} layout="vertical" onFinish={onFinish}>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={onFinish}
+            onValuesChange={(changedValues, allValues) => {
+              if (changedValues.monday) {
+                const { open, close, closed } = changedValues.monday;
+                const updates = {};
+                days.forEach((day) => {
+                  if (day !== "monday") {
+                    updates[day] = { ...allValues[day] };
+                    if (open !== undefined) updates[day].open = open;
+                    if (close !== undefined) updates[day].close = close;
+                    if (closed !== undefined) updates[day].closed = closed;
+                  }
+                });
+                form.setFieldsValue(updates);
+              }
+            }}
+          >
             <h3 style={sectionTitleStyle}>
               <span style={{ width: '3px', height: '16px', background: '#6366f1', borderRadius: '2px', display: 'inline-block' }} />
               Business Details
@@ -233,11 +257,69 @@ const AddBusiness = () => {
                 </Form.Item>
               </Col>
 
+              <Col span={24}>
+                <div
+                  style={{
+                    background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
+                    borderRadius: 12,
+                    padding: '14px 16px',
+                    marginBottom: 16,
+                    border: '1px solid #bbf7d0',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+                    <div>
+                      <p style={{ fontWeight: 600, color: '#166534', fontSize: 13, margin: 0 }}>📍 Business Location</p>
+                      <p style={{ fontSize: 11, color: '#4ade80', margin: '2px 0 0' }}>
+                        {form.getFieldValue('latitude') && form.getFieldValue('longitude')
+                          ? `Lat: ${Number(form.getFieldValue('latitude')).toFixed(5)}, Lng: ${Number(form.getFieldValue('longitude')).toFixed(5)}`
+                          : 'Use GPS or paste Google Maps link'}
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        if (!navigator.geolocation) { message.error('Geolocation not supported'); return; }
+                        setLocationLoading(true);
+                        navigator.geolocation.getCurrentPosition(
+                          (pos) => {
+                            const { latitude, longitude } = pos.coords;
+                            form.setFieldsValue({
+                              latitude, longitude,
+                              locationUrl: `https://www.google.com/maps?q=${latitude},${longitude}`,
+                            });
+                            setLocationLoading(false);
+                            message.success('Location captured!');
+                          },
+                          () => { setLocationLoading(false); message.error('Location access denied'); },
+                          { enableHighAccuracy: true, timeout: 10000 }
+                        );
+                      }}
+                      loading={locationLoading}
+                      icon={locationLoading ? <LoadingOutlined /> : <AimOutlined />}
+                      style={{
+                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 10,
+                        height: 40,
+                        fontWeight: 600,
+                      }}
+                    >
+                      Use Current Location
+                    </Button>
+                  </div>
+                </div>
+              </Col>
+
               <Col span={12}>
                 <Form.Item label="Location URL" name="locationUrl">
-                  <Input style={inputStyle} placeholder="Google Map Link" />
+                  <Input style={inputStyle} placeholder="Google Map Link or use button above" />
                 </Form.Item>
               </Col>
+
+              {/* Hidden lat/lng */}
+              <Form.Item name="latitude" hidden><Input /></Form.Item>
+              <Form.Item name="longitude" hidden><Input /></Form.Item>
 
               <Col span={24}>
                 <Form.Item label="Address" name="address" rules={[{ required: true }]}>

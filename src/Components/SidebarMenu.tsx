@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FaRegEdit, FaBriefcase, FaEnvelope, FaMedal, FaHeadset, FaStore, FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import baseURL from "../config";
 
 interface User {
   id?: string;
   name?: string;
   mobile?: string;
+  profileImage?: string;
 }
 
 interface SidebarProps {
@@ -23,6 +25,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user }) => {
     localStorage.removeItem('userName');
     localStorage.removeItem('userPhone');
     localStorage.removeItem('userId');
+    localStorage.removeItem('profileImage');
     onClose();
     window.location.reload();
   };
@@ -51,8 +54,12 @@ const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user }) => {
         {/* User Info */}
         {user ? (
           <div className="flex items-center gap-2">
-            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
-              <FaUserCircle size={40} className="text-gray-400" />
+            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 overflow-hidden">
+              {user.profileImage ? (
+                <img src={`${baseURL}/${user.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <FaUserCircle size={40} className="text-gray-400" />
+              )}
             </div>
 
             <div>

@@ -17,6 +17,7 @@ interface User {
   id?: string;
   name?: string;
   mobile?: string;
+  profileImage?: string;
 }
 
 const HomePage: React.FC = () => {
@@ -53,8 +54,13 @@ const HomePage: React.FC = () => {
       setIsLoggedIn(true);
       const userName = localStorage.getItem('userName');
       const userPhone = localStorage.getItem('userPhone');
+      const profileImage = localStorage.getItem('profileImage');
       if (userName || userPhone) {
-        setCurrentUser({ name: userName || undefined, mobile: userPhone || undefined });
+        setCurrentUser({
+          name: userName || undefined,
+          mobile: userPhone || undefined,
+          profileImage: profileImage || undefined
+        });
       } else {
         setCurrentUser(null);
       }
@@ -70,7 +76,8 @@ const HomePage: React.FC = () => {
     return () => window.removeEventListener('focus', checkAuth);
   }, []);
 
-  // LOCATION DETECTION
+  // LOCATION DETECTION (COMMENTED OUT)
+  /*
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -94,6 +101,7 @@ const HomePage: React.FC = () => {
       setLocationName("Select Location");
     }
   }, []);
+  */
 
   // FETCH DATA
   useEffect(() => {
@@ -193,19 +201,18 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="px-5 pt-6 pb-2 relative z-20">
-            {/* Header Top Row */}
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex flex-col text-white">
-                <div className="flex items-center gap-1.5 opacity-80 mb-0.5 cursor-pointer hover:opacity-100 transition-opacity">
-                  <FiMapPin size={12} className="text-blue-300" />
-                  <span className="text-[10px] font-bold tracking-widest uppercase text-blue-200">LOCATION</span>
-                </div>
-                <div className="flex items-center gap-1 group cursor-pointer">
-                  <h2 className="text-sm font-bold tracking-wide group-hover:text-blue-200 transition-colors line-clamp-1 max-w-[100px] sm:max-w-[200px]">{locationName}</h2>
-                  <svg className="w-3 h-3 text-gray-400 group-hover:text-white transition-colors rotate-0 group-hover:rotate-180 duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            {/* Header Row - Logo + Auth */}
+            <div className="flex justify-between items-center mb-6 w-full">
+              {/* Left: Logo + Tagline */}
+              <div className="flex items-center gap-3">
+                <img src={logo} alt="Baynana" className="h-9 sm:h-10 object-contain" />
+                <div className="flex flex-col">
+                  <span className="text-white/60 text-[10px] sm:text-xs font-medium tracking-wide uppercase">Find anything in</span>
+                  {/* <span className="text-white text-sm sm:text-base font-bold leading-tight">{locationName}</span> */}
                 </div>
               </div>
 
+              {/* Right: Bell + Auth */}
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="relative p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors cursor-pointer backdrop-blur-sm">
                   <span className="absolute top-1.5 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-[#1e293b]"></span>
@@ -230,19 +237,17 @@ const HomePage: React.FC = () => {
                   </div>
                 ) : (
                   <div onClick={() => setSidebarOpen(true)} className="relative cursor-pointer group">
-                    <div className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all border border-white/10 shadow-sm">
-                      <FaUserCircle size={24} className="text-white/90 group-hover:text-white transition-colors" />
+                    <div className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all border border-white/10 shadow-sm overflow-hidden">
+                      {currentUser?.profileImage ? (
+                        <img src={`${baseURL}/${currentUser.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <FaUserCircle size={24} className="text-white/90 group-hover:text-white transition-colors" />
+                      )}
                     </div>
                   </div>
                 )}
               </div>
             </div>
-
-            {/* Title */}
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-6 leading-tight">
-              Find anything in <br />
-              <img src={logo} alt="Baynana" className="h-12 mt-2 object-contain" />
-            </h1>
 
             {/* Search Bar */}
             <div className="relative group z-30">
