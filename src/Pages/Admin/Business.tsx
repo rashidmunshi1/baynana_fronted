@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Input, Modal, Card, Row, Col, Spin, Tag, Select, Checkbox, message } from "antd";
-import { SearchOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { Table, Button, Input, Modal, Card, Row, Col, Spin, Tag, Select, Checkbox, message, Tooltip, Badge, Space } from "antd";
+import { SearchOutlined, EditOutlined, PlusOutlined, CheckCircleOutlined, CloseCircleOutlined, ThunderboltOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import baseURL from "../../config";
@@ -16,6 +16,14 @@ const BusinessListPage = () => {
   const [currentBusiness, setCurrentBusiness] = useState<any>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [selectedAction, setSelectedAction] = useState<"approve" | "reject" | null>(null);
+
+  // Bulk Selection State
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
+  const [bulkAction, setBulkAction] = useState<"approve" | "reject" | null>(null);
+  const [bulkRejectReason, setBulkRejectReason] = useState("");
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
@@ -42,10 +50,12 @@ const BusinessListPage = () => {
 
   const filteredBusinesses = businessList.filter((b: any) =>
     (paidFilter === null || b.isPaid === paidFilter) &&
+    (statusFilter === null || b.approvalStatus === statusFilter) &&
     (b.businessName.toLowerCase().includes(searchText.toLowerCase()) ||
       b.city.toLowerCase().includes(searchText.toLowerCase()))
   );
 
+  // Single status change
   const handleStatusClick = (record: any) => {
     setCurrentBusiness(record);
     setRejectReason(record.rejectionReason || "");
@@ -76,6 +86,75 @@ const BusinessListPage = () => {
       message.error("Failed to update status");
     }
   };
+
+  // ══════════════════════════════════════════════
+  // BULK ACTIONS
+  // ══════════════════════════════════════════════
+  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+    getCheckboxProps: (record: any) => ({
+      name: record._id,
+    }),
+  };
+
+  const hasSelected = selectedRowKeys.length > 0;
+
+  const openBulkModal = (action: "approve" | "reject") => {
+    setBulkAction(action);
+    setBulkRejectReason("");
+    setBulkModalOpen(true);
+  };
+
+  const submitBulkAction = async () => {
+    if (!bulkAction) return;
+
+    if (bulkAction === 'reject' && !bulkRejectReason.trim()) {
+      message.error("Please provide a reason for rejection.");
+      return;
+    }
+
+    setBulkLoading(true);
+    try {
+      const newStatus = bulkAction === 'approve' ? 'approved' : 'rejected';
+      await axios.put(`${baseURL}/api/admin/business/bulk-status`, {
+        ids: selectedRowKeys,
+        status: newStatus,
+        reason: newStatus === 'rejected' ? bulkRejectReason : ""
+      });
+      message.success(`${selectedRowKeys.length} business(es) ${newStatus} successfully!`);
+      setBulkModalOpen(false);
+      setSelectedRowKeys([]);
+      fetchBusiness();
+    } catch (error) {
+      console.error(error);
+      message.error("Bulk operation failed");
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  // Select only pending businesses (quick action)
+  const selectAllPending = () => {
+    const pendingIds = filteredBusinesses
+      .filter((b: any) => b.approvalStatus === 'pending')
+      .map((b: any) => b._id);
+    setSelectedRowKeys(pendingIds);
+    if (pendingIds.length === 0) {
+      message.info("No pending businesses found");
+    } else {
+      message.success(`${pendingIds.length} pending business(es) selected`);
+    }
+  };
+
+  // Counts for stats
+  const pendingCount = businessList.filter((b: any) => b.approvalStatus === 'pending').length;
+  const approvedCount = businessList.filter((b: any) => b.approvalStatus === 'approved').length;
+  const rejectedCount = businessList.filter((b: any) => b.approvalStatus === 'rejected').length;
 
   const columns = [
     {
@@ -208,7 +287,44 @@ const BusinessListPage = () => {
 
   return (
     <div style={{ animation: 'fadeInUp 0.4s ease-out' }}>
-      {/* Header Row */}
+
+      {/* ── Status Overview Cards ── */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        {[
+          { label: 'Total', count: businessList.length, bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', icon: <ThunderboltOutlined /> },
+          { label: 'Pending', count: pendingCount, bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', icon: <ExclamationCircleOutlined />, filterValue: 'pending' },
+          { label: 'Approved', count: approvedCount, bg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', icon: <CheckCircleOutlined />, filterValue: 'approved' },
+          { label: 'Rejected', count: rejectedCount, bg: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', icon: <CloseCircleOutlined />, filterValue: 'rejected' },
+        ].map((item: any) => (
+          <div
+            key={item.label}
+            onClick={() => setStatusFilter(statusFilter === item.filterValue ? null : (item.filterValue || null))}
+            style={{
+              background: item.bg,
+              borderRadius: '14px',
+              padding: '16px 22px',
+              minWidth: '0',
+              flex: '1 1 0',
+              cursor: item.filterValue ? 'pointer' : 'default',
+              boxShadow: statusFilter === item.filterValue
+                ? '0 4px 20px rgba(0,0,0,0.25), 0 0 0 3px rgba(255,255,255,0.4)'
+                : '0 2px 10px rgba(0,0,0,0.1)',
+              transition: 'all 250ms ease',
+              transform: statusFilter === item.filterValue ? 'scale(1.03)' : 'scale(1)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>{item.label}</div>
+                <div style={{ color: '#fff', fontSize: '26px', fontWeight: 700, lineHeight: 1 }}>{item.count}</div>
+              </div>
+              <div style={{ fontSize: '24px', color: 'rgba(255,255,255,0.4)' }}>{item.icon}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Header Row ── */}
       <div
         style={{
           display: 'flex',
@@ -216,7 +332,7 @@ const BusinessListPage = () => {
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: '12px',
-          marginBottom: '20px',
+          marginBottom: '16px',
         }}
       >
         <div style={{ flex: '1 1 250px', maxWidth: '350px' }}>
@@ -231,7 +347,7 @@ const BusinessListPage = () => {
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           <Select
             size="large"
             value={paidFilter}
@@ -263,7 +379,134 @@ const BusinessListPage = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* ── Bulk Action Bar ── */}
+      <div
+        style={{
+          background: hasSelected
+            ? 'linear-gradient(135deg, #eff6ff 0%, #eef2ff 50%, #f0fdf4 100%)'
+            : 'transparent',
+          borderRadius: '14px',
+          padding: hasSelected ? '14px 20px' : '0',
+          marginBottom: hasSelected ? '16px' : '0',
+          border: hasSelected ? '1px solid #c7d2fe' : 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '10px',
+          transition: 'all 300ms ease',
+          overflow: 'hidden',
+          maxHeight: hasSelected ? '100px' : '0',
+          opacity: hasSelected ? 1 : 0,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Badge
+            count={selectedRowKeys.length}
+            style={{
+              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              fontWeight: 700,
+              fontSize: '13px',
+              boxShadow: '0 2px 6px rgba(99,102,241,0.3)',
+            }}
+          />
+          <span style={{ fontWeight: 600, color: '#334155', fontSize: '14px' }}>
+            {selectedRowKeys.length} Business(es) Selected
+          </span>
+        </div>
+
+        <Space size={10}>
+          <Tooltip title="Select all pending businesses">
+            <Button
+              size="middle"
+              onClick={selectAllPending}
+              style={{
+                borderRadius: '8px',
+                border: '1px solid #fbbf24',
+                color: '#d97706',
+                fontWeight: 600,
+                fontSize: '13px',
+              }}
+              icon={<ExclamationCircleOutlined />}
+            >
+              Select Pending
+            </Button>
+          </Tooltip>
+
+          <Button
+            size="middle"
+            onClick={() => openBulkModal('approve')}
+            disabled={!hasSelected}
+            icon={<CheckCircleOutlined />}
+            style={{
+              background: hasSelected ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : '#e2e8f0',
+              color: hasSelected ? '#fff' : '#94a3b8',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '13px',
+              boxShadow: hasSelected ? '0 2px 8px rgba(16, 185, 129, 0.35)' : 'none',
+            }}
+          >
+            Bulk Approve
+          </Button>
+
+          <Button
+            size="middle"
+            onClick={() => openBulkModal('reject')}
+            disabled={!hasSelected}
+            icon={<CloseCircleOutlined />}
+            style={{
+              background: hasSelected ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : '#e2e8f0',
+              color: hasSelected ? '#fff' : '#94a3b8',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '13px',
+              boxShadow: hasSelected ? '0 2px 8px rgba(239, 68, 68, 0.35)' : 'none',
+            }}
+          >
+            Bulk Reject
+          </Button>
+
+          <Button
+            size="middle"
+            onClick={() => setSelectedRowKeys([])}
+            style={{
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0',
+              color: '#64748b',
+              fontWeight: 500,
+              fontSize: '13px',
+            }}
+          >
+            Clear
+          </Button>
+        </Space>
+      </div>
+
+      {/* ── Quick Select Pending (always visible if pending exist) ── */}
+      {!hasSelected && pendingCount > 0 && (
+        <div style={{ marginBottom: '12px' }}>
+          <Button
+            size="small"
+            onClick={selectAllPending}
+            icon={<ThunderboltOutlined />}
+            style={{
+              borderRadius: '8px',
+              border: '1px dashed #fbbf24',
+              color: '#d97706',
+              fontWeight: 600,
+              fontSize: '12px',
+              background: '#fffbeb',
+            }}
+          >
+            Quick: Select All {pendingCount} Pending
+          </Button>
+        </div>
+      )}
+
+      {/* ── Table ── */}
       <div
         style={{
           background: '#ffffff',
@@ -275,6 +518,7 @@ const BusinessListPage = () => {
       >
         <Spin spinning={loading}>
           <Table
+            rowSelection={rowSelection}
             columns={columns}
             dataSource={filteredBusinesses}
             rowKey="_id"
@@ -283,7 +527,7 @@ const BusinessListPage = () => {
         </Spin>
       </div>
 
-      {/* Status Modal */}
+      {/* ── Single Status Modal ── */}
       <Modal
         title={
           <span style={{ fontWeight: 600, fontSize: '16px' }}>
@@ -370,6 +614,123 @@ const BusinessListPage = () => {
                 placeholder="Other reason (optional)..."
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
+              />
+            </div>
+          )}
+        </div>
+      </Modal>
+
+      {/* ── Bulk Action Confirmation Modal ── */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {bulkAction === 'approve' ? (
+              <CheckCircleOutlined style={{ color: '#10b981', fontSize: '20px' }} />
+            ) : (
+              <CloseCircleOutlined style={{ color: '#ef4444', fontSize: '20px' }} />
+            )}
+            <span style={{ fontWeight: 600, fontSize: '16px' }}>
+              Bulk {bulkAction === 'approve' ? 'Approve' : 'Reject'} — {selectedRowKeys.length} Business(es)
+            </span>
+          </div>
+        }
+        open={bulkModalOpen}
+        onCancel={() => setBulkModalOpen(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setBulkModalOpen(false)} style={{ borderRadius: '8px' }}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={bulkLoading}
+            onClick={submitBulkAction}
+            style={{
+              background: bulkAction === 'approve'
+                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 600,
+              boxShadow: bulkAction === 'approve'
+                ? '0 2px 8px rgba(16,185,129,0.3)'
+                : '0 2px 8px rgba(239,68,68,0.3)',
+            }}
+          >
+            {bulkAction === 'approve' ? 'Approve All' : 'Reject All'}
+          </Button>
+        ]}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingTop: '12px' }}>
+          {/* Summary info */}
+          <div
+            style={{
+              background: bulkAction === 'approve' ? '#ecfdf5' : '#fef2f2',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              border: `1px solid ${bulkAction === 'approve' ? '#a7f3d0' : '#fecaca'}`,
+            }}
+          >
+            <p style={{ margin: 0, fontWeight: 600, color: bulkAction === 'approve' ? '#065f46' : '#991b1b', fontSize: '14px' }}>
+              {bulkAction === 'approve'
+                ? `✅ ${selectedRowKeys.length} business(es) will be approved and made publicly visible.`
+                : `❌ ${selectedRowKeys.length} business(es) will be rejected and hidden from public.`
+              }
+            </p>
+          </div>
+
+          {/* Show selected business names */}
+          <div style={{ maxHeight: '140px', overflowY: 'auto', paddingRight: '4px' }}>
+            {selectedRowKeys.map((id, idx) => {
+              const biz: any = businessList.find((b: any) => b._id === id);
+              return biz ? (
+                <div
+                  key={id as string}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '6px 10px',
+                    borderRadius: '8px',
+                    background: idx % 2 === 0 ? '#f8fafc' : '#fff',
+                    marginBottom: '2px',
+                  }}
+                >
+                  <span style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 500, minWidth: '24px' }}>{idx + 1}.</span>
+                  <span style={{ fontWeight: 600, color: '#0f172a', fontSize: '13px' }}>{biz.businessName}</span>
+                  <Tag style={{
+                    marginLeft: 'auto',
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    background: biz.approvalStatus === 'pending' ? '#fffbeb' : biz.approvalStatus === 'approved' ? '#ecfdf5' : '#fef2f2',
+                    color: biz.approvalStatus === 'pending' ? '#d97706' : biz.approvalStatus === 'approved' ? '#059669' : '#dc2626',
+                  }}>
+                    {biz.approvalStatus}
+                  </Tag>
+                </div>
+              ) : null;
+            })}
+          </div>
+
+          {/* Reject reason for bulk reject */}
+          {bulkAction === 'reject' && (
+            <div>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>Rejection Reason:</label>
+              <Checkbox.Group
+                style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}
+                onChange={(checkedValues) => setBulkRejectReason(checkedValues.join(", "))}
+              >
+                <Checkbox value="Invalid Images">Invalid or Low Quality Images</Checkbox>
+                <Checkbox value="Incomplete Details">Incomplete Business Details</Checkbox>
+                <Checkbox value="Duplicate Listing">Duplicate Listing</Checkbox>
+                <Checkbox value="Policy Violation">Violation of Terms</Checkbox>
+              </Checkbox.Group>
+              <Input.TextArea
+                style={{ marginTop: '12px', borderRadius: '8px' }}
+                rows={2}
+                placeholder="Additional reason (optional)..."
+                value={bulkRejectReason}
+                onChange={(e) => setBulkRejectReason(e.target.value)}
               />
             </div>
           )}

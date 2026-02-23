@@ -96,7 +96,11 @@ const UpdateBusiness = () => {
       const firstSubId = values.subcategories[0];
       const selectedSubObj = subcategories.find((s) => s._id === firstSubId);
       if (selectedSubObj && selectedSubObj.parentCategory) {
-        derivedCategoryId = selectedSubObj.parentCategory._id;
+        if (typeof selectedSubObj.parentCategory === "object") {
+          derivedCategoryId = selectedSubObj.parentCategory._id;
+        } else {
+          derivedCategoryId = selectedSubObj.parentCategory;
+        }
       }
     }
 

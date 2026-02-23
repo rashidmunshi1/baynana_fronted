@@ -38,7 +38,7 @@ const BannerImage = ({ src, alt }: { src: string; alt: string }) => {
     const [isLoaded, setIsLoaded] = useState(false);
 
     return (
-        <div className="relative w-full h-48 lg:h-72 bg-gray-200 overflow-hidden">
+        <div className="relative w-full aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1] bg-gray-200 overflow-hidden">
             {/* Loading Skeleton/Spinner */}
             {!isLoaded && (
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -60,7 +60,7 @@ const BannerImage = ({ src, alt }: { src: string; alt: string }) => {
 const HomeBanner: React.FC<BannerProps> = ({ banner, loading }) => {
     if (loading) {
         return (
-            <div className="mt-6 w-full h-48 lg:h-72 bg-gray-200 rounded-2xl animate-pulse flex items-center justify-center">
+            <div className="mt-6 w-full aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1] bg-gray-200 rounded-2xl animate-pulse flex items-center justify-center">
                 <p className="text-gray-400">Loading banner...</p>
             </div>
         );

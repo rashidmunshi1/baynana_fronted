@@ -32,8 +32,18 @@ const ProfilePage: React.FC = () => {
     axios
       .get(`${baseURL}/api/user/profile/${userId}/edit`)
       .then((res) => {
-        setUser(res.data);
-        setImagePreview(`${baseURL}/${res.data.profileImage}`);
+        setUser({
+          name: res.data.name || "",
+          mobileno: res.data.mobileno || "",
+          address: res.data.address || "",
+          pincode: res.data.pincode || "",
+          profileImage: res.data.profileImage || "",
+        });
+        if (res.data.profileImage) {
+          setImagePreview(`${baseURL}/${res.data.profileImage}`);
+        } else {
+          setImagePreview("");
+        }
       })
       .catch((err) => console.error(err));
   }, [userId]);
@@ -78,6 +88,9 @@ const ProfilePage: React.FC = () => {
       // Update local storage if name changed
       if (res.data.name) {
         localStorage.setItem('userName', res.data.name);
+      }
+      if (res.data.profileImage) {
+        localStorage.setItem('profileImage', res.data.profileImage);
       }
 
       alert("Profile updated successfully!");

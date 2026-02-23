@@ -61,6 +61,9 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ onClose, onLoginSuccess }) => {
                     if (res.data.user.id) {
                         localStorage.setItem('userId', res.data.user.id);
                     }
+                    if (res.data.user.profileImage) {
+                        localStorage.setItem('profileImage', res.data.user.profileImage);
+                    }
                 }
 
                 onLoginSuccess();
