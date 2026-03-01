@@ -25,31 +25,33 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
       {children}
 
       {/* 📱 STANDARD BOTTOM NAVIGATION */}
-      <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 flex justify-around items-center h-16 z-50 shadow-sm safe-area-pb">
-        {navItems.map((item, index) => {
-          const active = isActive(item.path);
+      <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] safe-area-pb">
+        <div className="flex justify-around items-center h-16 max-w-7xl mx-auto">
+          {navItems.map((item, index) => {
+            const active = isActive(item.path);
 
-          return (
-            <div
-              key={index}
-              onClick={() => {
-                if (item.path.startsWith("/")) navigate(item.path);
-              }}
-              className="flex flex-col items-center justify-center w-full h-full cursor-pointer active:bg-gray-50 transition-colors"
-            >
-              <item.icon
-                size={24}
-                className={`mb-1 transition-colors duration-200 ${active ? 'text-blue-600' : 'text-gray-400'}`}
-                strokeWidth={active ? 2.5 : 2}
-              />
-              <p
-                className={`text-[10px] font-medium transition-colors duration-200 ${active ? 'text-blue-600' : 'text-gray-500'}`}
+            return (
+              <div
+                key={index}
+                onClick={() => {
+                  if (item.path.startsWith("/")) navigate(item.path);
+                }}
+                className="flex flex-col items-center justify-center w-full h-full cursor-pointer active:bg-gray-50 transition-colors"
               >
-                {item.label}
-              </p>
-            </div>
-          );
-        })}
+                <item.icon
+                  size={24}
+                  className={`mb-1 transition-colors duration-200 ${active ? 'text-blue-600' : 'text-gray-400'}`}
+                  strokeWidth={active ? 2.5 : 2}
+                />
+                <p
+                  className={`text-[10px] font-medium transition-colors duration-200 ${active ? 'text-blue-600' : 'text-gray-500'}`}
+                >
+                  {item.label}
+                </p>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -35,7 +35,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user }) => {
       {/* Overlay */}
       {open && (
         <div
-          className="fixed inset-0 bg-black/40 z-40"
+          className="fixed inset-0 bg-black/40 z-[99]"
           onClick={onClose}
         />
       )}
@@ -45,7 +45,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user }) => {
         initial={{ x: "100%" }}
         animate={{ x: open ? 0 : "100%" }}
         transition={{ type: "tween", duration: 0.3 }}
-        className="fixed right-0 top-0 w-[90%] sm:w-[400px] h-full bg-white z-50 shadow-xl overflow-y-auto p-3"
+        className="fixed right-0 top-0 w-[90%] sm:w-[400px] h-full bg-white z-[100] shadow-xl overflow-y-auto p-3"
       >
         {/* Close Button */}
         <div className="text-3xl cursor-pointer mb-2 text-right" onClick={onClose}>✖</div>
