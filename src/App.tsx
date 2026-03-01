@@ -13,6 +13,7 @@ import VerifyOtp from "./Pages/User/VerifyOtp";
 import UserLogin from "./Pages/User/Login";
 import UserAddBusiness from "./Pages/User/UserAddBusiness";
 import CategoryBusinesses from "./Pages/Category/CategoryBusinesses";
+import BusinessDetailPage from "./Pages/BusinessDetail";
 // Helper component for protected routes
 const RequireAuth = ({ children }: { children: JSX.Element }) => {
   const token = localStorage.getItem("token");
@@ -45,6 +46,7 @@ const App: React.FC = () => {
         <Route path="/user/profile" element={<ProfilePage />} />
         <Route path="/user/add-business" element={<UserAddBusiness />} />
         <Route path="/category/:id" element={<CategoryBusinesses />} />
+        <Route path="/business/:id" element={<BusinessDetailPage />} />
 
         {/* ADMIN ROUTES */}
         {AdminRoutes.map((route) => (

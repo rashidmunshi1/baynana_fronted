@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { FaPlus, FaClock, FaCheckCircle, FaExclamationCircle, FaStar } from "react-icons/fa";
+import { FaPlus, FaClock, FaCheckCircle, FaExclamationCircle, FaStar, FaCrown } from "react-icons/fa";
 import { IoArrowForward } from "react-icons/io5";
 import UserLayout from "../DesignLayout/UserLayout";
 import { Business } from "../Components/types";
@@ -112,7 +112,8 @@ const MyBusinesses: React.FC = () => {
             {businesses.map((biz) => (
               <div
                 key={biz._id}
-                className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex gap-3 mb-3 relative overflow-hidden group"
+                className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex gap-3 mb-3 relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-violet-200 transition-all duration-200"
+                onClick={() => navigate(`/business/${biz._id}`)}
               >
                 {/* 1. Image Section */}
                 <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden relative">
@@ -167,9 +168,30 @@ const MyBusinesses: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Bottom Row: Status Badge */}
-                  <div className="mt-2 flex items-center justify-between">
+                  {/* Bottom Row: Status Badge + Paid Badge */}
+                  <div className="mt-2 flex items-center justify-between flex-wrap gap-2">
                     {getStatusBadge(biz.approvalStatus || 'pending')}
+
+                    {/* Paid / Free Badge */}
+                    {biz.isPaid ? (
+                      <div className="flex flex-col items-end gap-0.5">
+                        <span className="flex items-center gap-1 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 border border-amber-200 px-2 py-1 rounded text-xs font-bold">
+                          <FaCrown size={10} className="text-amber-500" /> Paid
+                        </span>
+                        {biz.paidExpiry && (
+                          <span className={`text-[10px] font-medium ${new Date(biz.paidExpiry) < new Date() ? 'text-red-500' : 'text-emerald-600'}`}>
+                            {new Date(biz.paidExpiry) < new Date()
+                              ? `Expired: ${new Date(biz.paidExpiry).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`
+                              : `Expires: ${new Date(biz.paidExpiry).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`
+                            }
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="flex items-center gap-1 bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs font-medium border border-gray-200">
+                        Free Listing
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
