@@ -10,6 +10,8 @@ import UserList from "./Pages/Admin/Userlist";
 import Banner from "./Pages/Admin/Banner";
 import SubCategoryList from "./Pages/Admin/SubCategory/SubCategoryList";
 import AddSubCategory from "./Pages/Admin/SubCategory/AddSubCategory";
+import VideoModule from "./Pages/Admin/VideoModule";
+import EventBanner from "./Pages/Admin/EventBanner";
 
 import AdminProfile from "./Pages/Admin/AdminProfile";
 
@@ -76,7 +78,16 @@ const AdminRoutes = [
     name: "Banner List",
     component: Banner,
   },
-
+  {
+    path: "/admin/video",
+    name: "Video Module",
+    component: VideoModule,
+  },
+  {
+    path: "/admin/event-banner",
+    name: "Event Banner List",
+    component: EventBanner,
+  },
 
 ];
 

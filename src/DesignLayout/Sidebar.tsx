@@ -3,7 +3,7 @@ import { Drawer, Layout, Menu } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
 import '../MasterLayout/Master.css';
 import { FaListAlt, FaRegUser } from "react-icons/fa";
-import { FileTextOutlined, HomeOutlined, UsbOutlined } from "@ant-design/icons";
+import { FileTextOutlined, HomeOutlined, UsbOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import { AppstoreOutlined } from "@ant-design/icons";
 const { Sider } = Layout;
 
@@ -28,6 +28,8 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse, onMouseEnter, 
     { key: '5', icon: <UsbOutlined />, text: 'Businesses', link: '/admin/business-list' },
     { key: '6', icon: <FileTextOutlined />, text: 'Banners', link: '/admin/banner' },
     { key: '7', icon: <FaListAlt />, text: 'Sub Categories', link: '/admin/subcategory-list' },
+    { key: '8', icon: <VideoCameraOutlined />, text: 'Videos', link: '/admin/video' },
+    { key: '9', icon: <FileTextOutlined />, text: 'Event Banners', link: '/admin/event-banner' },
   ];
 
   // Determine active key from URL

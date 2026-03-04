@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Upload, message, Switch, Popconfirm, Image, Tag } from "antd";
+import { Table, Button, Modal, Form, Input, Upload, message, Switch, Popconfirm, Image, Tag, Select, DatePicker } from "antd";
 import { PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 import axios from "axios";
 import baseURL from "../../config";
 
@@ -10,6 +11,9 @@ interface BannerType {
     description: string;
     image: string;
     isActive: boolean;
+    userId?: any;
+    startDate?: string;
+    endDate?: string;
 }
 
 const Banner: React.FC = () => {
@@ -20,9 +24,21 @@ const Banner: React.FC = () => {
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState<any[]>([]);
 
+    const [users, setUsers] = useState<any[]>([]);
+
     useEffect(() => {
         fetchBanners();
+        fetchUsers();
     }, []);
+
+    const fetchUsers = async () => {
+        try {
+            const response = await axios.get(`${baseURL}/api/admin/all-users`);
+            setUsers(response.data);
+        } catch (error) {
+            console.error("Fetch users error:", error);
+        }
+    };
 
     const fetchBanners = async () => {
         try {
@@ -56,6 +72,8 @@ const Banner: React.FC = () => {
             title: record.title,
             description: record.description,
             isActive: record.isActive,
+            userId: typeof record.userId === 'object' ? record.userId?._id : record.userId,
+            dateRange: record.startDate && record.endDate ? [dayjs(record.startDate), dayjs(record.endDate)] : undefined
         });
         setIsModalOpen(true);
     };
@@ -88,6 +106,13 @@ const Banner: React.FC = () => {
             const formData = new FormData();
             formData.append("title", values.title);
             formData.append("description", values.description || "");
+
+            if (values.userId) formData.append("userId", values.userId);
+            if (values.dateRange && values.dateRange.length === 2) {
+                formData.append("startDate", values.dateRange[0].toISOString());
+                formData.append("endDate", values.dateRange[1].toISOString());
+            }
+
             formData.append("isActive", values.isActive !== undefined ? values.isActive : true);
 
             const currentFile = fileList[0];
@@ -145,6 +170,24 @@ const Banner: React.FC = () => {
             key: "description",
             ellipsis: true,
             render: (text: string) => <span style={{ color: '#64748b' }}>{text}</span>,
+        },
+        {
+            title: "User",
+            dataIndex: "userId",
+            key: "userId",
+            render: (user: any) => user ? `${user.name} (${user.mobileno})` : "All",
+        },
+        {
+            title: "Start Date",
+            dataIndex: "startDate",
+            key: "startDate",
+            render: (date: string) => date ? dayjs(date).format("YYYY-MM-DD") : "-",
+        },
+        {
+            title: "End Date",
+            dataIndex: "endDate",
+            key: "endDate",
+            render: (date: string) => date ? dayjs(date).format("YYYY-MM-DD") : "-",
         },
         {
             title: "Status",
@@ -295,6 +338,26 @@ const Banner: React.FC = () => {
 
                     <Form.Item name="description" label="Description">
                         <Input.TextArea rows={3} placeholder="Enter banner description (optional)" style={{ borderRadius: '8px' }} />
+                    </Form.Item>
+
+                    <Form.Item name="userId" label="Select User">
+                        <Select
+                            placeholder="Select a user (optional)"
+                            style={{ borderRadius: '8px', height: '42px' }}
+                            allowClear
+                            showSearch
+                            optionFilterProp="children"
+                        >
+                            {users.map(user => (
+                                <Select.Option key={user._id} value={user._id}>
+                                    {user.name} - {user.mobileno}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item name="dateRange" label="Valid Dates">
+                        <DatePicker.RangePicker style={{ borderRadius: '8px', height: '42px', width: '100%' }} />
                     </Form.Item>
 
                     <Form.Item label="Banner Image" required>
