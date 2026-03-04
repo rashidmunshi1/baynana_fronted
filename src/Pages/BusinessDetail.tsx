@@ -3,9 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
     FaArrowLeft, FaStar, FaMapMarkerAlt, FaPhoneAlt, FaShareAlt,
-    FaClock, FaCheckCircle, FaCrown, FaChevronLeft, FaChevronRight
+    FaClock, FaCheckCircle, FaCrown, FaChevronLeft, FaChevronRight,
+    FaWhatsapp, FaRegThumbsUp, FaUserCircle, FaQuoteLeft
 } from "react-icons/fa";
 import { FiExternalLink } from "react-icons/fi";
+import { MdVerified, MdOutlineLocationOn } from "react-icons/md";
 import UserLayout from "../DesignLayout/UserLayout";
 import baseURL from "../config";
 
@@ -32,6 +34,7 @@ interface BusinessDetail {
     approvalStatus?: string;
     rating?: number;
     ratingCount?: number;
+    reviews?: { rating: number; review?: string; userName?: string; createdAt: string; }[];
     createdAt: string;
 }
 
@@ -206,6 +209,26 @@ const BusinessDetailPage: React.FC = () => {
                 <div className="px-4 -mt-4 relative z-10">
                     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
 
+                        {/* Badges Area */}
+                        {business.isPaid && (
+                            <div className="flex items-center gap-3 mb-2.5 mt-[-4px]">
+                                <div className="flex items-center gap-1 text-[#006aff]">
+                                    <MdVerified size={16} />
+                                    <span className="text-[13px] font-bold tracking-tight lowercase">verified</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-[#ffc107]">
+                                    <div className="bg-[#ffc107] text-white rounded-full p-[2px] flex items-center justify-center">
+                                        <FaStar size={10} />
+                                    </div>
+                                    <span className="text-[13px] font-bold tracking-tight lowercase">trusted</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-black">
+                                    <FaRegThumbsUp size={14} className="mt-[-2px]" />
+                                    <span className="text-[13px] font-bold tracking-tight lowercase">top rated</span>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Name + Rating */}
                         <div className="flex justify-between items-start gap-3">
                             <div className="min-w-0 flex-1">
@@ -221,7 +244,7 @@ const BusinessDetailPage: React.FC = () => {
                             {/* Rating Badge */}
                             {business.rating && business.rating > 0 ? (
                                 <div className="flex flex-col items-center flex-shrink-0">
-                                    <div className="bg-green-600 text-white text-sm font-bold px-2.5 py-1 rounded-lg flex items-center gap-1">
+                                    <div className="bg-[#00a650] text-white text-sm font-bold px-2.5 py-1 rounded-lg flex items-center gap-1">
                                         {business.rating} <FaStar size={10} />
                                     </div>
                                     {business.ratingCount ? (
@@ -230,23 +253,6 @@ const BusinessDetailPage: React.FC = () => {
                                 </div>
                             ) : null}
                         </div>
-
-                        {/* Paid Badge */}
-                        {business.isPaid && (
-                            <div className="mt-3 flex items-center gap-2">
-                                <span className="flex items-center gap-1.5 bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg text-xs font-bold">
-                                    <FaCrown size={11} className="text-amber-500" /> Premium Listing
-                                </span>
-                                {business.paidExpiry && (
-                                    <span className={`text-xs font-medium ${new Date(business.paidExpiry) < new Date() ? 'text-red-500' : 'text-emerald-600'}`}>
-                                        {new Date(business.paidExpiry) < new Date()
-                                            ? `Expired: ${new Date(business.paidExpiry).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`
-                                            : `Valid till: ${new Date(business.paidExpiry).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`
-                                        }
-                                    </span>
-                                )}
-                            </div>
-                        )}
 
                         {/* Address */}
                         <div className="mt-4 flex items-start gap-2.5">
@@ -257,23 +263,22 @@ const BusinessDetailPage: React.FC = () => {
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="mt-4 flex gap-3">
-                            <a
-                                href={`tel:${business.mobile}`}
-                                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-semibold text-sm shadow-sm hover:shadow-md transition active:scale-[0.98]"
-                            >
-                                <FaPhoneAlt size={13} /> Call Now
+                        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 mt-4">
+                            <a href={`tel:${business.mobile}`} className="flex-[1.2] min-w-[120px]">
+                                <button className="w-full bg-[#006aff] text-white py-2.5 rounded-lg flex items-center justify-center gap-2 font-bold text-[15px] hover:bg-blue-600 transition shadow-sm">
+                                    <FaPhoneAlt size={14} /> Call Now
+                                </button>
                             </a>
-                            {business.locationUrl && (
-                                <a
-                                    href={business.locationUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white py-3 rounded-xl font-semibold text-sm shadow-sm hover:shadow-md transition active:scale-[0.98]"
-                                >
-                                    <FiExternalLink size={14} /> Get Directions
-                                </a>
-                            )}
+                            <a href={`https://wa.me/91${business.mobile}`} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-[110px]">
+                                <button className="w-full bg-white border-[1.5px] border-[#333] text-black py-2.5 rounded-lg flex items-center justify-center gap-2 font-bold text-[15px] hover:bg-gray-50 transition shadow-sm">
+                                    <FaWhatsapp className="text-[#25d366]" size={18} /> WhatsApp
+                                </button>
+                            </a>
+                            <a href={`https://www.google.com/maps/dir/?api=1&destination=${(business as any).latitude || ''},${(business as any).longitude || ''}`} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-[110px]">
+                                <button className="w-full bg-white border-[1.5px] border-[#333] text-black py-2.5 rounded-lg flex items-center justify-center gap-2 font-bold text-[15px] hover:bg-gray-50 transition shadow-sm">
+                                    <MdOutlineLocationOn size={18} /> Directions
+                                </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -359,6 +364,43 @@ const BusinessDetailPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* ── REVIEWS ── */}
+                {business.reviews && business.reviews.length > 0 && (
+                    <div className="px-4 mt-4">
+                        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                            <h3 className="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <FaStar className="text-yellow-500" size={14} /> User Reviews
+                            </h3>
+                            <div className="space-y-4">
+                                {business.reviews.map((review, i) => (
+                                    <div key={i} className="border-b border-gray-50 pb-4 last:border-0 last:pb-0">
+                                        <div className="flex justify-between items-start mb-1">
+                                            <div className="flex items-center gap-2">
+                                                <FaUserCircle className="text-gray-300" size={20} />
+                                                <span className="font-semibold text-sm text-gray-800">
+                                                    {review.userName || "Baynana User"}
+                                                </span>
+                                            </div>
+                                            <div className="bg-[#00a650] text-white px-1.5 py-0.5 rounded flex items-center gap-1 text-[10px] font-bold">
+                                                {review.rating} <FaStar size={8} />
+                                            </div>
+                                        </div>
+                                        {review.review && (
+                                            <div className="mt-2 text-sm text-gray-600 bg-gray-50 p-2.5 rounded-lg flex gap-2 items-start">
+                                                <FaQuoteLeft className="text-gray-300 flex-shrink-0 mt-0.5" size={10} />
+                                                <p className="italic">{review.review}</p>
+                                            </div>
+                                        )}
+                                        <div className="mt-1.5 text-[10px] text-gray-400 text-right">
+                                            {new Date(review.createdAt).toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* ── LISTED SINCE ── */}
                 <div className="px-4 mt-4 mb-6">

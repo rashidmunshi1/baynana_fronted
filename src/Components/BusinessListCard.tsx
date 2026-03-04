@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { FaMapMarkerAlt, FaPhoneAlt, FaWhatsapp, FaStar, FaPen, FaShareAlt, FaDirections } from 'react-icons/fa';
-import { MdVerified } from 'react-icons/md';
+import { FaPhoneAlt, FaWhatsapp, FaStar, FaRegThumbsUp } from 'react-icons/fa';
+import { MdVerified, MdOutlineLocationOn } from 'react-icons/md';
+import { useNavigate } from "react-router-dom";
 import baseURL from "../config";
 import ReviewModal from './ReviewModal';
 
@@ -26,6 +27,7 @@ interface Props {
 }
 
 const BusinessListCard: React.FC<Props> = ({ business }) => {
+    const navigate = useNavigate();
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
     const [stats, setStats] = useState({
@@ -55,87 +57,82 @@ const BusinessListCard: React.FC<Props> = ({ business }) => {
 
     return (
         <>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-3">
-                {/* Top section: Image + Info side by side */}
-                <div className="flex gap-3 p-3">
-                    {/* Image */}
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden relative">
-                        <img
-                            src={mainImage}
-                            alt={business.businessName}
-                            className="w-full h-full object-cover"
-                        />
-                        {business.isPaid && (
-                            <div className="absolute top-0 left-0 bg-yellow-400 text-[8px] font-bold px-1.5 py-0.5 rounded-br text-black tracking-wide">
-                                PRO
+            <div
+                className="bg-white pb-5 mb-5 rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => navigate(`/business/${business._id}`)}
+            >
+                {/* Images Row */}
+                <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 pt-4 pb-3">
+                    {business.images && business.images.length > 0 ? (
+                        business.images.slice(0, 3).map((img: string, idx: number) => (
+                            <div key={idx} className="w-[110px] sm:w-[130px] h-[140px] flex-shrink-0 bg-[#e5e5e5] rounded-xl overflow-hidden shadow-sm">
+                                <img src={`${baseURL}/uploads/business/${img}`} alt="" className="w-full h-full object-cover" />
                             </div>
-                        )}
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0 flex flex-col justify-between">
-                        {/* Name */}
-                        <h3 className="text-sm sm:text-base font-bold text-gray-800 leading-snug line-clamp-2">
-                            {business.businessName}
-                            {business.isPaid && <MdVerified className="inline-block text-blue-500 ml-1 text-xs" />}
-                        </h3>
-
-                        {/* Rating + Rate This */}
-                        <div className="flex items-center gap-2 mt-1">
-                            <div className="flex items-center gap-1">
-                                <div className="bg-[#24a148] text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                                    {stats.rating > 0 ? stats.rating : "New"} <FaStar size={7} />
-                                </div>
-                                <span className="text-[10px] text-gray-400">
-                                    ({stats.ratingCount})
-                                </span>
-                            </div>
-                            <button
-                                onClick={() => setIsReviewModalOpen(true)}
-                                className="text-[9px] font-semibold text-blue-600 border border-blue-200 bg-blue-50 px-1.5 py-0.5 rounded hover:bg-blue-100 transition-colors flex items-center gap-0.5"
-                            >
-                                <FaPen size={7} /> Rate
-                            </button>
-                        </div>
-
-                        {/* Location & Category */}
-                        <div className="mt-1">
-                            <p className="text-[11px] text-gray-500 line-clamp-1 flex items-center gap-1">
-                                <FaMapMarkerAlt size={9} className="text-gray-400 flex-shrink-0" />
-                                {business.city || "Location"} • {business.category?.name || "Service"}
-                            </p>
-                            <p className="text-[10px] text-gray-400 line-clamp-1 mt-0.5 pl-3.5">
-                                {business.address}
-                            </p>
-                        </div>
-                    </div>
+                        ))
+                    ) : (
+                        <>
+                            <div className="w-[110px] sm:w-[130px] h-[140px] flex-shrink-0 bg-[#e5e5e5] rounded-xl"></div>
+                            <div className="w-[110px] sm:w-[130px] h-[140px] flex-shrink-0 bg-[#e5e5e5] rounded-xl"></div>
+                            <div className="w-[110px] sm:w-[130px] h-[140px] flex-shrink-0 bg-[#e5e5e5] rounded-xl"></div>
+                        </>
+                    )}
                 </div>
 
-                {/* Action Buttons - Bottom Bar */}
-                <div className="flex items-stretch border-t border-gray-100">
-                    <a href={`tel:${business.mobile}`} className="flex-1 border-r border-gray-100">
-                        <button className="w-full py-2.5 text-blue-600 text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-blue-50 transition-colors">
-                            <FaPhoneAlt size={10} /> Call
-                        </button>
-                    </a>
-                    <a href={`https://wa.me/91${business.mobile}`} target="_blank" rel="noopener noreferrer" className="flex-1 border-r border-gray-100">
-                        <button className="w-full py-2.5 text-[#25d366] text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-green-50 transition-colors">
-                            <FaWhatsapp size={12} /> WhatsApp
-                        </button>
-                    </a>
-                    {hasDirection ? (
-                        <a href={directionUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
-                            <button className="w-full py-2.5 text-[#4285F4] text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-blue-50 transition-colors">
-                                <FaDirections size={12} /> Direction
+                <div className="px-4 mt-1">
+                    {/* Badges Area */}
+                    <div className="flex items-center gap-3 mb-2.5">
+                        {business.isPaid && (
+                            <div className="flex items-center gap-1 text-[#006aff]">
+                                <MdVerified size={16} />
+                                <span className="text-[13px] font-bold tracking-tight lowercase">verified</span>
+                            </div>
+                        )}
+                        <div className="flex items-center gap-1 text-[#ffc107]">
+                            <div className="bg-[#ffc107] text-white rounded-full p-[2px] flex items-center justify-center">
+                                <FaStar size={10} />
+                            </div>
+                            <span className="text-[13px] font-bold tracking-tight lowercase">trusted</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-black">
+                            <FaRegThumbsUp size={14} className="mt-[-2px]" />
+                            <span className="text-[13px] font-bold tracking-tight lowercase">top rated</span>
+                        </div>
+                    </div>
+
+                    {/* Title & Subtitle */}
+                    <h2 className="text-[22px] font-bold text-black leading-tight mb-1">
+                        {business.businessName}
+                    </h2>
+                    <p className="text-gray-600 text-[15px] mb-2 font-medium">
+                        {business.address ? `${business.address}, ${business.city}` : business.city}
+                    </p>
+
+                    {/* Time */}
+                    <p className="text-[#00a650] font-bold text-[14px] mb-4">
+                        Opens at 05:00 PM
+                    </p>
+
+                    {/* Buttons */}
+                    <div
+                        className="flex flex-wrap sm:flex-nowrap items-center gap-2 mt-2"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <a href={`tel:${business.mobile}`} className="flex-[1.2] min-w-[120px]">
+                            <button className="w-full bg-[#006aff] text-white py-2.5 rounded-lg flex items-center justify-center gap-2 font-bold text-[15px] hover:bg-blue-600 transition shadow-sm">
+                                <FaPhoneAlt size={14} /> Call Now
                             </button>
                         </a>
-                    ) : (
-                        <a href={`https://wa.me/91${business.mobile}?text=Hi, I found your business on Baynana`} target="_blank" rel="noopener noreferrer" className="flex-1">
-                            <button className="w-full py-2.5 text-gray-500 text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-gray-50 transition-colors">
-                                <FaShareAlt size={10} /> Share
+                        <a href={`https://wa.me/91${business.mobile}`} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-[110px]">
+                            <button className="w-full bg-white border-[1.5px] border-[#333] text-black py-2.5 rounded-lg flex items-center justify-center gap-2 font-bold text-[15px] hover:bg-gray-50 transition shadow-sm">
+                                <FaWhatsapp className="text-[#25d366]" size={18} /> WhatsApp
                             </button>
                         </a>
-                    )}
+                        <a href={`https://www.google.com/maps/dir/?api=1&destination=${business.latitude || ''},${business.longitude || ''}`} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-[110px]">
+                            <button className="w-full bg-white border-[1.5px] border-[#333] text-black py-2.5 rounded-lg flex items-center justify-center gap-2 font-bold text-[15px] hover:bg-gray-50 transition shadow-sm">
+                                <MdOutlineLocationOn size={18} /> Directions
+                            </button>
+                        </a>
+                    </div>
                 </div>
             </div>
 

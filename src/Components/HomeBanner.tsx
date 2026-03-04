@@ -70,19 +70,37 @@ const HomeBanner: React.FC<BannerProps> = ({ banner, loading }) => {
 
     const settings = {
         dots: true,
-        infinite: true,
+        infinite: banner.length > 1,
         speed: 500,
         slidesToShow: 1,
         slidesToScroll: 1,
-        autoplay: true,
+        autoplay: banner.length > 1,
         autoplaySpeed: 3000,
         prevArrow: <CustomPrevArrow />,
         nextArrow: <CustomNextArrow />,
+        appendDots: (dots: any) => (
+            <div style={{ bottom: '10px' }}>
+                <ul className="m-0 p-0 flex justify-center gap-[4px]">{dots}</ul>
+            </div>
+        ),
+        customPaging: (i: number) => (
+            <div className="w-1.5 h-1.5 bg-white/40 hover:bg-white rounded-full transition-colors cursor-pointer slick-custom-dot mt-1"></div>
+        ),
         // fade: true, // Smooth transition
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-md overflow-hidden relative group">
+        <div className="w-full h-full bg-white rounded-2xl shadow-md overflow-hidden relative group">
+            <style>{`
+                .slick-dots li {
+                    margin: 0;
+                    width: auto;
+                    height: auto;
+                }
+                .slick-dots li.slick-active .slick-custom-dot {
+                    background-color: white !important;
+                }
+            `}</style>
             <Slider {...settings}>
                 {banner.map((b: any) => (
                     <div key={b._id} className="outline-none">

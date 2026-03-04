@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FiSearch, FiMapPin, FiMic, FiChevronDown, FiHeadphones } from "react-icons/fi";
+import { FiSearch, FiMapPin, FiMic, FiChevronDown, FiChevronRight, FiPlay, FiBriefcase } from "react-icons/fi";
 import { FaUserCircle, FaBell } from "react-icons/fa";
 import UserLayout from "../DesignLayout/UserLayout";
 import SidebarMenu from "../Components/SidebarMenu";
 import BusinessListCard from "../Components/BusinessListCard";
 import axios from "axios";
-import logo from '../Assets/new-logo.svg';
+import logo from '../Assets/new-baynana-logo.svg';
 import { useNavigate } from 'react-router-dom';
 import FreeListingPopup from '../Components/FreeListingPopup';
 import LoginPopup from '../Components/LoginPopup';
@@ -36,6 +36,13 @@ const HomePage: React.FC = () => {
   /* 🖼️ BANNER STATE */
   const [banner, setBanner] = useState<any[]>([]);
   const [bannerLoading, setBannerLoading] = useState(false);
+
+  /* 🎥 VIDEO STATE */
+  const [videos, setVideos] = useState<any[]>([]);
+
+  /* 🎉 EVENT BANNER STATE */
+  const [eventBanners, setEventBanners] = useState<any[]>([]);
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
@@ -103,8 +110,6 @@ const HomePage: React.FC = () => {
     );
   };
 
-  // Location is now only requested when user clicks on "Select Location"
-
   // FETCH DATA
   useEffect(() => {
     const fetchCategories = async () => {
@@ -129,6 +134,26 @@ const HomePage: React.FC = () => {
       }
     };
     fetchBanner();
+
+    const fetchVideos = async () => {
+      try {
+        const res = await axios.get(`${baseURL}/api/user/videos`);
+        setVideos(res.data || []);
+      } catch (err) {
+        console.log("Video fetch error", err);
+      }
+    };
+    fetchVideos();
+
+    const fetchEventBanners = async () => {
+      try {
+        const res = await axios.get(`${baseURL}/api/user/event-banners`);
+        setEventBanners(res.data || []);
+      } catch (err) {
+        console.log("Event Banner fetch error", err);
+      }
+    };
+    fetchEventBanners();
   }, []);
 
   /* 🔍 SEARCH API (DEBOUNCE) */
@@ -190,14 +215,15 @@ const HomePage: React.FC = () => {
 
   /* Category color palette for icons */
   const categoryColors = [
-    { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-100' },
-    { bg: 'bg-red-50', text: 'text-red-500', border: 'border-red-100' },
-    { bg: 'bg-orange-50', text: 'text-orange-500', border: 'border-orange-100' },
-    { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-100' },
-    { bg: 'bg-purple-50', text: 'text-purple-600', border: 'border-purple-100' },
-    { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100' },
-    { bg: 'bg-cyan-50', text: 'text-cyan-600', border: 'border-cyan-100' },
-    { bg: 'bg-pink-50', text: 'text-pink-600', border: 'border-pink-100' },
+    { bg: 'bg-[#fbeeed]', text: 'text-red-500' },    // Doctors-like red
+    { bg: 'bg-[#f0f4fc]', text: 'text-blue-600' },   // Travel-like blue
+    { bg: 'bg-[#f1fbfa]', text: 'text-cyan-600' },   // Edu-like cyan
+    { bg: 'bg-[#fbf1ef]', text: 'text-orange-500' }, // Rent-like orange
+    { bg: 'bg-[#f3f0fb]', text: 'text-purple-600' }, // Real Est-like purple
+    { bg: 'bg-[#eff6fb]', text: 'text-blue-500' },   // Restaurant-like blue
+    { bg: 'bg-[#fcede8]', text: 'text-red-400' },    // Elect-like light red
+    { bg: 'bg-[#edf9f3]', text: 'text-green-600' },  // Plumber-like green
+    { bg: 'bg-[#fbf0fb]', text: 'text-pink-600' },   // Grocery-like pink
   ];
 
   return (
@@ -210,277 +236,270 @@ const HomePage: React.FC = () => {
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      <div className="w-full min-h-screen bg-[#f5f6fa] pb-20 font-sans">
+      {/* Main container sets standard max-widths on larger screens and a full width on mobile.*/}
+      <div className="w-full min-h-screen bg-white pb-24 font-sans border-x border-gray-50/50">
 
         {/* ═══════════════════════════════════════ */}
-        {/* 1️⃣ HEADER — Location + Bell + Profile  */}
+        {/* 1️⃣ HEADER — Blue Background + Search + Banner */}
         {/* ═══════════════════════════════════════ */}
-        <div className="bg-white px-4 lg:px-8 pt-3 pb-2 sticky top-0 z-50 shadow-sm">
-          <div className="flex justify-between items-center max-w-7xl mx-auto">
-            {/* Left: Location */}
-            <div className="flex items-center gap-2 cursor-pointer group" onClick={requestLocation}>
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
-                <FiMapPin className="text-white" size={14} />
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[15px] font-bold text-gray-800 leading-tight">{locationName}</span>
-                <FiChevronDown className="text-gray-400" size={14} />
-              </div>
-            </div>
+        <div
+          className="bg-[#4285F4] pt-5 pb-9 sm:pb-12 px-4 sm:px-8 shadow-sm relative w-full mx-auto"
+          style={{ borderBottomLeftRadius: "50% 40px", borderBottomRightRadius: "50% 40px" }}
+        >
 
-            {/* Right: Bell + Auth */}
-            <div className="flex items-center gap-2">
-              {/* Notification Bell */}
-              <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md transition-all">
-                <span className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white z-10"></span>
-                <FaBell className="text-white" size={16} />
-              </div>
-
-              {/* Auth / Profile */}
-              {!isLoggedIn ? (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setIsLoginPopupOpen(true)}
-                    className="text-blue-600 bg-blue-50 hover:bg-blue-100 text-xs font-bold px-3.5 py-2 rounded-full transition-all border border-blue-200"
-                  >
-                    Login
-                  </button>
-                  <button
-                    onClick={() => setIsSignUpPopupOpen(true)}
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-xs font-bold px-3.5 py-2 rounded-full transition-all shadow-sm"
-                  >
-                    Register
-                  </button>
+          <div className="max-w-4xl mx-auto">
+            {/* Top row: Location, Logo, Profile */}
+            <div className="flex justify-between items-center w-full">
+              {/* Desktop Location (or spacer on mobile) */}
+              <div className="flex-1 flex items-center justify-start">
+                <div className="hidden sm:flex items-center gap-1 cursor-pointer bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-white transition-colors" onClick={requestLocation}>
+                  <FiMapPin size={14} />
+                  <span className="text-[13px] font-bold tracking-wide">{locationName}</span>
+                  <FiChevronDown size={14} />
                 </div>
-              ) : (
-                <div onClick={() => setSidebarOpen(true)} className="relative cursor-pointer group">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm hover:shadow-md transition-all overflow-hidden">
-                    {currentUser?.profileImage ? (
-                      <img src={`${baseURL}/${currentUser.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
-                    ) : (
-                      <FaUserCircle size={20} className="text-white" />
-                    )}
+              </div>
+
+              {/* Logo Center */}
+              <div className="flex-shrink-0 flex justify-center items-center px-1 sm:px-2">
+                <img src={logo} alt="Baynana" className="h-[40px] sm:h-[48px] lg:h-[56px] object-contain" />
+              </div>
+
+              {/* Right Profile Icon / Auth Buttons */}
+              <div className="flex-1 flex justify-end items-center">
+                {!isLoggedIn ? (
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <button
+                      onClick={() => setIsLoginPopupOpen(true)}
+                      className="text-white text-[10px] sm:text-xs font-bold bg-black/20 hover:bg-black/30 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors"
+                    >
+                      Login
+                    </button>
+                    <button
+                      onClick={() => setIsSignUpPopupOpen(true)}
+                      className="text-[#4285F4] text-[10px] sm:text-xs font-bold bg-white hover:bg-gray-50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors shadow-sm"
+                    >
+                      Register
+                    </button>
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* ═══════════════════════════════════════ */}
-        {/* 2️⃣ SEARCH BAR                          */}
-        {/* ═══════════════════════════════════════ */}
-        <div className="bg-white px-4 lg:px-8 pt-3 pb-5 shadow-sm border-t border-gray-100">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-center bg-[#f0f1f5] rounded-xl h-12 lg:h-14 px-4 border border-gray-200 hover:border-blue-300 focus-within:border-blue-400 focus-within:bg-white focus-within:shadow-md transition-all duration-300 max-w-2xl lg:max-w-none">
-              <FiSearch className="text-gray-400 flex-shrink-0" size={20} />
-              <input
-                type="text"
-                placeholder="Search for anything..."
-                className="w-full h-full px-3 text-gray-700 bg-transparent outline-none placeholder-gray-400 font-medium text-sm"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-              <div className="pl-3 border-l border-gray-300 h-5 flex items-center cursor-pointer" onClick={handleVoiceSearch}>
-                <FiMic className={`transition-colors flex-shrink-0 ${isListening ? 'text-red-500 animate-pulse' : 'text-blue-500 hover:text-blue-600'}`} size={18} />
+                ) : (
+                  <div onClick={() => setSidebarOpen(true)} className="cursor-pointer">
+                    <div className="w-[30px] h-[30px] rounded-full bg-black/40 text-white flex items-center justify-center shadow-sm overflow-hidden">
+                      {currentUser?.profileImage ? (
+                        <img src={`${baseURL}/${currentUser.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <FaUserCircle size={18} />
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
+
+            {/* Search Bar */}
+            <div className="mt-5 w-full">
+              <div className="flex items-center bg-white rounded-[4px] h-[40px] px-3 shadow-sm">
+                <FiSearch className="text-gray-600" size={16} />
+                <input
+                  type="text"
+                  placeholder="Search Businesses"
+                  className="w-full h-full px-2 text-gray-800 bg-transparent outline-none placeholder-gray-400 font-medium text-[13px] lg:text-sm"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                />
+                <button onClick={handleVoiceSearch} className="pl-2 border-l border-gray-100 flex items-center h-full">
+                  <FiMic className={`${isListening ? 'text-red-500 animate-pulse' : 'text-gray-600'} transition-colors ml-1`} size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Banner Block */}
+            <div className="mt-4 relative z-0">
+              <HomeBanner banner={banner} loading={bannerLoading} />
+              {(!banner || banner.length === 0) && !bannerLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white rounded-2xl shadow-sm aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1]">
+                  <p className="text-[10px] sm:text-xs text-gray-400 font-medium z-10">Paid Promotional Content Here</p>
+                </div>
+              )}
+            </div>
+
+
           </div>
         </div>
 
         {/* ═══════════════════════════════════════ */}
-        {/* MAIN CONTENT                            */}
+        {/* MAIN BODY                               */}
         {/* ═══════════════════════════════════════ */}
-        <div className="max-w-7xl mx-auto">
-
-          {/* SEARCH RESULTS MODE */}
-          {searchText ? (
-            <div className="px-4 mt-4">
-              {loading && <p className="text-center text-gray-400 py-10">Searching...</p>}
-              {!loading && searchResults.length === 0 && (
-                <div className="text-center py-10">
-                  <p className="text-gray-500 font-medium">No results found</p>
+        {searchText ? (
+          <div className="max-w-4xl mx-auto px-4 mt-6">
+            {loading && <p className="text-center text-gray-400 py-10 font-medium">Searching...</p>}
+            {!loading && searchResults.length === 0 && (
+              <div className="text-center py-10">
+                <p className="text-gray-500 font-medium">No results found for "{searchText}"</p>
+              </div>
+            )}
+            <div className="space-y-4">
+              {searchResults.map((biz) => (
+                <BusinessListCard key={biz._id} business={biz} />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-4xl mx-auto">
+            {/* 3️⃣ CATEGORY GRID */}
+            <div className="px-4 sm:px-8 mt-6">
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-4 sm:gap-6 lg:gap-8 justify-items-center">
+                {dynamicCategories.slice(0, 9).map((cat, index) => {
+                  const color = categoryColors[index % categoryColors.length];
+                  return (
+                    <div key={cat._id} className="flex flex-col items-center gap-1.5 cursor-pointer w-full group" onClick={() => navigate(`/category/${cat._id}`)}>
+                      <div className={`w-[56px] h-[56px] sm:w-[64px] sm:h-[64px] md:w-[72px] md:h-[72px] ${cat.icon ? color.bg : 'bg-gray-50 border border-gray-100'} flex items-center justify-center rounded-xl group-hover:shadow-sm transition-all overflow-hidden`}>
+                        {cat.icon ? (
+                          <span className={`text-[20px] sm:text-2xl ${color.text}`}>{cat.icon}</span>
+                        ) : (
+                          <img src={`${baseURL}/uploads/category/${cat.image}`} alt={cat.name} className="w-full h-full object-cover" />
+                        )}
+                      </div>
+                      <p className="text-[9px] sm:text-[11px] font-bold text-gray-800 text-center leading-tight px-0.5 max-w-[56px] break-words">
+                        {cat.name}
+                      </p>
+                    </div>
+                  );
+                })}
+                {/* Static Show More Icon */}
+                <div className="flex flex-col items-center gap-1.5 cursor-pointer w-full group" onClick={() => navigate('/categories')}>
+                  <div className="w-[56px] h-[56px] sm:w-[64px] sm:h-[64px] md:w-[72px] md:h-[72px] bg-white border border-gray-100 flex items-center justify-center rounded-xl group-hover:shadow-sm transition-all overflow-hidden">
+                    <div className="w-[30px] h-[30px] sm:w-[36px] sm:h-[36px] bg-[#4285F4] rounded-full flex items-center justify-center shadow-sm">
+                      <FiChevronDown size={18} className="text-white" />
+                    </div>
+                  </div>
+                  <p className="text-[9px] sm:text-[11px] font-bold text-gray-800 text-center leading-tight px-0.5">
+                    Show More
+                  </p>
                 </div>
-              )}
-              <div className="space-y-4">
-                {searchResults.map((biz) => (
-                  <BusinessListCard key={biz._id} business={biz} />
+              </div>
+            </div>
+
+            {/* 4️⃣ LIST YOUR BUSINESS FREE (Strip banner) */}
+            <div className="px-4 sm:px-8 mt-8">
+              <div className="border border-[#abc9fc] rounded-[4px] py-2 px-3 flex items-center justify-between sm:justify-start sm:gap-6 shadow-sm relative overflow-hidden bg-gradient-to-r from-[#f5f9ff] to-white lg:py-4 lg:px-6">
+                <div className="flex items-center gap-1.5 pl-1">
+                  <h3 className="text-[12px] sm:text-sm lg:text-base font-extrabold text-[#3a3a3a]">List Your Business</h3>
+                  <span className="bg-[#fe4b49] text-white text-[9px] sm:text-[10px] lg:text-xs font-bold px-1.5 py-0.5 rounded-[3px] shadow-[0_1px_3px_rgba(254,75,73,0.3)]">Free</span>
+                </div>
+                <button
+                  onClick={() => isLoggedIn ? navigate('/user/add-business') : setIsFreeListingPopupOpen(true)}
+                  className="bg-[#4285F4] hover:bg-blue-600 text-white text-[11px] sm:text-xs lg:text-sm font-bold px-3 py-1.5 sm:px-5 sm:py-2 rounded-[4px] active:scale-95 transition-transform ml-auto"
+                >
+                  Start Now
+                </button>
+              </div>
+            </div>
+
+            {/* 5️⃣ FIND JOBS ON BAYNANA */}
+            {/* <div className="mt-8">
+              <div className="flex justify-between items-center px-4 sm:px-8 mb-3 cursor-pointer">
+                <h3 className="text-[14px] sm:text-base lg:text-lg font-bold text-gray-800">Find Jobs on Baynana</h3>
+                <FiChevronRight size={18} className="text-gray-800 font-bold" />
+              </div>
+              <div className="flex overflow-x-auto hide-scrollbar px-4 sm:px-8 gap-3 pb-2 snap-x">
+                {['Web Developer', 'Office Boy', 'Salesman'].map((job, idx) => (
+                  <div key={`job-${idx}`} className="flex-shrink-0 w-[110px] sm:w-[130px] md:w-[150px] snap-center cursor-pointer">
+                    <div className="w-full aspect-[5/6] bg-[#fbf1ef] rounded-[6px] mb-2 hover:shadow-sm transition-all"></div>
+                    <p className="text-[10px] sm:text-xs font-bold text-gray-800 leading-tight truncate">{job}</p>
+                  </div>
+                ))}
+              </div>
+            </div> */}
+
+            {/* 6️⃣ EVENTS & ISLAMIC GATHERINGS */}
+            {eventBanners.length > 0 && (
+              <div className="mt-8">
+                <div className="flex justify-between items-center px-4 sm:px-8 mb-3 cursor-pointer">
+                  <h3 className="text-[14px] sm:text-base lg:text-lg font-bold text-gray-800">Events & Islamic Gatherings</h3>
+                  <FiChevronRight size={18} className="text-gray-800 font-bold" />
+                </div>
+                <div className="flex overflow-x-auto hide-scrollbar px-4 sm:px-8 gap-3 pb-2 snap-x">
+                  {eventBanners.map((eventBanner) => (
+                    <div key={eventBanner._id} className="flex-shrink-0 w-[100px] sm:w-[120px] md:w-[140px] snap-center cursor-pointer">
+                      <div className="w-full h-[140px] sm:h-[160px] md:h-[180px] bg-[#fdf3f0] rounded-[6px] overflow-hidden hover:shadow-sm transition-all border border-gray-50/50">
+                        <img
+                          src={`${baseURL}/${eventBanner.image}`}
+                          alt={eventBanner.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 7️⃣ LEARN ISLAMIC METHOD OF BUSINESS */}
+            <div className="mt-8">
+              <div className="flex justify-between items-center px-4 sm:px-8 mb-3 cursor-pointer">
+                <h3 className="text-[14px] sm:text-base lg:text-lg font-bold text-gray-800">Learn Islamic Method of Business</h3>
+                <FiChevronRight size={18} className="text-gray-800 font-bold" />
+              </div>
+              <div className="flex overflow-x-auto hide-scrollbar px-4 sm:px-8 gap-3 pb-2 snap-x">
+                {videos.map((video) => (
+                  <div key={video._id} className="flex-shrink-0 w-[160px] sm:w-[200px] md:w-[240px] snap-center cursor-pointer group">
+                    <div className="w-full aspect-[6/4] bg-[#f0ecfc] rounded-[6px] overflow-hidden flex items-center justify-center relative hover:shadow-sm transition-all border border-gray-100">
+                      <video
+                        src={`${baseURL}/${video.videoPath}`}
+                        className="w-full h-full object-cover"
+                        controls
+                        playsInline
+                        preload="metadata"
+                      />
+                    </div>
+                    <p className="text-[9px] sm:text-[10px] md:text-xs text-gray-800 font-medium mt-1.5 leading-[1.2] line-clamp-2 pr-2">
+                      {video.title} {video.description ? `- ${video.description}` : ''}
+                    </p>
+                  </div>
                 ))}
               </div>
             </div>
-          ) : (
-            <>
-              {/* ═══════════════════════════════════════ */}
-              {/* 3️⃣ BANNER CAROUSEL                     */}
-              {/* ═══════════════════════════════════════ */}
-              <div className="px-4 lg:px-8 mt-6">
-                <div className="rounded-2xl overflow-hidden shadow-md relative">
-                  <HomeBanner banner={banner} loading={bannerLoading} />
-                  {/* FEATURED Tag Overlay */}
-                  {banner && banner.length > 0 && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-4 pointer-events-none">
-                      <span className="inline-block bg-blue-600 text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-md mb-2 tracking-wider">Featured</span>
-                      <h3 className="text-white text-base sm:text-lg font-bold leading-snug drop-shadow-lg">{banner[0]?.title || 'Discover Top Services'}</h3>
-                      <p className="text-white/80 text-xs sm:text-sm mt-0.5">{banner[0]?.subtitle || 'Find the best deals near you'}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
 
-              {/* ═══════════════════════════════════════ */}
-              {/* 4️⃣ CATEGORY GRID (2 rows × 4 cols)    */}
-              {/* ═══════════════════════════════════════ */}
-              <div className="px-4 lg:px-8 mt-6">
-                <div className="bg-white rounded-2xl p-4 lg:p-6 shadow-sm border border-gray-100">
-                  <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-y-5 gap-x-3 lg:gap-x-4">
-                    {dynamicCategories.map((cat, index) => {
-                      const color = categoryColors[index % categoryColors.length];
-                      return (
-                        <div
-                          key={cat._id}
-                          className="flex flex-col items-center gap-2 cursor-pointer group"
-                          onClick={() => navigate(`/category/${cat._id}`)}
-                        >
-                          <div className={`w-14 h-14 sm:w-16 sm:h-16 lg:w-[4.5rem] lg:h-[4.5rem] rounded-2xl ${color.bg} ${color.border} border flex items-center justify-center group-hover:shadow-md group-hover:scale-105 transition-all duration-200 overflow-hidden`}>
-                            {cat.icon ? (
-                              <span className={`text-2xl ${color.text}`}>{cat.icon}</span>
-                            ) : (
-                              <img
-                                src={`${baseURL}/uploads/category/${cat.image}`}
-                                alt={cat.name}
-                                className="w-8 h-8 sm:w-9 sm:h-9 object-cover"
-                              />
-                            )}
-                          </div>
-                          <p className="text-[11px] sm:text-xs lg:text-sm font-medium text-gray-600 text-center leading-tight group-hover:text-blue-600 transition-colors line-clamp-2 px-1">
-                            {cat.name}
-                          </p>
-                        </div>
-                      );
-                    })}
+            {/* 8️⃣ DONATE TO NOOR E IMAN */}
+            <div className="mt-12 mb-8 px-4 sm:px-8 text-center flex flex-col items-center">
+              <h2 className="text-[22px] sm:text-2xl lg:text-3xl font-extrabold text-[#3a3a3a] mb-5">Donate to Noor E Iman</h2>
+
+              {/* Emblem Placeholder (using CSS structure resembling the logo in screenshot) */}
+              <div className="w-[84px] h-[100px] sm:w-[100px] sm:h-[120px] mb-6 relative flex flex-col items-center justify-center text-white font-bold pb-2 drop-shadow-sm">
+                <div className="absolute inset-0 bg-white border-[3px] border-[#31a3d9] rounded-t-[40px] rounded-b-[10px] transform perspective-[100px] rotateX-0 z-0 after:content-[''] after:absolute after:-bottom-[15px] after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-0 after:border-l-[40px] after:border-l-transparent after:border-r-[40px] after:border-r-transparent after:border-t-[20px] after:border-t-[#31a3d9] flex justify-center items-center">
+                  <div className="w-[85%] h-[85%] border-2 border-[#31a3d9] rounded-t-[30px] rounded-b-[5px] flex items-center justify-center bg-white m-auto">
+                    <span className="text-[#31a3d9] font-extrabold text-xl leading-tight text-center">નૂરે<br />ઇમાન</span>
                   </div>
                 </div>
               </div>
 
-              {/* ═══════════════════════════════════════ */}
-              {/* 5️⃣ SOCIAL PROOF BAR                    */}
-              {/* ═══════════════════════════════════════ */}
+              <p className="text-[10px] sm:text-xs lg:text-sm text-gray-800 font-medium max-w-[280px] sm:max-w-sm mb-6 leading-relaxed">
+                To support baynana and our other work you can donate lillah, sadqah and zakat to our organisation. <span className="text-black font-extrabold border-b border-black pb-[0.5px] cursor-pointer">Learn More</span>
+              </p>
 
-
-              {/* ═══════════════════════════════════════ */}
-              {/* 6️⃣ POPULAR SERVICES — Horizontal Scroll */}
-              {/* ═══════════════════════════════════════ */}
-              <div className="mt-6">
-                <div className="flex justify-between items-center px-4 lg:px-8 mb-3">
-                  <h3 className="text-lg font-bold text-gray-800">Popular Services</h3>
-                  <span className="text-blue-600 text-sm font-semibold cursor-pointer hover:text-blue-700 transition-colors">View All</span>
+              <div className="flex items-center gap-4 sm:gap-6 justify-center bg-white/50 p-3 rounded-lg">
+                <div className="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] bg-white border-4 border-gray-900 flex items-center justify-center p-1 rounded-sm shadow-sm">
+                  {/* Simulated QR Pattern for missing image */}
+                  <div className="w-full h-full bg-[linear-gradient(45deg,#000_25%,transparent_25%,transparent_75%,#000_75%,#000),linear-gradient(45deg,#000_25%,transparent_25%,transparent_75%,#000_75%,#000)] bg-[length:10px_10px] bg-[position:0_0,5px_5px] opacity-80"></div>
                 </div>
-
-                <div className="flex md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 lg:gap-4 overflow-x-auto md:overflow-visible hide-scrollbar px-4 lg:px-8 pb-2">
-                  {dynamicCategories.slice(0, 6).map((cat, index) => {
-                    const color = categoryColors[index % categoryColors.length];
-                    return (
-                      <div
-                        key={`popular-${cat._id}`}
-                        className="flex-shrink-0 w-[130px] sm:w-40 md:w-auto cursor-pointer group"
-                        onClick={() => navigate(`/category/${cat._id}`)}
-                      >
-                        <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 group-hover:shadow-md transition-all duration-200">
-                          {/* Image */}
-                          <div className={`w-full h-24 sm:h-28 lg:h-40 ${color.bg} flex items-center justify-center relative overflow-hidden`}>
-                            {cat.image ? (
-                              <img
-                                src={`${baseURL}/uploads/category/${cat.image}`}
-                                alt={cat.name}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              />
-                            ) : (
-                              <span className={`text-4xl ${color.text}`}>{cat.icon || '📦'}</span>
-                            )}
-                          </div>
-                          {/* Info */}
-                          <div className="p-2.5">
-                            <p className="text-xs sm:text-sm font-semibold text-gray-800 truncate">{cat.name}</p>
-                            <p className="text-[11px] text-gray-400 mt-0.5">Explore services</p>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="text-left text-[9px] sm:text-[11px] lg:text-xs text-gray-800 font-medium leading-[1.3] flex flex-col gap-0.5">
+                  <p>Bank of Baroda</p>
+                  <p>78020100009407</p>
+                  <p>ImranHusain Saiyad</p>
+                  <p>BARBOVJRAJK</p>
                 </div>
               </div>
+            </div>
 
-              {/* ═══════════════════════════════════════ */}
-              {/* 7️⃣ & 8️⃣ CTAs — Side by side on desktop  */}
-              {/* ═══════════════════════════════════════ */}
-              <div className="px-4 lg:px-8 mt-6 mb-8 flex flex-col md:flex-row gap-4">
-                {/* Need Help CTA */}
-                <div className="flex-1 bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-700 rounded-2xl p-5 sm:p-6 relative overflow-hidden shadow-lg shadow-blue-200/50">
-                  {/* Decorative circles */}
-                  <div className="absolute top-0 right-0 w-28 h-28 bg-white/10 rounded-full blur-2xl -mr-8 -mt-8"></div>
-                  <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full blur-xl -ml-6 -mb-6"></div>
-
-                  <div className="relative z-10 flex items-start gap-4">
-                    <div className="flex-1">
-                      <h3 className="text-white text-lg sm:text-xl font-bold mb-1.5">Need help finding?</h3>
-                      <p className="text-blue-100 text-sm leading-relaxed mb-4">
-                        Tell us what you need and we'll find the best experts for you.
-                      </p>
-                      <button
-                        onClick={() => isLoggedIn ? navigate('/user/add-business') : setIsFreeListingPopupOpen(true)}
-                        className="bg-white text-blue-600 px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition-all duration-200 active:scale-95"
-                      >
-                        Post Your Requirement
-                      </button>
-                    </div>
-                    <div className="flex-shrink-0 w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                      <FiHeadphones className="text-white" size={24} />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Grow Your Business CTA */}
-                <div className="flex-1 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#334155] rounded-2xl p-5 sm:p-6 relative overflow-hidden shadow-lg">
-                  {/* Decorative */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
-                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl -ml-6 -mb-6"></div>
-
-                  <div className="relative z-10 text-center">
-                    <h3 className="text-white text-lg sm:text-xl font-bold mb-2">Grow Your Business</h3>
-                    <p className="text-gray-300 text-sm mb-4">List your business for free and reach millions of customers.</p>
-                    <button
-                      onClick={() => isLoggedIn ? navigate('/user/add-business') : setIsFreeListingPopupOpen(true)}
-                      className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
-                    >
-                      List for Free
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* POPUPS */}
       {isFreeListingPopupOpen && <FreeListingPopup onClose={() => setIsFreeListingPopupOpen(false)} />}
-      {
-        isLoginPopupOpen && (
-          <LoginPopup
-            onClose={() => setIsLoginPopupOpen(false)}
-            onLoginSuccess={checkAuth}
-          />
-        )
-      }
-      {
-        isSignUpPopupOpen && (
-          <SignUpPopup
-            onClose={() => setIsSignUpPopupOpen(false)}
-            onSignUpSuccess={checkAuth}
-          />
-        )
-      }
-    </UserLayout >
+      {isLoginPopupOpen && <LoginPopup onClose={() => setIsLoginPopupOpen(false)} onLoginSuccess={checkAuth} />}
+      {isSignUpPopupOpen && <SignUpPopup onClose={() => setIsSignUpPopupOpen(false)} onSignUpSuccess={checkAuth} />}
+    </UserLayout>
   );
 }
 
