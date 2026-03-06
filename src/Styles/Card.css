@@ -16,7 +16,7 @@
 
 .card-title {
     margin: 0 0 14px;
-    font-family: 'Inter', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-weight: 600;
     font-size: 16px;
     color: var(--text-primary, #0f172a);
@@ -30,7 +30,7 @@
 }
 
 .card-dropdown label {
-    font-family: 'Inter', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-weight: 500;
     font-size: 13px;
     color: var(--text-secondary, #475569);
@@ -40,7 +40,7 @@
     padding: 6px 12px;
     border: 1px solid var(--border-light, #e2e8f0);
     border-radius: 8px;
-    font-family: 'Inter', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 13px;
     color: var(--text-primary, #0f172a);
     background: var(--bg-surface, #ffffff);

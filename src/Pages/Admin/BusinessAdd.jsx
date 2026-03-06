@@ -104,6 +104,7 @@ const AddBusiness = () => {
     formData.append("category", derivedCategoryId);
     (values.subcategories || []).forEach((id) => formData.append("subcategories", id));
     (values.services || []).forEach((s) => formData.append("services", s));
+    (values.socialLinks || []).forEach((link) => formData.append("socialLinks", link));
 
     formData.append("timings", JSON.stringify(timings));
     fileList.forEach((file) => formData.append("images", file));
@@ -378,6 +379,36 @@ const AddBusiness = () => {
                   ))}
                   <Button type="dashed" block onClick={() => add()} style={{ borderRadius: 10, height: 44 }}>
                     + Add Service
+                  </Button>
+                </>
+              )}
+            </Form.List>
+
+            <Divider style={{ borderColor: '#f1f5f9' }} />
+
+            <h3 style={sectionTitleStyle}>
+              <span style={{ width: '3px', height: '16px', background: '#3b82f6', borderRadius: '2px', display: 'inline-block' }} />
+              Social Media Links
+            </h3>
+            <Form.List name="socialLinks">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map((field) => (
+                    <Row key={field.key} gutter={12}>
+                      <Col span={20}>
+                        <Form.Item {...field} rules={[{ required: true, message: 'Please enter link' }]}>
+                          <Input style={inputStyle} placeholder="Enter Social Media URL" />
+                        </Form.Item>
+                      </Col>
+                      <Col span={4}>
+                        <Button danger block onClick={() => remove(field.name)} style={{ borderRadius: 8, height: 44 }}>
+                          Remove
+                        </Button>
+                      </Col>
+                    </Row>
+                  ))}
+                  <Button type="dashed" block onClick={() => add()} style={{ borderRadius: 10, height: 44 }}>
+                    + Add Link
                   </Button>
                 </>
               )}

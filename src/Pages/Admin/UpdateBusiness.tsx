@@ -65,6 +65,7 @@ const UpdateBusiness = () => {
           address: data.address,
           description: data.description,
           services: data.services || [],
+          socialLinks: data.socialLinks || [],
           subcategories: subcategoryIds,
           isPaid: data.isPaid,
           paidAmount: data.paidAmount,
@@ -131,6 +132,9 @@ const UpdateBusiness = () => {
 
     // Append Services
     (values.services || []).forEach((s: string) => formData.append("services", s));
+
+    // Append Social Links
+    (values.socialLinks || []).forEach((link: string) => formData.append("socialLinks", link));
 
     // Append Timings
     formData.append("timings", JSON.stringify(timings));
@@ -272,6 +276,30 @@ const UpdateBusiness = () => {
                 </Row>
               ))}
               <Button type="dashed" block onClick={() => add()}>+ Add Service</Button>
+            </>
+          )}
+        </Form.List>
+
+        <Divider />
+
+        {/* Social Links */}
+        <h3 className="font-semibold text-gray-700 mb-3">🌐 Social Media Links</h3>
+        <Form.List name="socialLinks">
+          {(fields, { add, remove }) => (
+            <>
+              {fields.map((field) => (
+                <Row key={field.key} gutter={12} align="middle">
+                  <Col span={20}>
+                    <Form.Item {...field} rules={[{ required: true, message: 'Please enter link' }]}>
+                      <Input style={inputStyle} placeholder="Enter Social Media URL" />
+                    </Form.Item>
+                  </Col>
+                  <Col span={4}>
+                    <Button danger block onClick={() => remove(field.name)}>Remove</Button>
+                  </Col>
+                </Row>
+              ))}
+              <Button type="dashed" block onClick={() => add()}>+ Add Link</Button>
             </>
           )}
         </Form.List>

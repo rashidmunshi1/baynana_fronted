@@ -152,6 +152,7 @@ const UserAddBusiness = () => {
         formData.append("category", derivedCategoryId);
         selectedSubIds.forEach((id: string) => formData.append("subcategories", id));
         (values.services || []).forEach((service: string) => formData.append("services", service));
+        (values.socialLinks || []).forEach((link: string) => formData.append("socialLinks", link));
         formData.append("timings", JSON.stringify(timings));
         formData.append("userId", userId);
         fileList.forEach((file) => {
@@ -388,6 +389,48 @@ const UserAddBusiness = () => {
                         </Upload>
                         <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>You can upload up to 10 images (JPG, PNG)</p>
                     </Form.Item>
+                </Col>
+
+                <Col span={24}>
+                    <p style={{ fontWeight: 600, color: "#334155", fontSize: 14, margin: "12px 0 12px" }}>Social Media Links</p>
+                    <Form.List name="socialLinks">
+                        {(fields, { add, remove }) => (
+                            <>
+                                {fields.map((field) => (
+                                    <Row key={field.key} gutter={10} style={{ marginBottom: 8 }}>
+                                        <Col flex="auto">
+                                            <Form.Item {...field} noStyle>
+                                                <Input style={inputStyle} placeholder="e.g. instagram.com/mybusiness" />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col>
+                                            <Button
+                                                danger
+                                                icon={<DeleteOutlined />}
+                                                onClick={() => remove(field.name)}
+                                                style={{ height: 46, borderRadius: 10, width: 46 }}
+                                            />
+                                        </Col>
+                                    </Row>
+                                ))}
+                                <Button
+                                    type="dashed"
+                                    block
+                                    onClick={() => add()}
+                                    icon={<PlusOutlined />}
+                                    style={{
+                                        borderRadius: 10,
+                                        height: 44,
+                                        marginTop: 4,
+                                        color: "#3b82f6",
+                                        borderColor: "#93c5fd",
+                                    }}
+                                >
+                                    Add Social Link
+                                </Button>
+                            </>
+                        )}
+                    </Form.List>
                 </Col>
             </Row>
         </div>
