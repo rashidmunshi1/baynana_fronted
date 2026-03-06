@@ -5,7 +5,7 @@
 .sidebar-inner {
     background: var(--sidebar-bg, #0f172a);
     position: relative;
-    font-family: 'Inter', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .sidebar-close-btn {

@@ -247,7 +247,7 @@ const HomePage: React.FC = () => {
           style={{ borderBottomLeftRadius: "50% 40px", borderBottomRightRadius: "50% 40px" }}
         >
 
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             {/* Top row: Location, Logo, Profile */}
             <div className="flex justify-between items-center w-full">
               {/* Desktop Location (or spacer on mobile) */}
@@ -297,17 +297,17 @@ const HomePage: React.FC = () => {
 
             {/* Search Bar */}
             <div className="mt-5 w-full">
-              <div className="flex items-center bg-white rounded-[4px] h-[40px] px-3 shadow-sm">
-                <FiSearch className="text-gray-600" size={16} />
+              <div className="flex items-center bg-white rounded-[4px] h-[40px] px-3 shadow-sm lg:h-[48px]">
+                <FiSearch className="text-gray-600 lg:w-5 lg:h-5" size={16} />
                 <input
                   type="text"
                   placeholder="Search Businesses"
-                  className="w-full h-full px-2 text-gray-800 bg-transparent outline-none placeholder-gray-400 font-medium text-[13px] lg:text-sm"
+                  className="w-full h-full px-2 lg:px-4 text-gray-800 bg-transparent outline-none placeholder-gray-400 font-medium text-[13px] lg:text-base"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
                 />
-                <button onClick={handleVoiceSearch} className="pl-2 border-l border-gray-100 flex items-center h-full">
-                  <FiMic className={`${isListening ? 'text-red-500 animate-pulse' : 'text-gray-600'} transition-colors ml-1`} size={16} />
+                <button onClick={handleVoiceSearch} className="pl-2 lg:pl-4 border-l border-gray-100 flex items-center h-full">
+                  <FiMic className={`${isListening ? 'text-red-500 animate-pulse' : 'text-gray-600'} transition-colors ml-1 lg:w-5 lg:h-5`} size={16} />
                 </button>
               </div>
             </div>
@@ -316,7 +316,7 @@ const HomePage: React.FC = () => {
             <div className="mt-4 relative z-0">
               <HomeBanner banner={banner} loading={bannerLoading} />
               {(!banner || banner.length === 0) && !bannerLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white rounded-2xl shadow-sm aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1]">
+                <div className="absolute inset-0 flex items-center justify-center bg-white rounded-2xl shadow-sm aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1] lg:aspect-[4/1]">
                   <p className="text-[10px] sm:text-xs text-gray-400 font-medium z-10">Paid Promotional Content Here</p>
                 </div>
               )}
@@ -330,7 +330,7 @@ const HomePage: React.FC = () => {
         {/* MAIN BODY                               */}
         {/* ═══════════════════════════════════════ */}
         {searchText ? (
-          <div className="max-w-4xl mx-auto px-4 mt-6">
+          <div className="max-w-7xl mx-auto px-4 mt-6">
             {loading && <p className="text-center text-gray-400 py-10 font-medium">Searching...</p>}
             {!loading && searchResults.length === 0 && (
               <div className="text-center py-10">
@@ -344,35 +344,35 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             {/* 3️⃣ CATEGORY GRID */}
-            <div className="px-4 sm:px-8 mt-6">
-              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-4 sm:gap-6 lg:gap-8 justify-items-center">
+            <div className="px-4 sm:px-8 mt-8">
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-10">
                 {dynamicCategories.slice(0, 9).map((cat, index) => {
                   const color = categoryColors[index % categoryColors.length];
                   return (
-                    <div key={cat._id} className="flex flex-col items-center gap-1.5 cursor-pointer w-full group" onClick={() => navigate(`/category/${cat._id}`)}>
-                      <div className={`w-[56px] h-[56px] sm:w-[64px] sm:h-[64px] md:w-[72px] md:h-[72px] ${cat.icon ? color.bg : 'bg-gray-50 border border-gray-100'} flex items-center justify-center rounded-xl group-hover:shadow-sm transition-all overflow-hidden`}>
+                    <div key={cat._id} className="flex flex-col items-center gap-2 cursor-pointer w-[64px] sm:w-[76px] md:w-[84px] lg:w-[100px] group" onClick={() => navigate(`/category/${cat._id}`)}>
+                      <div className={`w-[56px] h-[56px] sm:w-[68px] sm:h-[68px] md:w-[76px] md:h-[76px] lg:w-[90px] lg:h-[90px] ${cat.icon ? color.bg : 'bg-gray-50 border border-gray-100'} flex items-center justify-center rounded-xl lg:rounded-2xl group-hover:shadow-md transition-all overflow-hidden`}>
                         {cat.icon ? (
-                          <span className={`text-[20px] sm:text-2xl ${color.text}`}>{cat.icon}</span>
+                          <span className={`text-[20px] sm:text-2xl md:text-3xl lg:text-4xl ${color.text}`}>{cat.icon}</span>
                         ) : (
                           <img src={`${baseURL}/uploads/category/${cat.image}`} alt={cat.name} className="w-full h-full object-cover" />
                         )}
                       </div>
-                      <p className="text-[9px] sm:text-[11px] font-bold text-gray-800 text-center leading-tight px-0.5 max-w-[56px] break-words">
+                      <p className="text-[10px] sm:text-[11px] md:text-xs font-bold text-gray-800 text-center leading-tight break-words px-0.5">
                         {cat.name}
                       </p>
                     </div>
                   );
                 })}
                 {/* Static Show More Icon */}
-                <div className="flex flex-col items-center gap-1.5 cursor-pointer w-full group" onClick={() => navigate('/categories')}>
-                  <div className="w-[56px] h-[56px] sm:w-[64px] sm:h-[64px] md:w-[72px] md:h-[72px] bg-white border border-gray-100 flex items-center justify-center rounded-xl group-hover:shadow-sm transition-all overflow-hidden">
-                    <div className="w-[30px] h-[30px] sm:w-[36px] sm:h-[36px] bg-[#4285F4] rounded-full flex items-center justify-center shadow-sm">
-                      <FiChevronDown size={18} className="text-white" />
+                <div className="flex flex-col items-center gap-2 cursor-pointer w-[64px] sm:w-[76px] md:w-[84px] lg:w-[100px] group" onClick={() => navigate('/categories')}>
+                  <div className="w-[56px] h-[56px] sm:w-[68px] sm:h-[68px] md:w-[76px] md:h-[76px] lg:w-[90px] lg:h-[90px] bg-white border border-gray-100 flex items-center justify-center rounded-xl lg:rounded-2xl group-hover:shadow-md transition-all overflow-hidden">
+                    <div className="w-[30px] h-[30px] sm:w-[36px] sm:h-[36px] md:w-[40px] md:h-[40px] lg:w-[48px] lg:h-[48px] bg-[#4285F4] rounded-full flex items-center justify-center shadow-sm group-hover:bg-blue-600 transition-colors">
+                      <FiChevronDown size={24} className="text-white lg:w-7 lg:h-7" />
                     </div>
                   </div>
-                  <p className="text-[9px] sm:text-[11px] font-bold text-gray-800 text-center leading-tight px-0.5">
+                  <p className="text-[10px] sm:text-[11px] md:text-xs font-bold text-gray-800 text-center leading-tight px-0.5">
                     Show More
                   </p>
                 </div>
@@ -380,48 +380,32 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* 4️⃣ LIST YOUR BUSINESS FREE (Strip banner) */}
-            <div className="px-4 sm:px-8 mt-8">
-              <div className="border border-[#abc9fc] rounded-[4px] py-2 px-3 flex items-center justify-between sm:justify-start sm:gap-6 shadow-sm relative overflow-hidden bg-gradient-to-r from-[#f5f9ff] to-white lg:py-4 lg:px-6">
-                <div className="flex items-center gap-1.5 pl-1">
-                  <h3 className="text-[12px] sm:text-sm lg:text-base font-extrabold text-[#3a3a3a]">List Your Business</h3>
-                  <span className="bg-[#fe4b49] text-white text-[9px] sm:text-[10px] lg:text-xs font-bold px-1.5 py-0.5 rounded-[3px] shadow-[0_1px_3px_rgba(254,75,73,0.3)]">Free</span>
+            <div className="px-4 sm:px-8 mt-10">
+              <div className="border border-[#abc9fc] rounded-[8px] py-3 px-4 flex items-center justify-between sm:justify-start sm:gap-6 shadow-sm relative overflow-hidden bg-gradient-to-r from-[#f5f9ff] to-white lg:py-5 lg:px-8 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-2 pl-1">
+                  <h3 className="text-[14px] sm:text-base lg:text-lg font-extrabold text-[#3a3a3a]">List Your Business</h3>
+                  <span className="bg-[#fe4b49] text-white text-[10px] sm:text-xs lg:text-sm font-bold px-2 py-0.5 rounded-[4px] shadow-[0_1px_3px_rgba(254,75,73,0.3)]">Free</span>
                 </div>
                 <button
                   onClick={() => isLoggedIn ? navigate('/user/add-business') : setIsFreeListingPopupOpen(true)}
-                  className="bg-[#4285F4] hover:bg-blue-600 text-white text-[11px] sm:text-xs lg:text-sm font-bold px-3 py-1.5 sm:px-5 sm:py-2 rounded-[4px] active:scale-95 transition-transform ml-auto"
+                  className="bg-[#4285F4] hover:bg-blue-600 text-white text-[12px] sm:text-sm lg:text-base font-bold px-4 py-2 sm:px-6 sm:py-2.5 rounded-[6px] active:scale-95 transition-transform ml-auto shadow-sm"
                 >
                   Start Now
                 </button>
               </div>
             </div>
 
-            {/* 5️⃣ FIND JOBS ON BAYNANA */}
-            {/* <div className="mt-8">
-              <div className="flex justify-between items-center px-4 sm:px-8 mb-3 cursor-pointer">
-                <h3 className="text-[14px] sm:text-base lg:text-lg font-bold text-gray-800">Find Jobs on Baynana</h3>
-                <FiChevronRight size={18} className="text-gray-800 font-bold" />
-              </div>
-              <div className="flex overflow-x-auto hide-scrollbar px-4 sm:px-8 gap-3 pb-2 snap-x">
-                {['Web Developer', 'Office Boy', 'Salesman'].map((job, idx) => (
-                  <div key={`job-${idx}`} className="flex-shrink-0 w-[110px] sm:w-[130px] md:w-[150px] snap-center cursor-pointer">
-                    <div className="w-full aspect-[5/6] bg-[#fbf1ef] rounded-[6px] mb-2 hover:shadow-sm transition-all"></div>
-                    <p className="text-[10px] sm:text-xs font-bold text-gray-800 leading-tight truncate">{job}</p>
-                  </div>
-                ))}
-              </div>
-            </div> */}
-
             {/* 6️⃣ EVENTS & ISLAMIC GATHERINGS */}
             {eventBanners.length > 0 && (
-              <div className="mt-8">
-                <div className="flex justify-between items-center px-4 sm:px-8 mb-3 cursor-pointer">
-                  <h3 className="text-[14px] sm:text-base lg:text-lg font-bold text-gray-800">Events & Islamic Gatherings</h3>
-                  <FiChevronRight size={18} className="text-gray-800 font-bold" />
+              <div className="mt-10">
+                <div className="flex justify-between items-center px-4 sm:px-8 mb-4 cursor-pointer">
+                  <h3 className="text-[16px] sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-800">Events & Islamic Gatherings</h3>
+                  <FiChevronRight size={20} className="text-gray-800 font-bold xl:w-6 xl:h-6" />
                 </div>
-                <div className="flex overflow-x-auto hide-scrollbar px-4 sm:px-8 gap-3 pb-2 snap-x">
+                <div className="flex overflow-x-auto hide-scrollbar px-4 sm:px-8 gap-4 md:gap-6 lg:gap-8 pb-4 snap-x">
                   {eventBanners.map((eventBanner) => (
-                    <div key={eventBanner._id} className="flex-shrink-0 w-[100px] sm:w-[120px] md:w-[140px] snap-center cursor-pointer">
-                      <div className="w-full h-[140px] sm:h-[160px] md:h-[180px] bg-[#fdf3f0] rounded-[6px] overflow-hidden hover:shadow-sm transition-all border border-gray-50/50">
+                    <div key={eventBanner._id} className="flex-shrink-0 w-[140px] sm:w-[180px] md:w-[240px] lg:w-[280px] xl:w-[340px] snap-center cursor-pointer">
+                      <div className="w-full aspect-[4/5] bg-[#fdf3f0] rounded-[8px] xl:rounded-[12px] overflow-hidden hover:shadow-md transition-all border border-gray-100">
                         <img
                           src={`${baseURL}/${eventBanner.image}`}
                           alt={eventBanner.title}
@@ -435,15 +419,15 @@ const HomePage: React.FC = () => {
             )}
 
             {/* 7️⃣ LEARN ISLAMIC METHOD OF BUSINESS */}
-            <div className="mt-8">
-              <div className="flex justify-between items-center px-4 sm:px-8 mb-3 cursor-pointer">
-                <h3 className="text-[14px] sm:text-base lg:text-lg font-bold text-gray-800">Learn Islamic Method of Business</h3>
-                <FiChevronRight size={18} className="text-gray-800 font-bold" />
+            <div className="mt-10">
+              <div className="flex justify-between items-center px-4 sm:px-8 mb-4 cursor-pointer">
+                <h3 className="text-[16px] sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-800">Learn Islamic Method of Business</h3>
+                <FiChevronRight size={20} className="text-gray-800 font-bold xl:w-6 xl:h-6" />
               </div>
-              <div className="flex overflow-x-auto hide-scrollbar px-4 sm:px-8 gap-3 pb-2 snap-x">
+              <div className="flex overflow-x-auto hide-scrollbar px-4 sm:px-8 gap-4 md:gap-6 lg:gap-8 pb-4 snap-x">
                 {videos.map((video) => (
-                  <div key={video._id} className="flex-shrink-0 w-[160px] sm:w-[200px] md:w-[240px] snap-center cursor-pointer group">
-                    <div className="w-full aspect-[6/4] bg-[#f0ecfc] rounded-[6px] overflow-hidden flex items-center justify-center relative hover:shadow-sm transition-all border border-gray-100">
+                  <div key={video._id} className="flex-shrink-0 w-[200px] sm:w-[260px] md:w-[320px] lg:w-[380px] xl:w-[460px] snap-center cursor-pointer group">
+                    <div className="w-full aspect-[16/9] bg-[#f0ecfc] rounded-[8px] xl:rounded-[12px] overflow-hidden flex items-center justify-center relative hover:shadow-md transition-all border border-gray-100">
                       <video
                         src={`${baseURL}/${video.videoPath}`}
                         className="w-full h-full object-cover"
@@ -452,7 +436,7 @@ const HomePage: React.FC = () => {
                         preload="metadata"
                       />
                     </div>
-                    <p className="text-[9px] sm:text-[10px] md:text-xs text-gray-800 font-medium mt-1.5 leading-[1.2] line-clamp-2 pr-2">
+                    <p className="text-[9px] sm:text-[10px] md:text-xs xl:text-sm text-gray-800 font-medium mt-1.5 xl:mt-2.5 leading-[1.2] lg:leading-[1.4] line-clamp-2 pr-2">
                       {video.title} {video.description ? `- ${video.description}` : ''}
                     </p>
                   </div>
@@ -461,28 +445,28 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* 8️⃣ DONATE TO NOOR E IMAN */}
-            <div className="mt-12 mb-8 px-4 sm:px-8 text-center flex flex-col items-center">
+            <div className="mt-14 mb-10 px-4 sm:px-8 text-center flex flex-col items-center">
               <h2 className="text-[22px] sm:text-2xl lg:text-3xl font-extrabold text-[#3a3a3a] mb-5">Donate to Noor E Iman</h2>
 
               {/* Emblem Placeholder (using CSS structure resembling the logo in screenshot) */}
-              <div className="w-[84px] h-[100px] sm:w-[100px] sm:h-[120px] mb-6 relative flex flex-col items-center justify-center text-white font-bold pb-2 drop-shadow-sm">
-                <div className="absolute inset-0 bg-white border-[3px] border-[#31a3d9] rounded-t-[40px] rounded-b-[10px] transform perspective-[100px] rotateX-0 z-0 after:content-[''] after:absolute after:-bottom-[15px] after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-0 after:border-l-[40px] after:border-l-transparent after:border-r-[40px] after:border-r-transparent after:border-t-[20px] after:border-t-[#31a3d9] flex justify-center items-center">
+              <div className="w-[84px] h-[100px] sm:w-[100px] sm:h-[120px] lg:w-[120px] lg:h-[140px] mb-6 lg:mb-8 relative flex flex-col items-center justify-center text-white font-bold pb-2 drop-shadow-sm">
+                <div className="absolute inset-0 bg-white border-[3px] border-[#31a3d9] rounded-t-[40px] rounded-b-[10px] transform perspective-[100px] rotateX-0 z-0 after:content-[''] after:absolute after:-bottom-[15px] after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-0 after:border-l-[40px] after:border-l-transparent after:border-r-[40px] after:border-r-transparent after:border-t-[20px] after:border-t-[#31a3d9] flex justify-center items-center lg:after:border-l-[50px] lg:after:border-r-[50px] lg:after:border-t-[25px] lg:after:-bottom-[18px]">
                   <div className="w-[85%] h-[85%] border-2 border-[#31a3d9] rounded-t-[30px] rounded-b-[5px] flex items-center justify-center bg-white m-auto">
-                    <span className="text-[#31a3d9] font-extrabold text-xl leading-tight text-center">નૂરે<br />ઇમાન</span>
+                    <span className="text-[#31a3d9] font-extrabold text-xl lg:text-2xl leading-tight text-center">નૂરે<br />ઇમાન</span>
                   </div>
                 </div>
               </div>
 
-              <p className="text-[10px] sm:text-xs lg:text-sm text-gray-800 font-medium max-w-[280px] sm:max-w-sm mb-6 leading-relaxed">
+              <p className="text-[10px] sm:text-xs lg:text-sm xl:text-base text-gray-800 font-medium max-w-[280px] sm:max-w-md lg:max-w-xl mb-6 lg:mb-8 leading-relaxed">
                 To support baynana and our other work you can donate lillah, sadqah and zakat to our organisation. <span className="text-black font-extrabold border-b border-black pb-[0.5px] cursor-pointer">Learn More</span>
               </p>
 
-              <div className="flex items-center gap-4 sm:gap-6 justify-center bg-white/50 p-3 rounded-lg">
-                <div className="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] bg-white border-4 border-gray-900 flex items-center justify-center p-1 rounded-sm shadow-sm">
+              <div className="flex items-center gap-4 sm:gap-6 lg:gap-8 justify-center bg-white/50 p-3 sm:p-4 lg:p-5 rounded-lg">
+                <div className="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[100px] lg:h-[100px] bg-white border-4 border-gray-900 flex items-center justify-center p-1 rounded-sm shadow-sm">
                   {/* Simulated QR Pattern for missing image */}
                   <div className="w-full h-full bg-[linear-gradient(45deg,#000_25%,transparent_25%,transparent_75%,#000_75%,#000),linear-gradient(45deg,#000_25%,transparent_25%,transparent_75%,#000_75%,#000)] bg-[length:10px_10px] bg-[position:0_0,5px_5px] opacity-80"></div>
                 </div>
-                <div className="text-left text-[9px] sm:text-[11px] lg:text-xs text-gray-800 font-medium leading-[1.3] flex flex-col gap-0.5">
+                <div className="text-left text-[9px] sm:text-[11px] lg:text-sm xl:text-base text-gray-800 font-medium leading-[1.3] lg:leading-[1.5] flex flex-col gap-0.5 lg:gap-1">
                   <p>Bank of Baroda</p>
                   <p>78020100009407</p>
                   <p>ImranHusain Saiyad</p>
