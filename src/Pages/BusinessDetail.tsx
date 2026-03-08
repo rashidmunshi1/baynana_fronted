@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
     FaStar, FaRegStar, FaShareAlt, FaCopy,
-    FaInstagram, FaFacebookF, FaWhatsapp, FaPhoneAlt
+    FaInstagram, FaFacebookF, FaWhatsapp, FaPhoneAlt, FaEdit, FaTrash
 } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
 import { MdVerified } from "react-icons/md";
@@ -13,6 +13,7 @@ import { RiDirectionLine, RiSendPlaneFill } from "react-icons/ri";
 import UserLayout from "../DesignLayout/UserLayout";
 import ReviewModal from "../Components/ReviewModal";
 import baseURL from "../config";
+import LoadingSpinner from "../Components/LoadingSpinner";
 
 interface BusinessDetail {
     _id: string;
@@ -33,6 +34,7 @@ interface BusinessDetail {
     rating?: number;
     ratingCount?: number;
     reviews?: {
+        _id?: string;
         rating: number;
         review?: string;
         userName?: string;
@@ -49,6 +51,11 @@ const BusinessDetailPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [isReviewOpen, setIsReviewOpen] = useState(false);
 
+    // For editing an existing review from the list/stars
+    const [editReviewData, setEditReviewData] = useState<{ id: string | null; rating: number; review: string }>({ id: null, rating: 0, review: '' });
+
+    const currentUserId = localStorage.getItem("userId");
+
     const fetchBusiness = async () => {
         try {
             const res = await axios.get(`${baseURL}/api/user/business/${id}`);
@@ -63,6 +70,28 @@ const BusinessDetailPage: React.FC = () => {
     useEffect(() => {
         if (id) fetchBusiness();
     }, [id]);
+
+    const handleDeleteReview = async (reviewId: string) => {
+        if (!window.confirm("Are you sure you want to delete your review?")) return;
+        try {
+            await axios.delete(`${baseURL}/api/user/delete-review/${reviewId}`);
+            alert("Review deleted successfully!");
+            fetchBusiness();
+        } catch (err) {
+            console.error("Failed to delete review", err);
+            alert("Could not delete review.");
+        }
+    };
+
+    const handleOpenReviewModal = () => {
+        const existing = business?.reviews?.find(r => r.userId?._id === currentUserId);
+        if (existing) {
+            setEditReviewData({ id: existing._id || null, rating: existing.rating, review: existing.review || '' });
+        } else {
+            setEditReviewData({ id: null, rating: 0, review: '' });
+        }
+        setIsReviewOpen(true);
+    };
 
     const handleShare = () => {
         if (navigator.share) {
@@ -80,7 +109,7 @@ const BusinessDetailPage: React.FC = () => {
         return (
             <UserLayout>
                 <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <LoadingSpinner text="Loading business details..." />
                 </div>
             </UserLayout>
         );
@@ -153,7 +182,7 @@ const BusinessDetailPage: React.FC = () => {
                                 <RiDirectionLine size={26} className="md:w-7 md:h-7" />
                                 <span className="text-[12px] md:text-[14px] font-semibold text-gray-700">Direction</span>
                             </a>
-                            <div onClick={() => setIsReviewOpen(true)} className="flex flex-col items-center gap-1.5 md:gap-2 text-[#2a73e8] cursor-pointer hover:scale-105 transition-transform">
+                            <div onClick={handleOpenReviewModal} className="flex flex-col items-center gap-1.5 md:gap-2 text-[#2a73e8] cursor-pointer hover:scale-105 transition-transform">
                                 <FaRegStar size={26} className="md:w-7 md:h-7" />
                                 <span className="text-[12px] md:text-[14px] font-semibold text-gray-700">Review</span>
                             </div>
@@ -161,39 +190,75 @@ const BusinessDetailPage: React.FC = () => {
                     </div>
 
                     {/* Images Grid */}
-                    <div className="grid grid-cols-2 gap-2 h-44 md:h-[400px] object-cover mb-8 md:mb-10">
-                        <div className="bg-gray-200 rounded-l-xl h-full overflow-hidden">
-                            {business.images && business.images[0] ? (
-                                <img src={`${baseURL}/uploads/business/${business.images[0]}`} alt="b-1" className="w-full h-full object-cover" />
-                            ) : null}
-                        </div>
-                        <div className="grid grid-rows-2 gap-2 h-full">
-                            <div className="bg-gray-200 rounded-tr-xl overflow-hidden">
-                                {business.images && business.images[1] ? (
-                                    <img src={`${baseURL}/uploads/business/${business.images[1]}`} alt="b-2" className="w-full h-full object-cover" />
-                                ) : null}
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 h-full">
-                                <div className="bg-gray-200 overflow-hidden">
-                                    {business.images && business.images[2] ? (
-                                        <img src={`${baseURL}/uploads/business/${business.images[2]}`} alt="b-3" className="w-full h-full object-cover" />
-                                    ) : null}
+                    {business.images && business.images.length > 0 && (
+                        <div className={`grid gap-2 h-44 md:h-[400px] mb-8 md:mb-10 min-h-0 ${business.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                            {business.images.length === 1 && (
+                                <div className="bg-gray-200 rounded-xl h-full min-h-0 overflow-hidden">
+                                    <img src={`${baseURL}/uploads/business/${business.images[0]}`} alt="b-1" className="w-full h-full object-cover" />
                                 </div>
-                                <div className="bg-gray-200 rounded-br-xl overflow-hidden">
-                                    {business.images && business.images[3] ? (
-                                        <img src={`${baseURL}/uploads/business/${business.images[3]}`} alt="b-4" className="w-full h-full object-cover" />
-                                    ) : null}
-                                </div>
-                            </div>
+                            )}
+
+                            {business.images.length === 2 && (
+                                <>
+                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden">
+                                        <img src={`${baseURL}/uploads/business/${business.images[0]}`} alt="b-1" className="w-full h-full object-cover" />
+                                    </div>
+                                    <div className="bg-gray-200 rounded-r-xl h-full min-h-0 overflow-hidden">
+                                        <img src={`${baseURL}/uploads/business/${business.images[1]}`} alt="b-2" className="w-full h-full object-cover" />
+                                    </div>
+                                </>
+                            )}
+
+                            {business.images.length === 3 && (
+                                <>
+                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden">
+                                        <img src={`${baseURL}/uploads/business/${business.images[0]}`} alt="b-1" className="w-full h-full object-cover" />
+                                    </div>
+                                    <div className="grid grid-rows-2 gap-2 h-full min-h-0">
+                                        <div className="bg-gray-200 rounded-tr-xl h-full min-h-0 overflow-hidden">
+                                            <img src={`${baseURL}/uploads/business/${business.images[1]}`} alt="b-2" className="w-full h-full object-cover" />
+                                        </div>
+                                        <div className="bg-gray-200 rounded-br-xl h-full min-h-0 overflow-hidden">
+                                            <img src={`${baseURL}/uploads/business/${business.images[2]}`} alt="b-3" className="w-full h-full object-cover" />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            {business.images.length >= 4 && (
+                                <>
+                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden">
+                                        <img src={`${baseURL}/uploads/business/${business.images[0]}`} alt="b-1" className="w-full h-full object-cover" />
+                                    </div>
+                                    <div className="grid grid-rows-2 gap-2 h-full min-h-0">
+                                        <div className="bg-gray-200 rounded-tr-xl h-full min-h-0 overflow-hidden">
+                                            <img src={`${baseURL}/uploads/business/${business.images[1]}`} alt="b-2" className="w-full h-full object-cover" />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2 h-full min-h-0">
+                                            <div className="bg-gray-200 h-full min-h-0 overflow-hidden">
+                                                <img src={`${baseURL}/uploads/business/${business.images[2]}`} alt="b-3" className="w-full h-full object-cover" />
+                                            </div>
+                                            <div className="bg-gray-200 rounded-br-xl h-full min-h-0 overflow-hidden relative">
+                                                <img src={`${baseURL}/uploads/business/${business.images[3]}`} alt="b-4" className="w-full h-full object-cover" />
+                                                {business.images.length > 4 && (
+                                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold text-lg md:text-2xl">
+                                                        +{business.images.length - 4}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
-                    </div>
+                    )}
 
                     {/* Rate this business */}
                     <div className="pt-2">
                         <h3 className="text-[14px] md:text-[18px] font-bold text-gray-800 mb-3 md:mb-4">Rate this business</h3>
                         <div className="flex gap-2.5">
                             {[1, 2, 3, 4, 5].map((star) => (
-                                <div onClick={() => setIsReviewOpen(true)} key={star} className="p-2 border border-gray-300 rounded text-gray-400 cursor-pointer hover:bg-gray-50 transition">
+                                <div onClick={handleOpenReviewModal} key={star} className="p-2 border border-gray-300 rounded text-gray-400 cursor-pointer hover:bg-gray-50 transition">
                                     <FaRegStar size={22} className="md:w-6 md:h-6 md:p-0.5" />
                                 </div>
                             ))}
@@ -238,11 +303,11 @@ const BusinessDetailPage: React.FC = () => {
                             <h4 className="text-[13px] md:text-[15px] font-bold text-gray-800">Visit our website</h4>
                             <IoIosArrowForward className="text-gray-400" size={20} />
                         </div>
-                        {business.socialLinks && business.socialLinks.filter(l => l && l.trim().length > 0).length > 0 && (
+                        {business.socialLinks && Array.isArray(business.socialLinks) && business.socialLinks.filter(l => l && typeof l === 'string' && l.trim().length > 0 && l.trim() !== 'null' && l.trim() !== 'undefined').length > 0 && (
                             <div>
                                 <h4 className="text-[13px] md:text-[15px] font-bold text-gray-800 mb-3 md:mb-4">Social Media</h4>
                                 <div className="flex gap-5 text-gray-800 items-center">
-                                    {business.socialLinks.filter(l => l && l.trim().length > 0).map((link, index) => {
+                                    {business.socialLinks.filter(l => l && typeof l === 'string' && l.trim().length > 0 && l.trim() !== 'null' && l.trim() !== 'undefined').map((link, index) => {
                                         const url = link.startsWith('http') ? link : `https://${link}`;
                                         if (link.toLowerCase().includes("instagram")) {
                                             return (
@@ -286,7 +351,7 @@ const BusinessDetailPage: React.FC = () => {
                                     className="flex-1 px-3 py-2.5 md:py-3.5 text-[12px] md:text-[14px] text-gray-600 outline-none w-full bg-transparent"
                                     defaultValue="Hi, I found your business on baynana"
                                 />
-                                <a href={`https://wa.me/91${business.mobile}?text=Hi, I found your business on baynana`} target="_blank" rel="noopener noreferrer" className="bg-[#2a73e8] hover:bg-blue-600 transition flex items-center justify-center px-4 md:px-6 py-3 md:py-3.5 cursor-pointer">
+                                <a href={`https://wa.me/91${business.mobile}?text=Hi, I found your business on baynana`} target="_blank" rel="noopener noreferrer" className="bg-[#3F87DF] hover:bg-[#326CB2] transition flex items-center justify-center px-4 md:px-6 py-3 md:py-3.5 cursor-pointer">
                                     <RiSendPlaneFill className="text-white md:w-5 md:h-5" size={16} />
                                 </a>
                             </div>
@@ -324,9 +389,34 @@ const BusinessDetailPage: React.FC = () => {
                                                     <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="default avatar" className="w-full h-full object-cover opacity-60" />
                                                 )}
                                             </div>
-                                            <div>
-                                                <span className="font-bold text-[14px] md:text-[16px] text-gray-800 block">{r.userId?.name || r.userName || `User ${i + 1}`}</span>
-                                                <span className="text-[10px] md:text-[12px] text-gray-400 mt-0.5 block">{new Date(r.createdAt || new Date()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                            <div className="flex-1">
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <span className="font-bold text-[14px] md:text-[16px] text-gray-800 block">{r.userId?.name || r.userName || `User ${i + 1}`}</span>
+                                                        <span className="text-[10px] md:text-[12px] text-gray-400 mt-0.5 block">{new Date(r.createdAt || new Date()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                                    </div>
+                                                    {r.userId?._id === currentUserId && r._id && (
+                                                        <div className="flex gap-4 text-gray-400">
+                                                            <button
+                                                                onClick={() => {
+                                                                    setEditReviewData({ id: r._id!, rating: r.rating, review: r.review || '' });
+                                                                    setIsReviewOpen(true);
+                                                                }}
+                                                                className="hover:text-blue-600 transition"
+                                                                title="Edit Review"
+                                                            >
+                                                                <FaEdit size={16} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteReview(r._id!)}
+                                                                className="hover:text-red-500 transition"
+                                                                title="Delete Review"
+                                                            >
+                                                                <FaTrash size={16} />
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="bg-[#00a650] text-white px-2 py-0.5 md:py-1 rounded flex items-center gap-1.5 text-[11px] md:text-[13px] font-bold w-fit mb-3 md:mb-4">
@@ -349,6 +439,9 @@ const BusinessDetailPage: React.FC = () => {
                 onClose={() => setIsReviewOpen(false)}
                 businessId={business._id}
                 businessName={business.businessName}
+                existingReviewId={editReviewData.id}
+                existingRating={editReviewData.rating}
+                existingComment={editReviewData.review}
                 onSuccess={() => {
                     fetchBusiness();
                 }}

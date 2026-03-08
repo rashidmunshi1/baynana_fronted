@@ -182,7 +182,7 @@ const ProfilePage: React.FC = () => {
         {/* Save Button */}
         <button
           type="submit"
-          className="w-full bg-purple-600 text-white py-3 rounded-md text-lg font-medium shadow hover:bg-purple-700 transition"
+          className="w-full bg-[#3F87DF] text-white py-3 rounded-md text-lg font-medium shadow hover:bg-[#326CB2] transition"
         >
           Save Changes
         </button>

@@ -60,10 +60,10 @@ const RestaurantCard: React.FC<Props> = ({ business }) => {
         <a href={`tel:${business.mobile}`}>
           <button
             className="w-full h-11 flex items-center justify-center gap-2
-      bg-[#0077EE] text-white
+      bg-[#3F87DF] text-white
       rounded-xl text-sm font-semibold
       shadow-md
-      hover:bg-[#005FCC] hover:shadow-lg
+      hover:bg-[#326CB2] hover:shadow-lg
       active:scale-95 transition-all duration-200"
           >
             <FiPhone className="text-lg" />

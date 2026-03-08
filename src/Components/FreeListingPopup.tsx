@@ -120,7 +120,7 @@ const FreeListingPopup: React.FC<FreeListingPopupProps> = ({ onClose }) => {
             <button
               onClick={handleSendOtp}
               disabled={loading}
-              className="w-full mt-4 px-4 py-2 bg-[#7C3AED] text-white font-medium rounded-md hover:bg-[#6D28D9] disabled:bg-gray-400 transition-colors"
+              className="w-full mt-4 px-4 py-2 bg-[#3F87DF] text-white font-medium rounded-md hover:bg-[#326CB2] disabled:bg-[#3F87DF] transition-colors"
             >
               {loading ? 'Sending OTP...' : 'Send OTP'}
             </button>
@@ -142,7 +142,7 @@ const FreeListingPopup: React.FC<FreeListingPopupProps> = ({ onClose }) => {
             <button
               onClick={handleVerifyOtp}
               disabled={loading}
-              className="w-full mt-4 px-4 py-2 bg-[#7C3AED] text-white font-medium rounded-md hover:bg-[#6D28D9] disabled:bg-gray-400 transition-colors"
+              className="w-full mt-4 px-4 py-2 bg-[#3F87DF] text-white font-medium rounded-md hover:bg-[#326CB2] disabled:bg-[#3F87DF] transition-colors"
             >
               {loading ? 'Verifying...' : 'Verify OTP'}
             </button>
@@ -163,7 +163,7 @@ const FreeListingPopup: React.FC<FreeListingPopupProps> = ({ onClose }) => {
             <button
               onClick={handleRegister}
               disabled={loading}
-              className="w-full mt-4 px-4 py-2 bg-[#7C3AED] text-white font-medium rounded-md hover:bg-[#6D28D9] disabled:bg-gray-400 transition-colors"
+              className="w-full mt-4 px-4 py-2 bg-[#3F87DF] text-white font-medium rounded-md hover:bg-[#326CB2] disabled:bg-[#3F87DF] transition-colors"
             >
               {loading ? 'Registering...' : 'Complete Registration'}
             </button>

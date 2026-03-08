@@ -127,7 +127,7 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ onClose, onSignUpSuccess }) =
                         <button
                             onClick={handleSendOtp}
                             disabled={loading}
-                            className="w-full mt-6 px-4 py-2.5 bg-[#7C3AED] text-white font-medium rounded-md hover:bg-[#6D28D9] disabled:bg-opacity-70 transition-all shadow-md active:scale-95"
+                            className="w-full mt-6 px-4 py-2.5 bg-[#3F87DF] text-white font-medium rounded-md hover:bg-[#326CB2] disabled:bg-opacity-70 transition-all shadow-md active:scale-95"
                         >
                             {loading ? 'Sending OTP...' : 'Send OTP'}
                         </button>
@@ -155,7 +155,7 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ onClose, onSignUpSuccess }) =
                         <button
                             onClick={handleVerifyOtp}
                             disabled={loading}
-                            className="w-full mt-6 px-4 py-2.5 bg-[#7C3AED] text-white font-medium rounded-md hover:bg-[#6D28D9] disabled:bg-opacity-70 transition-all shadow-md active:scale-95"
+                            className="w-full mt-6 px-4 py-2.5 bg-[#3F87DF] text-white font-medium rounded-md hover:bg-[#326CB2] disabled:bg-opacity-70 transition-all shadow-md active:scale-95"
                         >
                             {loading ? 'Verifying...' : 'Verify & Continue'}
                         </button>
@@ -177,7 +177,7 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ onClose, onSignUpSuccess }) =
                         <button
                             onClick={handleRegister}
                             disabled={loading}
-                            className="w-full mt-6 px-4 py-2.5 bg-[#7C3AED] text-white font-medium rounded-md hover:bg-[#6D28D9] disabled:bg-opacity-70 transition-all shadow-md active:scale-95"
+                            className="w-full mt-6 px-4 py-2.5 bg-[#3F87DF] text-white font-medium rounded-md hover:bg-[#326CB2] disabled:bg-opacity-70 transition-all shadow-md active:scale-95"
                         >
                             {loading ? 'Registering...' : 'Create Account'}
                         </button>

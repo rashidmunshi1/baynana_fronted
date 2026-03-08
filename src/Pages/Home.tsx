@@ -12,6 +12,7 @@ import LoginPopup from '../Components/LoginPopup';
 import SignUpPopup from '../Components/SignUpPopup';
 import HomeBanner from '../Components/HomeBanner';
 import baseURL from "../config";
+import LoadingSpinner from "../Components/LoadingSpinner";
 
 interface User {
   id?: string;
@@ -276,7 +277,7 @@ const HomePage: React.FC = () => {
                     </button>
                     <button
                       onClick={() => setIsSignUpPopupOpen(true)}
-                      className="text-[#4285F4] text-[10px] sm:text-xs font-bold bg-white hover:bg-gray-50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors shadow-sm"
+                      className="text-[#3F87DF] text-[10px] sm:text-xs font-bold bg-white hover:bg-gray-50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors shadow-sm"
                     >
                       Register
                     </button>
@@ -331,7 +332,7 @@ const HomePage: React.FC = () => {
         {/* ═══════════════════════════════════════ */}
         {searchText ? (
           <div className="max-w-7xl mx-auto px-4 mt-6">
-            {loading && <p className="text-center text-gray-400 py-10 font-medium">Searching...</p>}
+            {loading && <LoadingSpinner text="Searching..." size={12} />}
             {!loading && searchResults.length === 0 && (
               <div className="text-center py-10">
                 <p className="text-gray-500 font-medium">No results found for "{searchText}"</p>
@@ -388,7 +389,7 @@ const HomePage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => isLoggedIn ? navigate('/user/add-business') : setIsFreeListingPopupOpen(true)}
-                  className="bg-[#4285F4] hover:bg-blue-600 text-white text-[12px] sm:text-sm lg:text-base font-bold px-4 py-2 sm:px-6 sm:py-2.5 rounded-[6px] active:scale-95 transition-transform ml-auto shadow-sm"
+                  className="bg-[#3F87DF] hover:bg-[#326CB2] text-white text-[12px] sm:text-sm lg:text-base font-bold px-4 py-2 sm:px-6 sm:py-2.5 rounded-[6px] active:scale-95 transition-transform ml-auto shadow-sm"
                 >
                   Start Now
                 </button>
