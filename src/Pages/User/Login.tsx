@@ -46,7 +46,7 @@ const UserLogin: React.FC = () => {
         {/* Button */}
         <button
           onClick={sendOtp}
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-md transition"
+          className="w-full bg-[#3F87DF] hover:bg-[#326CB2] text-white py-2 rounded-md transition"
         >
           Send OTP
         </button>

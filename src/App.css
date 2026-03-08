@@ -3,21 +3,21 @@
    ============================================ */
 :root {
   /* Primary Palette */
-  --primary-50: #eef2ff;
-  --primary-100: #e0e7ff;
-  --primary-200: #c7d2fe;
-  --primary-300: #a5b4fc;
-  --primary-400: #818cf8;
-  --primary-500: #6366f1;
-  --primary-600: #4f46e5;
-  --primary-700: #4338ca;
-  --primary-800: #3730a3;
-  --primary-900: #312e81;
+  --primary-50: #ebf3fc;
+  --primary-100: #d6e8f8;
+  --primary-200: #acd0ef;
+  --primary-300: #83b9e7;
+  --primary-400: #5ba1de;
+  --primary-500: #3F87DF;
+  --primary-600: #326CB2;
+  --primary-700: #265186;
+  --primary-800: #193659;
+  --primary-900: #0C1B2D;
 
   /* Sidebar Palette */
   --sidebar-bg: #0f172a;
   --sidebar-hover: #1e293b;
-  --sidebar-active: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --sidebar-active: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
   --sidebar-text: #94a3b8;
   --sidebar-text-active: #ffffff;
   --sidebar-border: #1e293b;
@@ -116,14 +116,14 @@ body {
 }
 
 .ant-btn-primary {
-  background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%) !important;
+  background: var(--primary-500) !important;
   border: none !important;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(63, 135, 223, 0.3) !important;
 }
 
 .ant-btn-primary:hover {
-  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%) !important;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
+  background: var(--primary-600) !important;
+  box-shadow: 0 4px 14px rgba(63, 135, 223, 0.4) !important;
   transform: translateY(-1px) !important;
 }
 
@@ -155,7 +155,7 @@ body {
 .ant-input-affix-wrapper-focused,
 .ant-select-focused .ant-select-selector {
   border-color: var(--primary-500) !important;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+  box-shadow: 0 0 0 3px rgba(63, 135, 223, 0.12) !important;
 }
 
 /* --- Cards --- */
@@ -380,18 +380,4 @@ body {
 
 .animate-scale-in {
   animation: scaleIn 0.3s ease-out forwards;
-}
-
-#nprogress .bar {
-  background: #6366f1 !important;
-  height: 3px !important;
-}
-
-#nprogress .peg {
-  box-shadow: 0 0 10px #6366f1, 0 0 5px #6366f1 !important;
-}
-
-#nprogress .spinner-icon {
-  border-top-color: #6366f1 !important;
-  border-left-color: #6366f1 !important;
 }

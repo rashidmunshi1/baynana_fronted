@@ -75,7 +75,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user }) => {
             <p className="text-gray-600 font-medium">Welcome Guest</p>
             <button
               onClick={() => { onClose(); /* Trigger login popup from parent if possible, or navigate */ }}
-              className="bg-[#7C3AED] text-white px-6 py-2 rounded-full font-semibold text-sm w-full"
+              className="bg-[#3F87DF] text-white px-6 py-2 rounded-full font-semibold text-sm w-full"
             >
               Login / Sign Up
             </button>

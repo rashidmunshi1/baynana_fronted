@@ -6,6 +6,7 @@ import { IoArrowForward } from "react-icons/io5";
 import UserLayout from "../DesignLayout/UserLayout";
 import { Business } from "../Components/types";
 import baseURL from "../config";
+import LoadingSpinner from "../Components/LoadingSpinner";
 
 const MyBusinesses: React.FC = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -71,14 +72,14 @@ const MyBusinesses: React.FC = () => {
       <div className="p-4 sm:p-6 min-h-screen bg-gray-50 pb-24">
 
         {/* 🏷️ HEADER SECTION */}
-        <div className="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg mb-6 relative overflow-hidden">
+        <div className="bg-[#3F87DF] rounded-xl p-6 text-white shadow-lg mb-6 relative overflow-hidden">
           <div className="relative z-10">
             <h2 className="text-2xl font-bold mb-1">My Business Listings</h2>
-            <p className="text-indigo-100 text-sm mb-4">Manage your businesses and check approval status.</p>
+            <p className="text-blue-100 text-sm mb-4">Manage your businesses and check approval status.</p>
 
             <button
               onClick={() => navigate("/user/add-business")}
-              className="bg-white text-indigo-600 px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 hover:bg-gray-100 transition shadow-md"
+              className="bg-white text-[#3F87DF] px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 hover:bg-gray-100 transition shadow-md"
             >
               <FaPlus /> Add New Business
             </button>
@@ -94,7 +95,7 @@ const MyBusinesses: React.FC = () => {
 
         {/* 📋 BUSINESS LIST */}
         {loading ? (
-          <div className="flex justify-center p-10"><span className="loader"></span> Loading...</div>
+          <LoadingSpinner text="Fetching your businesses..." />
         ) : businesses.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
             <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png" alt="Empty" className="w-40 mx-auto opacity-50 mb-3" />
@@ -102,7 +103,7 @@ const MyBusinesses: React.FC = () => {
             <p className="text-sm text-gray-500 mb-4">You haven't listed any business yet.</p>
             <button
               onClick={() => navigate("/user/add-business")}
-              className="text-violet-600 font-semibold hover:underline"
+              className="text-[#3F87DF] font-semibold hover:underline"
             >
               + Add your first business
             </button>
@@ -112,7 +113,7 @@ const MyBusinesses: React.FC = () => {
             {businesses.map((biz) => (
               <div
                 key={biz._id}
-                className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex gap-3 mb-3 relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-violet-200 transition-all duration-200"
+                className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex gap-3 mb-3 relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-blue-200 transition-all duration-200"
                 onClick={() => navigate(`/business/${biz._id}`)}
               >
                 {/* 1. Image Section */}
@@ -137,7 +138,7 @@ const MyBusinesses: React.FC = () => {
                         {biz.businessName}
                       </h3>
                       {/* Action Button (Forward/Edit) */}
-                      <button className="text-gray-400 hover:text-violet-600 transition -mt-1 -mr-1 p-1">
+                      <button className="text-gray-400 hover:text-[#326CB2] transition -mt-1 -mr-1 p-1">
                         <IoArrowForward size={18} />
                       </button>
                     </div>

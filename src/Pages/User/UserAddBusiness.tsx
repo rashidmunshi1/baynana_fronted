@@ -481,8 +481,8 @@ const UserAddBusiness = () => {
                                     borderRadius: 10,
                                     height: 44,
                                     marginTop: 4,
-                                    color: "#7c3aed",
-                                    borderColor: "#c4b5fd",
+                                    color: "#3F87DF",
+                                    borderColor: "#83b9e7",
                                 }}
                             >
                                 Add Service
@@ -511,7 +511,7 @@ const UserAddBusiness = () => {
                                 padding: "10px 12px",
                                 borderRadius: 10,
                                 background: day === "monday" ? "#f0e6ff" : "#fff",
-                                border: day === "monday" ? "1.5px solid #c4b5fd" : "1px solid #f1f5f9",
+                                border: day === "monday" ? "1.5px solid #83b9e7" : "1px solid #f1f5f9",
                             }}
                         >
                             {/* Row 1: Day name + Closed checkbox */}
@@ -520,7 +520,7 @@ const UserAddBusiness = () => {
                                     style={{
                                         textTransform: "capitalize",
                                         fontWeight: 600,
-                                        color: day === "monday" ? "#7c3aed" : "#475569",
+                                        color: day === "monday" ? "#3F87DF" : "#475569",
                                         fontSize: 13,
                                     }}
                                 >
@@ -593,11 +593,11 @@ const UserAddBusiness = () => {
                                                 background: isDone
                                                     ? "linear-gradient(135deg, #10b981, #059669)"
                                                     : isActive
-                                                        ? "linear-gradient(135deg, #7c3aed, #6366f1)"
+                                                        ? "linear-gradient(135deg, #3F87DF, #326CB2)"
                                                         : "#e2e8f0",
                                                 color: isDone || isActive ? "#fff" : "#94a3b8",
                                                 transition: "all 0.3s ease",
-                                                boxShadow: isActive ? "0 3px 10px rgba(124,58,237,0.35)" : "none",
+                                                boxShadow: isActive ? "0 3px 10px rgba(63, 135, 223,0.35)" : "none",
                                             }}
                                         >
                                             {isDone ? <CheckCircleOutlined style={{ fontSize: 18 }} /> : item.icon}
@@ -606,7 +606,7 @@ const UserAddBusiness = () => {
                                             style={{
                                                 fontSize: 10,
                                                 fontWeight: isActive ? 700 : 500,
-                                                color: isActive ? "#7c3aed" : isDone ? "#059669" : "#94a3b8",
+                                                color: isActive ? "#3F87DF" : isDone ? "#059669" : "#94a3b8",
                                                 marginTop: 4,
                                                 textAlign: "center",
                                                 whiteSpace: "nowrap",
@@ -706,14 +706,14 @@ const UserAddBusiness = () => {
                                 size="large"
                                 onClick={nextStep}
                                 style={{
-                                    background: "linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)",
+                                    background: "linear-gradient(135deg, #3F87DF 0%, #326CB2 100%)",
                                     color: "#fff",
                                     borderRadius: 10,
                                     height: 48,
                                     fontWeight: 600,
                                     border: "none",
                                     paddingInline: 32,
-                                    boxShadow: "0 3px 12px rgba(124, 58, 237, 0.3)",
+                                    boxShadow: "0 3px 12px rgba(63, 135, 223, 0.3)",
                                 }}
                             >
                                 Next Step <ArrowRightOutlined style={{ marginLeft: 6 }} />

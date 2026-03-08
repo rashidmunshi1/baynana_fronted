@@ -118,7 +118,7 @@ const BusinessListCard: React.FC<Props> = ({ business }) => {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <a href={`tel:${business.mobile}`} className="flex-[1.2] min-w-[120px]">
-                            <button className="w-full bg-[#006aff] text-white py-2.5 rounded-lg flex items-center justify-center gap-2 font-bold text-[15px] hover:bg-blue-600 transition shadow-sm">
+                            <button className="w-full bg-[#3F87DF] text-white py-2.5 rounded-lg flex items-center justify-center gap-2 font-bold text-[15px] hover:bg-[#326CB2] transition shadow-sm">
                                 <FaPhoneAlt size={14} /> Call Now
                             </button>
                         </a>

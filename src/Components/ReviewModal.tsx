@@ -10,17 +10,29 @@ interface ReviewModalProps {
     onClose: () => void;
     businessId: string;
     businessName: string;
+    existingReviewId?: string | null;
+    existingRating?: number;
+    existingComment?: string;
     onSuccess?: (rating: number) => void;
 }
 
-const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, businessId, businessName, onSuccess }) => {
+const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, businessId, businessName, existingReviewId, existingRating, existingComment, onSuccess }) => {
     const [rating, setRating] = useState(0);
     const [hover, setHover] = useState(0);
     const [comment, setComment] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Reset state when modal closes manually is handled by parent unmounting or just reset here if needed
-    // ideally we reset on submit
+    React.useEffect(() => {
+        if (isOpen) {
+            setRating(existingRating || 0);
+            setComment(existingComment || '');
+            setHover(0);
+        } else {
+            setRating(0);
+            setComment('');
+            setHover(0);
+        }
+    }, [isOpen, existingRating, existingComment]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -31,31 +43,42 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, businessId, 
 
         const userId = localStorage.getItem("userId");
         if (!userId) {
-            message.error("Please login to submit a review");
+            message.error("Please login to submit or update a review");
             return;
         }
 
         try {
             setLoading(true);
 
-            // Post to backend
-            await axios.post(`${baseURL}/api/user/add-review`, {
-                businessId,
-                userId,
-                rating,
-                review: comment
-            });
+            if (existingReviewId) {
+                // Update existing review
+                await axios.put(`${baseURL}/api/user/update-review/${existingReviewId}`, {
+                    rating,
+                    review: comment
+                });
+                message.success('Review updated successfully!');
+            } else {
+                // Post new review
+                await axios.post(`${baseURL}/api/user/add-review`, {
+                    businessId,
+                    userId,
+                    rating,
+                    review: comment
+                });
+                message.success('Review submitted successfully!');
+            }
 
-            message.success('Review submitted successfully!');
             if (onSuccess) {
                 onSuccess(rating);
             }
-            setComment('');
-            setRating(0);
             onClose();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            message.error('Failed to submit review. Please try again.');
+            if (error.response && error.response.data && error.response.data.message) {
+                message.error(error.response.data.message);
+            } else {
+                message.error('Failed to submit review. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -82,8 +105,8 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, businessId, 
                     >
                         {/* Header */}
                         <div className="bg-gradient-to-r from-violet-600 to-indigo-600 p-4 flex justify-between items-center text-white">
-                            <h3 className="font-bold text-lg">Write a Review</h3>
-                            <button onClick={onClose} className="text-white/80 hover:text-white transition">
+                            <h3 className="font-bold text-lg">{existingReviewId ? "Edit your Review" : "Write a Review"}</h3>
+                            <button type="button" onClick={onClose} className="text-white/80 hover:text-white transition">
                                 <FaTimes size={20} />
                             </button>
                         </div>
@@ -142,7 +165,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, businessId, 
                                     className={`w-full py-3 rounded-lg text-white font-semibold transition-all shadow-md ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-violet-600 hover:bg-violet-700 hover:shadow-lg active:scale-[0.98]"
                                         }`}
                                 >
-                                    {loading ? "Submitting..." : "Submit Review"}
+                                    {loading ? (existingReviewId ? "Updating..." : "Submitting...") : (existingReviewId ? "Update Review" : "Submit Review")}
                                 </button>
                             </form>
                         </div>
