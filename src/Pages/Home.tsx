@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { FiSearch, FiMapPin, FiMic, FiChevronDown, FiChevronRight, FiPlay, FiBriefcase } from "react-icons/fi";
+import React, { useEffect, useState, useRef } from "react";
+import { FiSearch, FiMapPin, FiMic, FiChevronDown, FiChevronRight, FiPlay, FiBriefcase, FiClock, FiX, FiTrash2 } from "react-icons/fi";
 import { FaUserCircle, FaBell } from "react-icons/fa";
 import UserLayout from "../DesignLayout/UserLayout";
 import SidebarMenu from "../Components/SidebarMenu";
@@ -30,6 +30,11 @@ const HomePage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+
+  /* 📜 SEARCH HISTORY */
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   /* 📂 CATEGORY STATES */
   const [dynamicCategories, setDynamicCategories] = useState<any[]>([]);
@@ -82,6 +87,27 @@ const HomePage: React.FC = () => {
     checkAuth();
     window.addEventListener('focus', checkAuth);
     return () => window.removeEventListener('focus', checkAuth);
+  }, []);
+
+  // LOAD SEARCH HISTORY from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('searchHistory');
+    if (saved) {
+      try {
+        setSearchHistory(JSON.parse(saved));
+      } catch { }
+    }
+  }, []);
+
+  // CLOSE SEARCH HISTORY dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // LOCATION DETECTION — reusable function
@@ -157,6 +183,31 @@ const HomePage: React.FC = () => {
     fetchEventBanners();
   }, []);
 
+  /* 📜 SEARCH HISTORY helpers */
+  const addToSearchHistory = (term: string) => {
+    const trimmed = term.trim();
+    if (!trimmed) return;
+    setSearchHistory(prev => {
+      const filtered = prev.filter(item => item.toLowerCase() !== trimmed.toLowerCase());
+      const updated = [trimmed, ...filtered].slice(0, 15); // keep max 15 items
+      localStorage.setItem('searchHistory', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const removeFromSearchHistory = (term: string) => {
+    setSearchHistory(prev => {
+      const updated = prev.filter(item => item !== term);
+      localStorage.setItem('searchHistory', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const clearSearchHistory = () => {
+    setSearchHistory([]);
+    localStorage.removeItem('searchHistory');
+  };
+
   /* 🔍 SEARCH API (DEBOUNCE) */
   useEffect(() => {
     if (!searchText.trim()) {
@@ -171,6 +222,8 @@ const HomePage: React.FC = () => {
           params: { q: searchText },
         });
         setSearchResults(res.data.businesses || []);
+        // Save to search history when results are fetched
+        addToSearchHistory(searchText);
       } catch (err) {
         console.log("Search error", err);
       } finally {
@@ -297,7 +350,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Search Bar */}
-            <div className="mt-5 w-full">
+            <div className="mt-5 w-full relative" ref={searchContainerRef}>
               <div className="flex items-center bg-white rounded-[4px] h-[40px] px-3 shadow-sm lg:h-[48px]">
                 <FiSearch className="text-gray-600 lg:w-5 lg:h-5" size={16} />
                 <input
@@ -306,22 +359,72 @@ const HomePage: React.FC = () => {
                   className="w-full h-full px-2 lg:px-4 text-gray-800 bg-transparent outline-none placeholder-gray-400 font-medium text-[13px] lg:text-base"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
                 />
+                {searchText && (
+                  <button onClick={() => { setSearchText(''); setSearchResults([]); }} className="pr-1">
+                    <FiX className="text-gray-400 hover:text-gray-600 transition-colors" size={16} />
+                  </button>
+                )}
                 <button onClick={handleVoiceSearch} className="pl-2 lg:pl-4 border-l border-gray-100 flex items-center h-full">
                   <FiMic className={`${isListening ? 'text-red-500 animate-pulse' : 'text-gray-600'} transition-colors ml-1 lg:w-5 lg:h-5`} size={16} />
                 </button>
               </div>
-            </div>
 
-            {/* Banner Block */}
-            <div className="mt-4 relative z-0">
-              <HomeBanner banner={banner} loading={bannerLoading} />
-              {(!banner || banner.length === 0) && !bannerLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white rounded-2xl shadow-sm aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1] lg:aspect-[4/1]">
-                  <p className="text-[10px] sm:text-xs text-gray-400 font-medium z-10">Paid Promotional Content Here</p>
+              {/* 📜 SEARCH HISTORY DROPDOWN */}
+              {isSearchFocused && !searchText && searchHistory.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-xl border border-gray-100 z-50 max-h-[320px] overflow-y-auto">
+                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100">
+                    <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wide">Recent Searches</p>
+                    <button
+                      onClick={clearSearchHistory}
+                      className="text-[11px] font-bold text-red-400 hover:text-red-600 transition-colors flex items-center gap-1"
+                    >
+                      <FiTrash2 size={12} />
+                      Clear All
+                    </button>
+                  </div>
+                  {searchHistory.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors group"
+                    >
+                      <div
+                        className="flex items-center gap-3 flex-1 min-w-0"
+                        onClick={() => {
+                          setSearchText(item);
+                          setIsSearchFocused(false);
+                        }}
+                      >
+                        <FiClock className="text-gray-400 flex-shrink-0" size={14} />
+                        <span className="text-[13px] text-gray-700 font-medium truncate">{item}</span>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeFromSearchHistory(item);
+                        }}
+                        className="text-gray-300 hover:text-red-400 transition-colors ml-2 opacity-0 group-hover:opacity-100"
+                      >
+                        <FiX size={14} />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
+
+            {/* Banner Block — Hidden when search is active */}
+            {!searchText && (
+              <div className="mt-4 relative z-0">
+                <HomeBanner banner={banner} loading={bannerLoading} />
+                {(!banner || banner.length === 0) && !bannerLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-white rounded-2xl shadow-sm aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1] lg:aspect-[4/1]">
+                    <p className="text-[10px] sm:text-xs text-gray-400 font-medium z-10">Paid Promotional Content Here</p>
+                  </div>
+                )}
+              </div>
+            )}
 
 
           </div>

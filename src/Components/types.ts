@@ -20,6 +20,8 @@ export interface Business {
   city: string;
   pincode: string;
   locationUrl?: string | null;
+  latitude?: number;
+  longitude?: number;
   description?: string;
   services: string[];
   images: string[];
