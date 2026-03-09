@@ -47,10 +47,30 @@ const CategoryBusinesses = () => {
     if (id) fetchData();
   }, [id]);
 
-  // Filter businesses
-  const filteredBusinesses = selectedSub
+  const [sortBy, setSortBy] = useState<string>("newest");
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+
+  // Filter and Sort businesses
+  let filteredBusinesses = selectedSub
     ? businesses.filter((b: any) => b.subcategories && b.subcategories.some((s: any) => s._id === selectedSub))
-    : businesses;
+    : [...businesses];
+
+  // Apply Sorting
+  filteredBusinesses = filteredBusinesses.sort((a, b) => {
+    if (sortBy === "top_rated") {
+      const aRating = a.rating || 0;
+      const bRating = b.rating || 0;
+      return bRating - aRating;
+    }
+    if (sortBy === "a_to_z") {
+      return (a.businessName || "").localeCompare(b.businessName || "");
+    }
+    if (sortBy === "z_to_a") {
+      return (b.businessName || "").localeCompare(a.businessName || "");
+    }
+    // Default: 'newest'
+    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+  });
 
   return (
     <UserLayout>
@@ -70,17 +90,75 @@ const CategoryBusinesses = () => {
               <FaArrowLeft size={14} />
             </button>
             <div className="min-w-0">
-              <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent truncate">
+              <h1 className="text-base sm:text-xl font-bold text-[#3F87DF] truncate">
                 {categoryName || "Explore Services"}
               </h1>
               <p className="text-[10px] sm:text-xs text-gray-500">{businesses.length} results found</p>
             </div>
           </div>
 
-          <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 cursor-pointer hover:bg-violet-50 hover:text-violet-600 transition">
-            <FaFilter size={12} />
-          </div>
         </motion.div>
+
+        {/* BADGE FILTERS (Horizontally Scrollable) */}
+        <div
+          className="bg-white px-3 sm:px-4 py-3 border-b border-gray-100 flex gap-2 overflow-x-auto whitespace-nowrap w-full hide-scroll"
+          style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          <style>{`
+            .hide-scroll::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
+          {[
+            { id: 'filter', label: 'Filter' },
+            { id: 'sort', label: 'Sort by' },
+            { id: 'price', label: 'Price' }
+          ].map((badge) => (
+            <button
+              key={badge.id}
+              onClick={() => {
+                if (badge.id === 'sort') setShowFilterDropdown(!showFilterDropdown);
+              }}
+              className={`flex-shrink-0 flex items-center justify-center whitespace-nowrap px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-semibold transition-colors
+                ${badge.id === 'sort' && showFilterDropdown ? 'bg-violet-50 text-violet-700 border-violet-300' : 'text-gray-700 hover:bg-gray-50'}`}
+            >
+              {badge.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Sort Dropdown Panel */}
+        <AnimatePresence>
+          {showFilterDropdown && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="bg-white border-b border-gray-100 shadow-sm overflow-hidden"
+            >
+              <div className="px-4 py-2 flex flex-col gap-1">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Sort By</p>
+                {[
+                  { id: 'newest', label: 'Newest First' },
+                  { id: 'top_rated', label: 'Top Rated' },
+                  { id: 'a_to_z', label: 'Name (A to Z)' },
+                  { id: 'z_to_a', label: 'Name (Z to A)' },
+                ].map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => {
+                      setSortBy(option.id);
+                      setShowFilterDropdown(false);
+                    }}
+                    className={`text-left px-3 py-2 text-sm rounded transition-colors ${sortBy === option.id ? 'bg-violet-50 text-violet-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'}`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* SUBCATEGORY SCROLL */}
         {subcategories.length > 0 && (
@@ -114,9 +192,9 @@ const CategoryBusinesses = () => {
         )}
 
         {/* CONTENT AREA */}
-        <div className="p-4 w-full">
+        <div className="w-full">
           {loading ? (
-            <div className="space-y-3 pt-4">
+            <div className="space-y-3 pt-4 px-4">
               {[1, 2, 3].map((n) => (
                 <div key={n} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-pulse">
                   <div className="flex gap-3 p-3">
@@ -136,7 +214,7 @@ const CategoryBusinesses = () => {
               ))}
             </div>
           ) : (
-            <motion.div layout className="flex flex-col gap-4">
+            <motion.div layout className="flex flex-col">
               <AnimatePresence mode='popLayout'>
                 {filteredBusinesses.length > 0 ? (
                   filteredBusinesses.map((biz) => (
