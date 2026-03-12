@@ -34,7 +34,10 @@ const HomePage: React.FC = () => {
   /* 📜 SEARCH HISTORY */
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isSearchMode, setIsSearchMode] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  const trendingSearches = ["Plumbers", "Doctors", "Grocery", "Restaurants", "Real Estate", "Electricians", "Travel Agents", "Carpenters"];
 
   /* 📂 CATEGORY STATES */
   const [dynamicCategories, setDynamicCategories] = useState<any[]>([]);
@@ -306,60 +309,83 @@ const HomePage: React.FC = () => {
             <div className="flex justify-between items-center w-full">
               {/* Desktop Location (or spacer on mobile) */}
               <div className="flex-1 flex items-center justify-start">
-                <div className="hidden sm:flex items-center gap-1 cursor-pointer bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-white transition-colors" onClick={requestLocation}>
-                  <FiMapPin size={14} />
-                  <span className="text-[13px] font-bold tracking-wide">{locationName}</span>
-                  <FiChevronDown size={14} />
-                </div>
+                {isSearchMode ? (
+                  <button
+                    onClick={() => {
+                      setIsSearchMode(false);
+                      setIsSearchFocused(false);
+                      setSearchText("");
+                    }}
+                    className="flex items-center gap-2 text-white hover:bg-white/10 px-3 py-1.5 rounded-full transition-colors"
+                  >
+                    <FiChevronDown className="rotate-90" size={20} />
+                    <span className="text-[13px] font-bold">Back</span>
+                  </button>
+                ) : (
+                  <div className="hidden sm:flex items-center gap-1 cursor-pointer bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-white transition-colors" onClick={requestLocation}>
+                    <FiMapPin size={14} />
+                    <span className="text-[13px] font-bold tracking-wide">{locationName}</span>
+                    <FiChevronDown size={14} />
+                  </div>
+                )}
               </div>
 
               {/* Logo Center */}
               <div className="flex-shrink-0 flex justify-center items-center px-1 sm:px-2">
-                <img src={logo} alt="Baynana" className="h-[40px] sm:h-[48px] lg:h-[56px] object-contain" />
+                {!isSearchMode && (
+                  <img src={logo} alt="Baynana" className="h-[40px] sm:h-[48px] lg:h-[56px] object-contain" />
+                )}
               </div>
 
               {/* Right Profile Icon / Auth Buttons */}
               <div className="flex-1 flex justify-end items-center">
                 {!isLoggedIn ? (
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <button
-                      onClick={() => setIsLoginPopupOpen(true)}
-                      className="text-white text-[10px] sm:text-xs font-bold bg-black/20 hover:bg-black/30 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors"
-                    >
-                      Login
-                    </button>
-                    <button
-                      onClick={() => setIsSignUpPopupOpen(true)}
-                      className="text-[#3F87DF] text-[10px] sm:text-xs font-bold bg-white hover:bg-gray-50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors shadow-sm"
-                    >
-                      Register
-                    </button>
-                  </div>
-                ) : (
-                  <div onClick={() => setSidebarOpen(true)} className="cursor-pointer">
-                    <div className="w-[30px] h-[30px] rounded-full bg-black/40 text-white flex items-center justify-center shadow-sm overflow-hidden">
-                      {currentUser?.profileImage ? (
-                        <img src={`${baseURL}/${currentUser.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
-                      ) : (
-                        <FaUserCircle size={18} />
-                      )}
+                  !isSearchMode && (
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <button
+                        onClick={() => setIsLoginPopupOpen(true)}
+                        className="text-white text-[10px] sm:text-xs font-bold bg-black/20 hover:bg-black/30 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors"
+                      >
+                        Login
+                      </button>
+                      <button
+                        onClick={() => setIsSignUpPopupOpen(true)}
+                        className="text-[#3F87DF] text-[10px] sm:text-xs font-bold bg-white hover:bg-gray-50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors shadow-sm"
+                      >
+                        Register
+                      </button>
                     </div>
-                  </div>
+                  )
+                ) : (
+                  !isSearchMode && (
+                    <div onClick={() => setSidebarOpen(true)} className="cursor-pointer">
+                      <div className="w-[30px] h-[30px] rounded-full bg-black/40 text-white flex items-center justify-center shadow-sm overflow-hidden">
+                        {currentUser?.profileImage ? (
+                          <img src={`${baseURL}/${currentUser.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                          <FaUserCircle size={18} />
+                        )}
+                      </div>
+                    </div>
+                  )
                 )}
               </div>
             </div>
-
-            {/* Search Bar */}
             <div className="mt-5 w-full relative" ref={searchContainerRef}>
               <div className="flex items-center bg-white rounded-[4px] h-[40px] px-3 shadow-sm lg:h-[48px]">
-                <FiSearch className="text-gray-600 lg:w-5 lg:h-5" size={16} />
+                <button onClick={() => { (searchContainerRef.current?.querySelector('input') as HTMLInputElement)?.focus(); }} className="flex items-center">
+                  <FiSearch className="text-gray-600 lg:w-5 lg:h-5" size={16} />
+                </button>
                 <input
                   type="text"
                   placeholder="Search Businesses"
                   className="w-full h-full px-2 lg:px-4 text-gray-800 bg-transparent outline-none placeholder-gray-400 font-medium text-[13px] lg:text-base"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
-                  onFocus={() => setIsSearchFocused(true)}
+                  onFocus={() => {
+                    setIsSearchFocused(true);
+                    setIsSearchMode(true);
+                  }}
                 />
                 {searchText && (
                   <button onClick={() => { setSearchText(''); setSearchResults([]); }} className="pr-1">
@@ -371,8 +397,8 @@ const HomePage: React.FC = () => {
                 </button>
               </div>
 
-              {/* 📜 SEARCH HISTORY DROPDOWN */}
-              {isSearchFocused && !searchText && searchHistory.length > 0 && (
+              {/* 📜 SEARCH HISTORY DROPDOWN - Hidden in Search Mode because it shows in body */}
+              {isSearchFocused && !isSearchMode && !searchText && searchHistory.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-xl border border-gray-100 z-50 max-h-[320px] overflow-y-auto">
                   <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100">
                     <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wide">Recent Searches</p>
@@ -415,7 +441,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Banner Block — Hidden when search is active */}
-            {!searchText && (
+            {!isSearchMode && !searchText && (
               <div className="mt-4 relative z-0">
                 <HomeBanner banner={banner} loading={bannerLoading} />
                 {(!banner || banner.length === 0) && !bannerLoading && (
@@ -433,7 +459,64 @@ const HomePage: React.FC = () => {
         {/* ═══════════════════════════════════════ */}
         {/* MAIN BODY                               */}
         {/* ═══════════════════════════════════════ */}
-        {searchText ? (
+        {isSearchMode && !searchText ? (
+          <div className="max-w-7xl mx-auto px-4 mt-8">
+            {/* 🕰️ RECENT SEARCHES */}
+            {searchHistory.length > 0 && (
+              <div className="mb-8">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                    <FiClock className="text-blue-500" />
+                    Recent Searches
+                  </h3>
+                  <button onClick={clearSearchHistory} className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors">
+                    Clear All
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {searchHistory.map((item, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium cursor-pointer transition-colors flex items-center gap-2 group"
+                      onClick={() => setSearchText(item)}
+                    >
+                      <span>{item}</span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeFromSearchHistory(item);
+                        }}
+                        className="text-gray-400 hover:text-red-500"
+                      >
+                        <FiX size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 📈 TRENDING SEARCHES */}
+            <div className="mb-8">
+              <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2 mb-4">
+                <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
+                Trending Searches
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {trendingSearches.map((term, index) => (
+                  <div
+                    key={index}
+                    onClick={() => setSearchText(term)}
+                    className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium cursor-pointer transition-colors flex items-center gap-2"
+                  >
+                    <FiSearch size={14} className="opacity-70" />
+                    <span>{term}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : searchText ? (
           <div className="max-w-7xl mx-auto px-4 mt-6">
             {loading && <LoadingSpinner text="Searching..." size={12} />}
             {!loading && searchResults.length === 0 && (
@@ -587,7 +670,7 @@ const HomePage: React.FC = () => {
       {isFreeListingPopupOpen && <FreeListingPopup onClose={() => setIsFreeListingPopupOpen(false)} />}
       {isLoginPopupOpen && <LoginPopup onClose={() => setIsLoginPopupOpen(false)} onLoginSuccess={checkAuth} />}
       {isSignUpPopupOpen && <SignUpPopup onClose={() => setIsSignUpPopupOpen(false)} onSignUpSuccess={checkAuth} />}
-    </UserLayout>
+    </UserLayout >
   );
 }
 
