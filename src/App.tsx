@@ -14,6 +14,8 @@ import UserLogin from "./Pages/User/Login";
 import UserAddBusiness from "./Pages/User/UserAddBusiness";
 import CategoryBusinesses from "./Pages/Category/CategoryBusinesses";
 import BusinessDetailPage from "./Pages/BusinessDetail";
+import AllEvents from "./Pages/AllEvents";
+import AllVideos from "./Pages/AllVideos";
 import { RouteLoader } from "./Components/RouteLoader";
 // Helper component for protected routes
 const RequireAuth = ({ children }: { children: JSX.Element }) => {
@@ -49,6 +51,8 @@ const App: React.FC = () => {
         <Route path="/user/add-business" element={<UserAddBusiness />} />
         <Route path="/category/:id" element={<CategoryBusinesses />} />
         <Route path="/business/:id" element={<BusinessDetailPage />} />
+        <Route path="/events" element={<AllEvents />} />
+        <Route path="/videos" element={<AllVideos />} />
 
         {/* ADMIN ROUTES */}
         {AdminRoutes.map((route) => (

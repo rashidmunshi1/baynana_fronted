@@ -19,6 +19,8 @@ const EventBanner: React.FC = () => {
     const [editingBanner, setEditingBanner] = useState<EventBannerType | null>(null);
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState<any[]>([]);
+    const [submitLoading, setSubmitLoading] = useState(false);
+    const [togglingId, setTogglingId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchBanners();
@@ -73,17 +75,21 @@ const EventBanner: React.FC = () => {
 
     const handleToggleActive = async (id: string, checked: boolean) => {
         try {
+            setTogglingId(id);
             await axios.put(`${baseURL}/api/admin/update-event-banner/${id}`, { isActive: checked });
-            message.success(`Event Banner ${checked ? "activated" : "deactivated"}`);
+            message.success(`Status ${checked ? "activated" : "deactivated"}`);
             fetchBanners();
         } catch (error) {
             console.error("Toggle active error:", error);
             message.error("Failed to update status");
+        } finally {
+            setTogglingId(null);
         }
     };
 
     const handleOk = async () => {
         try {
+            setSubmitLoading(true);
             const values = await form.validateFields();
             const formData = new FormData();
             formData.append("title", values.title);
@@ -102,12 +108,12 @@ const EventBanner: React.FC = () => {
                 await axios.put(`${baseURL}/api/admin/update-event-banner/${editingBanner._id}`, formData, {
                     headers: { "Content-Type": "multipart/form-data" },
                 });
-                message.success("Event Banner updated successfully");
+                message.success("Updated successfully");
             } else {
                 await axios.post(`${baseURL}/api/admin/add-event-banner`, formData, {
                     headers: { "Content-Type": "multipart/form-data" },
                 });
-                message.success("Event Banner created successfully");
+                message.success("Created successfully");
             }
 
             setIsModalOpen(false);
@@ -115,6 +121,8 @@ const EventBanner: React.FC = () => {
         } catch (error) {
             console.error("Save event banner error:", error);
             message.error("Failed to save event banner");
+        } finally {
+            setSubmitLoading(false);
         }
     };
 
@@ -154,6 +162,7 @@ const EventBanner: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Switch
                         checked={isActive}
+                        loading={togglingId === record._id}
                         onChange={(checked) => handleToggleActive(record._id, checked)}
                         size="small"
                     />
@@ -270,6 +279,7 @@ const EventBanner: React.FC = () => {
             <Modal
                 title={editingBanner ? "Edit Event Banner" : "Add New Event Banner"}
                 open={isModalOpen}
+                confirmLoading={submitLoading}
                 onOk={handleOk}
                 onCancel={() => setIsModalOpen(false)}
                 okText="Save"
