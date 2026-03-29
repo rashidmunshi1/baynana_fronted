@@ -242,24 +242,33 @@ const HomePage: React.FC = () => {
     // @ts-ignore
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert('Voice search is not supported in this browser.');
+      alert('Voice search is not supported in this browser. Please use Google Chrome.');
       return;
     }
 
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = 'en-US';
+    recognition.lang = 'en-IN'; // Better for Indian accents
 
-    recognition.onstart = () => setIsListening(true);
+    recognition.onstart = () => {
+      setIsListening(true);
+      setIsSearchMode(true);
+      setIsSearchFocused(true);
+    };
+
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
       setSearchText(transcript);
       setIsListening(false);
     };
+
     recognition.onerror = (event: any) => {
       console.error('Voice recognition error:', event.error);
       setIsListening(false);
+      if (event.error === 'not-allowed') {
+        alert("Microphone permission denied. Please allow microphone access in browser settings.");
+      }
     };
     recognition.onend = () => setIsListening(false);
 
@@ -267,6 +276,7 @@ const HomePage: React.FC = () => {
       recognition.start();
     } catch (error) {
       console.error('Error starting recognition:', error);
+      setIsListening(false);
     }
   };
 
@@ -322,11 +332,14 @@ const HomePage: React.FC = () => {
                     <span className="text-[13px] font-bold">Back</span>
                   </button>
                 ) : (
+                  null
+                  /* 
                   <div className="hidden sm:flex items-center gap-1 cursor-pointer bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-white transition-colors" onClick={requestLocation}>
                     <FiMapPin size={14} />
                     <span className="text-[13px] font-bold tracking-wide">{locationName}</span>
                     <FiChevronDown size={14} />
                   </div>
+                  */
                 )}
               </div>
 
@@ -553,16 +566,18 @@ const HomePage: React.FC = () => {
                   );
                 })}
                 {/* Static Show More Icon */}
-                <div className="flex flex-col items-center gap-2 cursor-pointer w-[64px] sm:w-[76px] md:w-[84px] lg:w-[100px] group" onClick={() => navigate('/categories')}>
-                  <div className="w-[56px] h-[56px] sm:w-[68px] sm:h-[68px] md:w-[76px] md:h-[76px] lg:w-[90px] lg:h-[90px] bg-white border border-gray-100 flex items-center justify-center rounded-xl lg:rounded-2xl group-hover:shadow-md transition-all overflow-hidden">
-                    <div className="w-[30px] h-[30px] sm:w-[36px] sm:h-[36px] md:w-[40px] md:h-[40px] lg:w-[48px] lg:h-[48px] bg-[#4285F4] rounded-full flex items-center justify-center shadow-sm group-hover:bg-blue-600 transition-colors">
-                      <FiChevronDown size={24} className="text-white lg:w-7 lg:h-7" />
+                {dynamicCategories.length > 4 && (
+                  <div className="flex flex-col items-center gap-2 cursor-pointer w-[64px] sm:w-[76px] md:w-[84px] lg:w-[100px] group" onClick={() => navigate('/categories')}>
+                    <div className="w-[56px] h-[56px] sm:w-[68px] sm:h-[68px] md:w-[76px] md:h-[76px] lg:w-[90px] lg:h-[90px] bg-white border border-gray-100 flex items-center justify-center rounded-xl lg:rounded-2xl group-hover:shadow-md transition-all overflow-hidden">
+                      <div className="w-[30px] h-[30px] sm:w-[36px] sm:h-[36px] md:w-[40px] md:h-[40px] lg:w-[48px] lg:h-[48px] bg-[#4285F4] rounded-full flex items-center justify-center shadow-sm group-hover:bg-blue-600 transition-colors">
+                        <FiChevronDown size={24} className="text-white lg:w-7 lg:h-7" />
+                      </div>
                     </div>
+                    <p className="text-[10px] sm:text-[11px] md:text-xs font-bold text-gray-800 text-center leading-tight px-0.5">
+                      Show More
+                    </p>
                   </div>
-                  <p className="text-[10px] sm:text-[11px] md:text-xs font-bold text-gray-800 text-center leading-tight px-0.5">
-                    Show More
-                  </p>
-                </div>
+                )}
               </div>
             </div>
 
@@ -585,12 +600,15 @@ const HomePage: React.FC = () => {
             {/* 6️⃣ EVENTS & ISLAMIC GATHERINGS */}
             {eventBanners.length > 0 && (
               <div className="mt-10">
-                <div className="flex justify-between items-center px-4 sm:px-8 mb-4 cursor-pointer">
+                <div className="flex justify-between items-center px-4 sm:px-8 mb-4 cursor-pointer" onClick={() => navigate('/events')}>
                   <h3 className="text-[16px] sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-800">Events & Islamic Gatherings</h3>
-                  <FiChevronRight size={20} className="text-gray-800 font-bold xl:w-6 xl:h-6" />
+                  <div className="flex items-center gap-1 text-[#4285F4]">
+                    {eventBanners.length > 4 && <span className="text-[11px] sm:text-xs font-bold">View All</span>}
+                    <FiChevronRight size={20} className="font-bold xl:w-6 xl:h-6" />
+                  </div>
                 </div>
                 <div className="flex overflow-x-auto hide-scrollbar px-4 sm:px-8 gap-4 md:gap-6 lg:gap-8 pb-4 snap-x">
-                  {eventBanners.map((eventBanner) => (
+                  {eventBanners.slice(0, 4).map((eventBanner) => (
                     <div key={eventBanner._id} className="flex-shrink-0 w-[140px] sm:w-[180px] md:w-[240px] lg:w-[280px] xl:w-[340px] snap-center cursor-pointer">
                       <div className="w-full aspect-[4/5] bg-[#fdf3f0] rounded-[8px] xl:rounded-[12px] overflow-hidden hover:shadow-md transition-all border border-gray-100">
                         <img
@@ -606,42 +624,42 @@ const HomePage: React.FC = () => {
             )}
 
             {/* 7️⃣ LEARN ISLAMIC METHOD OF BUSINESS */}
-            <div className="mt-10">
-              <div className="flex justify-between items-center px-4 sm:px-8 mb-4 cursor-pointer">
-                <h3 className="text-[16px] sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-800">Learn Islamic Method of Business</h3>
-                <FiChevronRight size={20} className="text-gray-800 font-bold xl:w-6 xl:h-6" />
-              </div>
-              <div className="flex overflow-x-auto hide-scrollbar px-4 sm:px-8 gap-4 md:gap-6 lg:gap-8 pb-4 snap-x">
-                {videos.map((video) => (
-                  <div key={video._id} className="flex-shrink-0 w-[200px] sm:w-[260px] md:w-[320px] lg:w-[380px] xl:w-[460px] snap-center cursor-pointer group">
-                    <div className="w-full aspect-[16/9] bg-[#f0ecfc] rounded-[8px] xl:rounded-[12px] overflow-hidden flex items-center justify-center relative hover:shadow-md transition-all border border-gray-100">
-                      <video
-                        src={`${baseURL}/${video.videoPath}`}
-                        className="w-full h-full object-cover"
-                        controls
-                        playsInline
-                        preload="metadata"
-                      />
-                    </div>
-                    <p className="text-[9px] sm:text-[10px] md:text-xs xl:text-sm text-gray-800 font-medium mt-1.5 xl:mt-2.5 leading-[1.2] lg:leading-[1.4] line-clamp-2 pr-2">
-                      {video.title} {video.description ? `- ${video.description}` : ''}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 8️⃣ DONATE TO NOOR E IMAN */}
-            <div className="mt-14 mb-10 px-4 sm:px-8 text-center flex flex-col items-center">
-              <h2 className="text-[22px] sm:text-2xl lg:text-3xl font-extrabold text-[#3a3a3a] mb-5">Donate to Noor E Iman</h2>
-
-              {/* Emblem Placeholder (using CSS structure resembling the logo in screenshot) */}
-              <div className="w-[84px] h-[100px] sm:w-[100px] sm:h-[120px] lg:w-[120px] lg:h-[140px] mb-6 lg:mb-8 relative flex flex-col items-center justify-center text-white font-bold pb-2 drop-shadow-sm">
-                <div className="absolute inset-0 bg-white border-[3px] border-[#31a3d9] rounded-t-[40px] rounded-b-[10px] transform perspective-[100px] rotateX-0 z-0 after:content-[''] after:absolute after:-bottom-[15px] after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-0 after:border-l-[40px] after:border-l-transparent after:border-r-[40px] after:border-r-transparent after:border-t-[20px] after:border-t-[#31a3d9] flex justify-center items-center lg:after:border-l-[50px] lg:after:border-r-[50px] lg:after:border-t-[25px] lg:after:-bottom-[18px]">
-                  <div className="w-[85%] h-[85%] border-2 border-[#31a3d9] rounded-t-[30px] rounded-b-[5px] flex items-center justify-center bg-white m-auto">
-                    <span className="text-[#31a3d9] font-extrabold text-xl lg:text-2xl leading-tight text-center">નૂરે<br />ઇમાન</span>
+            {videos.length > 0 && (
+              <div className="mt-10">
+                <div className="flex justify-between items-center px-4 sm:px-8 mb-4 cursor-pointer" onClick={() => navigate('/videos')}>
+                  <h3 className="text-[16px] sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-800">Learn Islamic Method of Business</h3>
+                  <div className="flex items-center gap-1 text-[#4285F4]">
+                    {videos.length > 4 && <span className="text-[11px] sm:text-xs font-bold">View All</span>}
+                    <FiChevronRight size={20} className="font-bold xl:w-6 xl:h-6" />
                   </div>
                 </div>
+                <div className="flex overflow-x-auto hide-scrollbar px-4 sm:px-8 gap-4 md:gap-6 lg:gap-8 pb-4 snap-x">
+                  {videos.slice(0, 4).map((video) => (
+                    <div key={video._id} className="flex-shrink-0 w-[200px] sm:w-[260px] md:w-[320px] lg:w-[380px] xl:w-[460px] snap-center cursor-pointer group">
+                      <div className="w-full aspect-[16/9] bg-[#f0ecfc] rounded-[8px] xl:rounded-[12px] overflow-hidden flex items-center justify-center relative hover:shadow-md transition-all border border-gray-100">
+                        <video
+                          src={`${baseURL}/${video.videoPath}`}
+                          className="w-full h-full object-cover"
+                          controls
+                          playsInline
+                          preload="metadata"
+                        />
+                      </div>
+                      <p className="text-[9px] sm:text-[10px] md:text-xs xl:text-sm text-gray-800 font-medium mt-1.5 xl:mt-2.5 leading-[1.2] lg:leading-[1.4] line-clamp-2 pr-2">
+                        {video.title} {video.description ? `- ${video.description}` : ''}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 8️⃣ DONATE TO NOOR E IMAN */}
+            <div className="mt-14 mb-10 px-4 sm:px-8 text-center flex flex-col items-center" style={{ fontFamily: "'Roboto', sans-serif" }}>
+              <h2 className="text-[22px] sm:text-2xl lg:text-3xl font-extrabold text-[#3a3a3a] mb-5">Donate to Noor E Iman</h2>
+
+              <div className="w-28 h-28 sm:w-36 sm:h-36 mb-6">
+                <img src="/noor-imaan-1.svg" alt="Noor E Iman Logo" className="w-full h-full object-contain" />
               </div>
 
               <p className="text-[10px] sm:text-xs lg:text-sm xl:text-base text-gray-800 font-medium max-w-[280px] sm:max-w-md lg:max-w-xl mb-6 lg:mb-8 leading-relaxed">

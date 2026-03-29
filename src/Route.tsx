@@ -80,7 +80,7 @@ const AdminRoutes = [
   },
   {
     path: "/admin/video",
-    name: "Video Module",
+    name: "Learn Islamic Method of Business",
     component: VideoModule,
   },
   {

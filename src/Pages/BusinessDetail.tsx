@@ -5,7 +5,7 @@ import {
     FaStar, FaRegStar, FaShareAlt, FaCopy,
     FaInstagram, FaFacebookF, FaWhatsapp, FaPhoneAlt, FaEdit, FaTrash
 } from "react-icons/fa";
-import { FiSearch } from "react-icons/fi";
+
 import { MdVerified } from "react-icons/md";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { IoCallOutline } from "react-icons/io5";
@@ -19,11 +19,13 @@ interface BusinessDetail {
     _id: string;
     businessName: string;
     ownerName: string;
+    userId: string;
     mobile: string;
     address: string;
     city: string;
     pincode: string;
     description?: string;
+    website?: string;
     category: { _id: string; name: string };
     subcategories: { _id: string; name: string }[];
     services: string[];
@@ -50,8 +52,7 @@ const BusinessDetailPage: React.FC = () => {
     const [business, setBusiness] = useState<BusinessDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [isReviewOpen, setIsReviewOpen] = useState(false);
-
-    // For editing an existing review from the list/stars
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [editReviewData, setEditReviewData] = useState<{ id: string | null; rating: number; review: string }>({ id: null, rating: 0, review: '' });
 
     const currentUserId = localStorage.getItem("userId");
@@ -84,6 +85,16 @@ const BusinessDetailPage: React.FC = () => {
     };
 
     const handleOpenReviewModal = () => {
+        if (!currentUserId) {
+            alert("Please login to give a review.");
+            return;
+        }
+
+        if (business?.userId === currentUserId) {
+            alert("Owners cannot review their own business.");
+            return;
+        }
+
         const existing = business?.reviews?.find(r => r.userId?._id === currentUserId);
         if (existing) {
             setEditReviewData({ id: existing._id || null, rating: existing.rating, review: existing.review || '' });
@@ -138,7 +149,6 @@ const BusinessDetailPage: React.FC = () => {
                                 <h1 className="text-[17px] md:text-2xl font-bold truncate pr-4">{business.businessName}</h1>
                             </div>
                             <div className="flex items-center gap-4 md:gap-6 flex-shrink-0">
-                                <FiSearch size={22} className="cursor-pointer md:w-6 md:h-6" />
                                 <FaShareAlt size={20} onClick={handleShare} className="cursor-pointer hover:text-blue-200 transition md:w-5 md:h-5" />
                             </div>
                         </div>
@@ -193,17 +203,17 @@ const BusinessDetailPage: React.FC = () => {
                     {business.images && business.images.length > 0 && (
                         <div className={`grid gap-2 h-44 md:h-[400px] mb-8 md:mb-10 min-h-0 ${business.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
                             {business.images.length === 1 && (
-                                <div className="bg-gray-200 rounded-xl h-full min-h-0 overflow-hidden">
+                                <div className="bg-gray-200 rounded-xl h-full min-h-0 overflow-hidden cursor-pointer hover:opacity-95 transition-all" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[0]}`)}>
                                     <img src={`${baseURL}/uploads/business/${business.images[0]}`} alt="b-1" className="w-full h-full object-cover" />
                                 </div>
                             )}
 
                             {business.images.length === 2 && (
                                 <>
-                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden">
+                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden cursor-pointer hover:opacity-95 transition-all" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[0]}`)}>
                                         <img src={`${baseURL}/uploads/business/${business.images[0]}`} alt="b-1" className="w-full h-full object-cover" />
                                     </div>
-                                    <div className="bg-gray-200 rounded-r-xl h-full min-h-0 overflow-hidden">
+                                    <div className="bg-gray-200 rounded-r-xl h-full min-h-0 overflow-hidden cursor-pointer hover:opacity-95 transition-all" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[1]}`)}>
                                         <img src={`${baseURL}/uploads/business/${business.images[1]}`} alt="b-2" className="w-full h-full object-cover" />
                                     </div>
                                 </>
@@ -211,14 +221,14 @@ const BusinessDetailPage: React.FC = () => {
 
                             {business.images.length === 3 && (
                                 <>
-                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden">
+                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden cursor-pointer hover:opacity-95 transition-all" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[0]}`)}>
                                         <img src={`${baseURL}/uploads/business/${business.images[0]}`} alt="b-1" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="grid grid-rows-2 gap-2 h-full min-h-0">
-                                        <div className="bg-gray-200 rounded-tr-xl h-full min-h-0 overflow-hidden">
+                                        <div className="bg-gray-200 rounded-tr-xl h-full min-h-0 overflow-hidden cursor-pointer hover:opacity-95 transition-all" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[1]}`)}>
                                             <img src={`${baseURL}/uploads/business/${business.images[1]}`} alt="b-2" className="w-full h-full object-cover" />
                                         </div>
-                                        <div className="bg-gray-200 rounded-br-xl h-full min-h-0 overflow-hidden">
+                                        <div className="bg-gray-200 rounded-br-xl h-full min-h-0 overflow-hidden cursor-pointer hover:opacity-95 transition-all" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[2]}`)}>
                                             <img src={`${baseURL}/uploads/business/${business.images[2]}`} alt="b-3" className="w-full h-full object-cover" />
                                         </div>
                                     </div>
@@ -227,18 +237,18 @@ const BusinessDetailPage: React.FC = () => {
 
                             {business.images.length >= 4 && (
                                 <>
-                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden">
+                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden cursor-pointer hover:opacity-95 transition-all" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[0]}`)}>
                                         <img src={`${baseURL}/uploads/business/${business.images[0]}`} alt="b-1" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="grid grid-rows-2 gap-2 h-full min-h-0">
-                                        <div className="bg-gray-200 rounded-tr-xl h-full min-h-0 overflow-hidden">
+                                        <div className="bg-gray-200 rounded-tr-xl h-full min-h-0 overflow-hidden cursor-pointer hover:opacity-95 transition-all" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[1]}`)}>
                                             <img src={`${baseURL}/uploads/business/${business.images[1]}`} alt="b-2" className="w-full h-full object-cover" />
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 h-full min-h-0">
-                                            <div className="bg-gray-200 h-full min-h-0 overflow-hidden">
+                                            <div className="bg-gray-200 h-full min-h-0 overflow-hidden cursor-pointer hover:opacity-95 transition-all" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[2]}`)}>
                                                 <img src={`${baseURL}/uploads/business/${business.images[2]}`} alt="b-3" className="w-full h-full object-cover" />
                                             </div>
-                                            <div className="bg-gray-200 rounded-br-xl h-full min-h-0 overflow-hidden relative">
+                                            <div className="bg-gray-200 rounded-br-xl h-full min-h-0 overflow-hidden relative cursor-pointer hover:opacity-95 transition-all" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[3]}`)}>
                                                 <img src={`${baseURL}/uploads/business/${business.images[3]}`} alt="b-4" className="w-full h-full object-cover" />
                                                 {business.images.length > 4 && (
                                                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold text-lg md:text-2xl">
@@ -256,13 +266,19 @@ const BusinessDetailPage: React.FC = () => {
                     {/* Rate this business */}
                     <div className="pt-2">
                         <h3 className="text-[14px] md:text-[18px] font-bold text-gray-800 mb-3 md:mb-4">Rate this business</h3>
-                        <div className="flex gap-2.5">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                                <div onClick={handleOpenReviewModal} key={star} className="p-2 border border-gray-300 rounded text-gray-400 cursor-pointer hover:bg-gray-50 transition">
-                                    <FaRegStar size={22} className="md:w-6 md:h-6 md:p-0.5" />
-                                </div>
-                            ))}
-                        </div>
+                        {business.userId === currentUserId ? (
+                            <p className="text-sm text-gray-500 italic bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                You are the owner of this business. Reviewing your own business is not allowed.
+                            </p>
+                        ) : (
+                            <div className="flex gap-2.5">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <div onClick={handleOpenReviewModal} key={star} className="p-2 border border-gray-300 rounded text-gray-400 cursor-pointer hover:bg-gray-50 transition">
+                                        <FaRegStar size={22} className="md:w-6 md:h-6 md:p-0.5" />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <hr className="border-gray-200 my-6 md:my-8" />
@@ -299,10 +315,18 @@ const BusinessDetailPage: React.FC = () => {
                             </div>
                             <IoIosArrowForward className="text-gray-400" size={20} />
                         </div>
-                        <div className="flex justify-between items-center cursor-pointer hover:bg-gray-50 p-1.5 -mx-1.5 rounded transition max-w-2xl">
-                            <h4 className="text-[13px] md:text-[15px] font-bold text-gray-800">Visit our website</h4>
-                            <IoIosArrowForward className="text-gray-400" size={20} />
-                        </div>
+                        {business.website && (
+                            <div 
+                                onClick={() => {
+                                    const url = business.website?.startsWith('http') ? business.website : `https://${business.website}`;
+                                    window.open(url, "_blank");
+                                }}
+                                className="flex justify-between items-center cursor-pointer hover:bg-gray-50 p-1.5 -mx-1.5 rounded transition max-w-2xl"
+                            >
+                                <h4 className="text-[13px] md:text-[15px] font-bold text-gray-800">Visit our website</h4>
+                                <IoIosArrowForward className="text-gray-400" size={20} />
+                            </div>
+                        )}
                         {business.socialLinks && Array.isArray(business.socialLinks) && business.socialLinks.filter(l => l && typeof l === 'string' && l.trim().length > 0 && l.trim() !== 'null' && l.trim() !== 'undefined').length > 0 && (
                             <div>
                                 <h4 className="text-[13px] md:text-[15px] font-bold text-gray-800 mb-3 md:mb-4">Social Media</h4>
@@ -447,6 +471,32 @@ const BusinessDetailPage: React.FC = () => {
                 }}
             />
 
+            {/* Image Preview Modal */}
+            {previewImage && (
+                <div 
+                    className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 md:p-10 transition-opacity duration-300"
+                    onClick={() => setPreviewImage(null)}
+                >
+                    <button 
+                        className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-[110]"
+                        onClick={(e) => { e.stopPropagation(); setPreviewImage(null); }}
+                    >
+                        <svg className="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    <div 
+                        className="relative max-w-full max-h-full"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <img 
+                            src={previewImage} 
+                            alt="Preview" 
+                            className="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain border-2 border-white/10"
+                        />
+                    </div>
+                </div>
+            )}
         </UserLayout >
     );
 };

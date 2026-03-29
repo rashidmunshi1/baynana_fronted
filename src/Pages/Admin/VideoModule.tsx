@@ -19,6 +19,8 @@ const VideoModule: React.FC = () => {
     const [editingVideo, setEditingVideo] = useState<VideoType | null>(null);
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState<any[]>([]);
+    const [submitLoading, setSubmitLoading] = useState(false);
+    const [togglingId, setTogglingId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchVideos();
@@ -73,17 +75,21 @@ const VideoModule: React.FC = () => {
 
     const handleToggleActive = async (id: string, checked: boolean) => {
         try {
+            setTogglingId(id);
             await axios.put(`${baseURL}/api/admin/update-video/${id}`, { isActive: checked });
-            message.success(`Video ${checked ? "activated" : "deactivated"}`);
+            message.success(`Status ${checked ? "activated" : "deactivated"}`);
             fetchVideos();
         } catch (error) {
             console.error("Toggle active error:", error);
             message.error("Failed to update status");
+        } finally {
+            setTogglingId(null);
         }
     };
 
     const handleOk = async () => {
         try {
+            setSubmitLoading(true);
             const values = await form.validateFields();
             const formData = new FormData();
             formData.append("title", values.title);
@@ -102,12 +108,12 @@ const VideoModule: React.FC = () => {
                 await axios.put(`${baseURL}/api/admin/update-video/${editingVideo._id}`, formData, {
                     headers: { "Content-Type": "multipart/form-data" },
                 });
-                message.success("Video updated successfully");
+                message.success("Updated successfully");
             } else {
                 await axios.post(`${baseURL}/api/admin/add-video`, formData, {
                     headers: { "Content-Type": "multipart/form-data" },
                 });
-                message.success("Video created successfully");
+                message.success("Created successfully");
             }
 
             setIsModalOpen(false);
@@ -115,12 +121,14 @@ const VideoModule: React.FC = () => {
         } catch (error) {
             console.error("Save video error:", error);
             message.error("Failed to save video");
+        } finally {
+            setSubmitLoading(false);
         }
     };
 
     const columns = [
         {
-            title: "Video",
+            title: "Course",
             dataIndex: "videoPath",
             key: "videoPath",
             render: (videoPath: string) => (
@@ -154,6 +162,7 @@ const VideoModule: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Switch
                         checked={isActive}
+                        loading={togglingId === record._id}
                         onChange={(checked) => handleToggleActive(record._id, checked)}
                         size="small"
                     />
@@ -185,7 +194,7 @@ const VideoModule: React.FC = () => {
                         }}
                     />
                     <Popconfirm
-                        title="Are you sure to delete this video?"
+                        title="Are you sure to delete this item?"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Yes"
                         cancelText="No"
@@ -228,7 +237,7 @@ const VideoModule: React.FC = () => {
                 }}
             >
                 <p style={{ color: '#64748b', fontSize: '13px', margin: 0 }}>
-                    {videos.length} videos uploaded
+                    {videos.length} courses uploaded
                 </p>
                 <Button
                     type="primary"
@@ -244,7 +253,7 @@ const VideoModule: React.FC = () => {
                         boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)',
                     }}
                 >
-                    Add Video
+                    Add New
                 </Button>
             </div>
 
@@ -269,8 +278,9 @@ const VideoModule: React.FC = () => {
 
             {/* Add/Edit Modal */}
             <Modal
-                title={editingVideo ? "Edit Video" : "Upload New Video"}
+                title={editingVideo ? "Edit Details" : "Upload New Content"}
                 open={isModalOpen}
+                confirmLoading={submitLoading}
                 onOk={handleOk}
                 onCancel={() => setIsModalOpen(false)}
                 okText="Save"

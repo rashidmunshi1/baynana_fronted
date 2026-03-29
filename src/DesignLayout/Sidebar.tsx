@@ -28,7 +28,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse, onMouseEnter, 
     { key: '5', icon: <UsbOutlined />, text: 'Businesses', link: '/admin/business-list' },
     { key: '6', icon: <FileTextOutlined />, text: 'Banners', link: '/admin/banner' },
     { key: '7', icon: <FaListAlt />, text: 'Sub Categories', link: '/admin/subcategory-list' },
-    { key: '8', icon: <VideoCameraOutlined />, text: 'Videos', link: '/admin/video' },
+    { key: '8', icon: <VideoCameraOutlined />, text: 'Learn Islamic Method of Business', link: '/admin/video' },
     { key: '9', icon: <FileTextOutlined />, text: 'Event Banners', link: '/admin/event-banner' },
   ];
 
@@ -104,11 +104,27 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse, onMouseEnter, 
           style={{
             background: 'transparent',
             color: '#94a3b8',
-            height: '42px',
-            lineHeight: '42px',
+            minHeight: '42px',
+            height: 'auto',
+            paddingTop: '6px',
+            paddingBottom: '6px',
+            lineHeight: '1.4',
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
-          <Link to={item.link} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link
+            to={item.link}
+            style={{
+              textDecoration: 'none',
+              color: 'inherit',
+              whiteSpace: 'normal',
+              overflow: 'visible',
+              display: 'inline-block',
+              width: '100%',
+              lineHeight: '1.2'
+            }}
+          >
             {item.text}
           </Link>
         </Menu.Item>

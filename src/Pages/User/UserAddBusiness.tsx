@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Form, Input, Button, Select, Upload, Card, message, Row, Col, Checkbox } from "antd";
+import { Form, Input, Button, Select, Upload, Card, message, Row, Col, Checkbox, Modal } from "antd";
 import type { UploadFile } from "antd/es/upload/interface";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +19,28 @@ import {
 } from "@ant-design/icons";
 import UserLayout from "../../DesignLayout/UserLayout";
 import baseURL from "../../config";
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-geosearch/dist/geosearch.css";
+import L from "leaflet";
+import { OpenStreetMapProvider, GeoSearchControl } from "leaflet-geosearch";
+
+// Fix leaflet marker icon issues
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconRetina from "leaflet/dist/images/marker-icon-2x.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
+
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    iconRetinaUrl: iconRetina,
+    shadowUrl: iconShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    tooltipAnchor: [16, -28],
+    shadowSize: [41, 41],
+});
+L.Marker.prototype.options.icon = DefaultIcon;
 
 const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
@@ -59,6 +81,8 @@ const UserAddBusiness = () => {
     const [subcategories, setSubcategories] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [locationLoading, setLocationLoading] = useState(false);
+    const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+    const [mapCenter, setMapCenter] = useState<[number, number]>([20.5937, 78.9629]); // Default India center
 
     useEffect(() => {
         const userId = localStorage.getItem("userId");
@@ -185,17 +209,17 @@ const UserAddBusiness = () => {
             <Row gutter={16}>
                 <Col span={24} md={12}>
                     <Form.Item label="Business Name" name="businessName" rules={[{ required: true, message: "Business name is required" }]}>
-                        <Input style={inputStyle} placeholder="e.g. Star Electronics" />
+                        <Input style={inputStyle} placeholder="Enter Business Name" />
                     </Form.Item>
                 </Col>
                 <Col span={24} md={12}>
                     <Form.Item label="Owner Name" name="ownerName" rules={[{ required: true, message: "Owner name is required" }]}>
-                        <Input style={inputStyle} placeholder="e.g. Rashid Munshi" />
+                        <Input style={inputStyle} placeholder="Enter Owner Name" />
                     </Form.Item>
                 </Col>
                 <Col span={24} md={12}>
                     <Form.Item label="Mobile Number" name="mobile" rules={[{ required: true, message: "Mobile is required" }]}>
-                        <Input style={inputStyle} placeholder="e.g. 9876543210" />
+                        <Input style={inputStyle} placeholder="Enter 10 Digit Mobile Number" />
                     </Form.Item>
                 </Col>
                 <Col span={24} md={12}>
@@ -228,6 +252,7 @@ const UserAddBusiness = () => {
                     longitude: longitude,
                     locationUrl: mapUrl,
                 });
+                setMapCenter([latitude, longitude]);
                 setLocationLoading(false);
                 message.success("Location captured successfully!");
             },
@@ -238,6 +263,73 @@ const UserAddBusiness = () => {
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
+    };
+
+    // Sub-component for Leaflet click events — must be inside MapContainer
+    const MapEventsHandler = () => {
+        useMapEvents({
+            click(e) {
+                const { lat, lng } = e.latlng;
+                form.setFieldsValue({
+                    latitude: lat,
+                    longitude: lng,
+                    locationUrl: `https://www.google.com/maps?q=${lat},${lng}`,
+                });
+                setMapCenter([lat, lng]);
+                message.success("Location selected on map!");
+            },
+        });
+        return null;
+    };
+
+    // Sub-component for Search Field — must be inside MapContainer
+    const MapSearchField = () => {
+        const map = useMap();
+        useEffect(() => {
+            const provider = new OpenStreetMapProvider();
+            // @ts-ignore
+            const searchControl = new GeoSearchControl({
+                provider: provider,
+                style: "bar",
+                showMarker: true,
+                showPopup: false,
+                autoClose: true,
+                retainZoomLevel: false,
+                animateZoom: true,
+                keepResult: true,
+                searchLabel: "Search for a place...",
+            });
+
+            map.addControl(searchControl);
+
+            // Listen for search result
+            map.on("geosearch/showlocation", (result: any) => {
+                const { x: lng, y: lat } = result.location;
+                form.setFieldsValue({
+                    latitude: lat,
+                    longitude: lng,
+                    locationUrl: `https://www.google.com/maps?q=${lat},${lng}`,
+                });
+                setMapCenter([lat, lng]);
+                message.success("Place found and selected!");
+            });
+
+            return () => {
+                map.removeControl(searchControl);
+            };
+        }, [map]);
+        return null;
+    };
+
+    // Fix for Leaflet's "gray map" issue when initialized in a hidden container (like Ant Modal)
+    const MapResizer = () => {
+        const map = useMap();
+        useEffect(() => {
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 400); // Wait for modal animation to finish
+        }, [map]);
+        return null;
     };
 
     const renderStep2 = () => {
@@ -278,26 +370,44 @@ const UserAddBusiness = () => {
                                 <div>
                                     <p style={{ fontWeight: 600, color: "#166534", fontSize: 13, margin: 0 }}>📍 Business Location</p>
                                     <p style={{ fontSize: 11, color: "#4ade80", margin: "2px 0 0" }}>
-                                        {hasCoords ? `Lat: ${Number(lat).toFixed(5)}, Lng: ${Number(lng).toFixed(5)}` : "Use GPS or paste Google Maps link"}
+                                        {hasCoords ? `Lat: ${Number(lat).toFixed(5)}, Lng: ${Number(lng).toFixed(5)}` : "Use GPS or click 'Select on Map'"}
                                     </p>
                                 </div>
-                                <Button
-                                    onClick={handleUseCurrentLocation}
-                                    loading={locationLoading}
-                                    icon={locationLoading ? <LoadingOutlined /> : <AimOutlined />}
-                                    style={{
-                                        background: "linear-gradient(135deg, #10b981, #059669)",
-                                        color: "#fff",
-                                        border: "none",
-                                        borderRadius: 10,
-                                        height: 40,
-                                        fontWeight: 600,
-                                        fontSize: 13,
-                                        boxShadow: "0 2px 8px rgba(16,185,129,0.3)",
-                                    }}
-                                >
-                                    Use Current Location
-                                </Button>
+                                <div style={{ display: "flex", gap: "8px" }}>
+                                    <Button
+                                        onClick={() => setIsMapModalOpen(true)}
+                                        icon={<AimOutlined />}
+                                        style={{
+                                            background: "linear-gradient(135deg, #3b82f6, #2563eb)",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: 10,
+                                            height: 40,
+                                            fontWeight: 600,
+                                            fontSize: 13,
+                                            boxShadow: "0 2px 8px rgba(59,130,246,0.3)",
+                                        }}
+                                    >
+                                        Select on Map
+                                    </Button>
+                                    <Button
+                                        onClick={handleUseCurrentLocation}
+                                        loading={locationLoading}
+                                        icon={locationLoading ? <LoadingOutlined /> : <AimOutlined />}
+                                        style={{
+                                            background: "linear-gradient(135deg, #10b981, #059669)",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: 10,
+                                            height: 40,
+                                            fontWeight: 600,
+                                            fontSize: 13,
+                                            boxShadow: "0 2px 8px rgba(16,185,129,0.3)",
+                                        }}
+                                    >
+                                        GPS
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </Col>
@@ -748,6 +858,7 @@ const UserAddBusiness = () => {
                         from { opacity: 0; transform: translateY(12px); }
                         to { opacity: 1; transform: translateY(0); }
                     }
+                    }
                     @media (max-width: 576px) {
                         .ant-card-body {
                             padding: 16px 12px 14px !important;
@@ -756,7 +867,50 @@ const UserAddBusiness = () => {
                             margin-bottom: 12px !important;
                         }
                     }
+                    .leaflet-container {
+                        width: 100%;
+                        height: 100%;
+                        border-radius: 12px;
+                    }
                 `}</style>
+
+                {/* Interactive Map Modal */}
+                <Modal
+                    title="Select Business Location"
+                    open={isMapModalOpen}
+                    onCancel={() => setIsMapModalOpen(false)}
+                    footer={[
+                        <Button key="close" type="primary" onClick={() => setIsMapModalOpen(false)}>
+                            Done
+                        </Button>
+                    ]}
+                    width={800}
+                    destroyOnClose
+                    bodyStyle={{ height: "500px", padding: 0 }}
+                >
+                    <div style={{ padding: "10px", textAlign: "center", color: "#64748b", fontSize: "14px" }}>
+                        Search for a place or click on the map to select your business location
+                    </div>
+                    {isMapModalOpen && (
+                        <MapContainer 
+                            center={mapCenter} 
+                            zoom={13} 
+                            style={{ height: "450px" }}
+                            scrollWheelZoom={true}
+                        >
+                            <TileLayer
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
+                            <MapEventsHandler />
+                            <MapSearchField />
+                            <MapResizer />
+                            {form.getFieldValue("latitude") && (
+                                <Marker position={[form.getFieldValue("latitude"), form.getFieldValue("longitude")]} />
+                            )}
+                        </MapContainer>
+                    )}
+                </Modal>
             </UserLayout>
         </div>
     );
