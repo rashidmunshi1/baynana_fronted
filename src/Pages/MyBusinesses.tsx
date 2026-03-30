@@ -11,21 +11,17 @@ import LoadingSpinner from "../Components/LoadingSpinner";
 const MyBusinesses: React.FC = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
-  const userPhone = localStorage.getItem("userPhone");
+  const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
 
   const fetchBusinesses = async () => {
-    if (!userPhone) {
+    if (!userId) {
       setLoading(false);
       return;
     }
 
     try {
-      // Ensure mobile has correct 91 prefix if backend expects it, or send as is strictly based on what is stored
-      // Assuming backend query matches exactly what's in 'mobile' field of Business
-      // Usually format stored is just 10 digits or sometimes 91+10 digits.
-      // Let's pass what we have.
-      const res = await axios.get(`${baseURL}/api/user/my-businesses/${userPhone}`);
+      const res = await axios.get(`${baseURL}/api/user/my-businesses/${userId}`);
       console.log("Businesses fetched:", res.data);
       setBusinesses(res.data.businesses || []);
     } catch (err: any) {
@@ -40,7 +36,7 @@ const MyBusinesses: React.FC = () => {
 
   useEffect(() => {
     fetchBusinesses();
-  }, [userPhone]);
+  }, [userId]);
 
   // UI Helper for Status Badges
   const getStatusBadge = (status: string) => {
