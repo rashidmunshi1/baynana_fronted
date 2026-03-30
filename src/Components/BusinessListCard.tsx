@@ -20,6 +20,7 @@ interface Business {
     isPaid?: boolean;
     rating?: number;
     ratingCount?: number;
+    timings?: any;
 }
 
 interface Props {
@@ -108,9 +109,33 @@ const BusinessListCard: React.FC<Props> = ({ business }) => {
                     </p>
 
                     {/* Time */}
-                    <p className="text-[#00a650] font-bold text-[14px] mb-4">
-                        Opens at 05:00 PM
-                    </p>
+                    {(() => {
+                        const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+                        const currentDay = days[new Date().getDay()];
+                        const todayTiming = business.timings?.[currentDay];
+                        const isClosed = todayTiming?.closed;
+                        
+                        const formatTime = (time?: string) => {
+                            if (!time) return "";
+                            const [h, m] = time.split(":");
+                            if (!h || !m) return time;
+                            const hour = parseInt(h, 10);
+                            const ampm = hour >= 12 ? "PM" : "AM";
+                            const formattedHour = hour % 12 || 12;
+                            return `${formattedHour.toString().padStart(2, "0")}:${m} ${ampm}`;
+                        };
+                        
+                        const openTime = formatTime(todayTiming?.open);
+                        const closeTime = formatTime(todayTiming?.close);
+
+                        return (
+                            <p className={`font-bold text-[14px] mb-4 ${isClosed ? 'text-red-500' : 'text-[#00a650]'}`}>
+                                {isClosed 
+                                    ? "Closed Today" 
+                                    : (openTime && closeTime ? `Open Today: ${openTime} - ${closeTime}` : "Open Today")}
+                            </p>
+                        );
+                    })()}
 
                     {/* Buttons */}
                     <div

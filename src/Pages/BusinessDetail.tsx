@@ -156,7 +156,33 @@ const BusinessDetailPage: React.FC = () => {
                         {/* Basic Info */}
                         <div className="px-1 md:px-5 space-y-1.5">
                             <p className="text-[13px] md:text-[15px] opacity-90 truncate">{business.address}, {business.city}</p>
-                            <p className="text-[13px] md:text-[15px] font-medium">Opens at {business.timings?.monday?.open || "05:00 PM"}</p>
+                            {(() => {
+                                const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+                                const currentDay = days[new Date().getDay()];
+                                const todayTiming = business.timings?.[currentDay];
+                                const isClosed = todayTiming?.closed;
+                                
+                                const formatTime = (time?: string) => {
+                                    if (!time) return "";
+                                    const [h, m] = time.split(":");
+                                    if (!h || !m) return time;
+                                    const hour = parseInt(h, 10);
+                                    const ampm = hour >= 12 ? "PM" : "AM";
+                                    const formattedHour = hour % 12 || 12;
+                                    return `${formattedHour.toString().padStart(2, "0")}:${m} ${ampm}`;
+                                };
+                                
+                                const openTime = formatTime(todayTiming?.open);
+                                const closeTime = formatTime(todayTiming?.close);
+
+                                return (
+                                    <p className={`text-[13px] md:text-[15px] font-medium ${isClosed ? 'text-red-500' : 'text-white'}`}>
+                                        {isClosed 
+                                            ? "Closed Today" 
+                                            : (openTime && closeTime ? `Open Today: ${openTime} - ${closeTime}` : "Open Today")}
+                                    </p>
+                                );
+                            })()}
                             {business.isPaid && (
                                 <div className="flex items-center gap-4 mt-2 md:mt-4 text-[11px] md:text-[13px] font-bold">
                                     <div className="flex items-center gap-1">
@@ -308,12 +334,37 @@ const BusinessDetailPage: React.FC = () => {
                             <h4 className="text-[13px] md:text-[15px] font-bold text-gray-800 mb-1">Contacts</h4>
                             <p className="text-[13px] md:text-[15px] text-gray-600">+91 {business.mobile}</p>
                         </div>
-                        <div className="flex justify-between items-center cursor-pointer hover:bg-gray-50 p-1.5 -mx-1.5 rounded transition max-w-2xl">
-                            <div>
-                                <h4 className="text-[13px] md:text-[15px] font-bold text-gray-800 mb-1">Business Hours</h4>
-                                <p className="text-[13px] md:text-[15px] text-gray-600">Open now : until {business.timings?.monday?.close || "11:00 pm"}</p>
-                            </div>
-                            <IoIosArrowForward className="text-gray-400" size={20} />
+                        <div>
+                            <h4 className="text-[13px] md:text-[15px] font-bold text-gray-800 mb-2">Business Hours</h4>
+                            {business.timings ? (
+                                <div className="bg-white border border-gray-100 rounded-lg p-3 max-w-2xl text-[13px] md:text-[15px] shadow-sm">
+                                    {["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].map((day) => {
+                                        const t = business.timings?.[day];
+                                        const isToday = new Date().toLocaleDateString("en-US", { weekday: "long" }).toLowerCase() === day;
+                                        
+                                        const formatTime = (time?: string) => {
+                                            if (!time) return "";
+                                            const [h, m] = time.split(":");
+                                            if (!h || !m) return time;
+                                            const hour = parseInt(h, 10);
+                                            const ampm = hour >= 12 ? "PM" : "AM";
+                                            const formattedHour = hour % 12 || 12;
+                                            return `${formattedHour.toString().padStart(2, "0")}:${m} ${ampm}`;
+                                        };
+
+                                        return (
+                                            <div key={day} className={`flex justify-between py-1.5 border-b border-gray-50 last:border-0 ${isToday ? 'font-bold text-gray-900 bg-gray-50/50 rounded px-1' : 'text-gray-600'}`}>
+                                                <span className="capitalize">{day}</span>
+                                                <span>
+                                                    {t?.closed ? <span className="text-red-500 font-medium">Closed</span> : (t?.open && t?.close ? `${formatTime(t.open)} - ${formatTime(t.close)}` : "Not Set")}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <p className="text-[13px] md:text-[15px] text-gray-600">Timings not available</p>
+                            )}
                         </div>
                         {business.website && (
                             <div 
@@ -366,18 +417,25 @@ const BusinessDetailPage: React.FC = () => {
                             <p className="text-[13px] md:text-[15px] text-gray-700 mb-3 md:mb-4">
                                 Send your requirement on <span className="font-bold">WhatsApp</span>
                             </p>
-                            <div className="flex items-center border border-gray-300 bg-white rounded-lg overflow-hidden shadow-sm">
-                                <div className="pl-3 md:pl-4">
-                                    <FaWhatsapp className="text-green-500 md:w-5 md:h-5" size={18} />
+                            <div className="flex items-center bg-white rounded-[10px] shadow-sm overflow-hidden border border-gray-100 h-[48px] md:h-[60px]">
+                                <div className="pl-4 pr-1 flex items-center">
+                                    <FaWhatsapp className="text-green-500 md:w-6 md:h-6" size={20} />
                                 </div>
                                 <input
                                     type="text"
-                                    className="flex-1 px-3 py-2.5 md:py-3.5 text-[12px] md:text-[14px] text-gray-600 outline-none w-full bg-transparent"
+                                    className="flex-1 h-full px-3 text-[13px] md:text-[15px] text-gray-700 outline-none border-none bg-transparent font-medium"
                                     defaultValue="Hi, I found your business on baynana"
+                                    id="waRequirementInput"
                                 />
-                                <a href={`https://wa.me/91${business.mobile}?text=Hi, I found your business on baynana`} target="_blank" rel="noopener noreferrer" className="bg-[#3F87DF] hover:bg-[#326CB2] transition flex items-center justify-center px-4 md:px-6 py-3 md:py-3.5 cursor-pointer">
-                                    <RiSendPlaneFill className="text-white md:w-5 md:h-5" size={16} />
-                                </a>
+                                <button 
+                                    onClick={() => {
+                                        const msg = (document.getElementById('waRequirementInput') as HTMLInputElement)?.value || "";
+                                        window.open(`https://wa.me/91${business.mobile}?text=${encodeURIComponent(msg)}`, "_blank");
+                                    }}
+                                    className="bg-[#3F87DF] hover:bg-[#326CB2] transition flex items-center justify-center px-5 md:px-8 h-full border-none outline-none cursor-pointer self-stretch"
+                                >
+                                    <RiSendPlaneFill className="text-white md:w-6 md:h-6" size={20} />
+                                </button>
                             </div>
                             <div className="flex justify-between items-center mt-3 md:mt-4">
                                 <span className="text-[11px] md:text-[13px] text-gray-500">Or call the business instantly</span>
