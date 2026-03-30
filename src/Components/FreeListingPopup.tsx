@@ -50,6 +50,9 @@ const FreeListingPopup: React.FC<FreeListingPopupProps> = ({ onClose }) => {
       const res = await axios.post(`${baseURL}/api/user/verify-otp`, { phoneNumber, otp });
       if (res.data.success) {
         localStorage.setItem('token', res.data.token);
+        if (res.data.user?.id) {
+          localStorage.setItem('userId', res.data.user.id);
+        }
         if (res.data.name) { // Assuming API returns name if user already has one
           localStorage.setItem('userPhone', phoneNumber);
           localStorage.setItem('userName', res.data.name);

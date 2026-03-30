@@ -30,12 +30,14 @@ const HomePage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [voiceText, setVoiceText] = useState("");
 
   /* 📜 SEARCH HISTORY */
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   const trendingSearches = ["Plumbers", "Doctors", "Grocery", "Restaurants", "Real Estate", "Electricians", "Travel Agents", "Carpenters"];
 
@@ -246,21 +248,41 @@ const HomePage: React.FC = () => {
       return;
     }
 
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+
     const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
     recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.interimResults = true;
     recognition.lang = 'en-IN'; // Better for Indian accents
 
     recognition.onstart = () => {
       setIsListening(true);
+      setVoiceText("");
       setIsSearchMode(true);
       setIsSearchFocused(true);
     };
 
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setSearchText(transcript);
-      setIsListening(false);
+      let interimTranscript = '';
+      let finalTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interimTranscript += event.results[i][0].transcript;
+        }
+      }
+
+      setVoiceText(finalTranscript || interimTranscript);
+      
+      if (finalTranscript) {
+        setSearchText(finalTranscript);
+        setIsListening(false);
+      }
     };
 
     recognition.onerror = (event: any) => {
@@ -270,7 +292,10 @@ const HomePage: React.FC = () => {
         alert("Microphone permission denied. Please allow microphone access in browser settings.");
       }
     };
-    recognition.onend = () => setIsListening(false);
+    recognition.onend = () => {
+      // Small delay on close to let user see transition
+      setTimeout(() => setIsListening(false), 500);
+    };
 
     try {
       recognition.start();
@@ -279,6 +304,13 @@ const HomePage: React.FC = () => {
       setIsListening(false);
     }
   };
+
+  // Close recognition if isListening is set to false via UI
+  useEffect(() => {
+    if (!isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+  }, [isListening]);
 
   /* Category color palette for icons */
   const categoryColors = [
@@ -301,6 +333,44 @@ const HomePage: React.FC = () => {
         @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes pulse-ring {
+          0% { transform: scale(.33); }
+          80%, 100% { opacity: 0; }
+        }
+        @keyframes pulse-mic {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+          100% { transform: scale(1); }
+        }
+        .pulse-ring::before {
+          content: '';
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background-color: #3B82F6;
+          animation: pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .goog-dot-container {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .goog-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          animation: goog-dot-anim 1s infinite ease-in-out;
+        }
+        @keyframes goog-dot-anim {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        .goog-dot:nth-child(2) { animation-delay: 0.1s; }
+        .goog-dot:nth-child(3) { animation-delay: 0.2s; }
+        .goog-dot:nth-child(4) { animation-delay: 0.3s; }
       `}</style>
 
       {/* Main container sets standard max-widths on larger screens and a full width on mobile.*/}
@@ -683,6 +753,47 @@ const HomePage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* 🎤 GOOGLE-STYLE VOICE SEARCH OVERLAY */}
+      {isListening && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 backdrop-blur-md transition-all duration-300">
+          <button 
+            onClick={() => setIsListening(false)}
+            className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <FiX size={28} />
+          </button>
+          
+          <div className="flex-1 flex flex-col items-center justify-center gap-12 w-full max-w-lg px-6">
+            {/* Real-time transcribed text */}
+            <div className="min-h-[120px] w-full text-center">
+              <h2 className="text-3xl sm:text-4xl font-normal text-gray-800 leading-tight">
+                {voiceText || "Say something..."}
+              </h2>
+            </div>
+
+            {/* Iconic Google-style bouncing dots */}
+            <div className="goog-dot-container">
+              <div className="goog-dot bg-[#4285F4]"></div>
+              <div className="goog-dot bg-[#EA4335]"></div>
+              <div className="goog-dot bg-[#FBBC05]"></div>
+              <div className="goog-dot bg-[#34A853]"></div>
+            </div>
+            
+            <div className="relative mt-8">
+               <div className="pulse-ring absolute inset-0"></div>
+               <div className="relative z-10 w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-xl">
+                 <FiMic size={36} />
+               </div>
+            </div>
+
+            <p className="text-gray-400 font-medium tracking-wide flex items-center gap-2">
+               <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span>
+               Recording...
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* POPUPS */}
       {isFreeListingPopupOpen && <FreeListingPopup onClose={() => setIsFreeListingPopupOpen(false)} />}
