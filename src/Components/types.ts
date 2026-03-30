@@ -1,11 +1,11 @@
 export interface BusinessTimings {
-  monday?: { closed?: boolean };
-  tuesday?: { closed?: boolean };
-  wednesday?: { closed?: boolean };
-  thursday?: { closed?: boolean };
-  friday?: { closed?: boolean };
-  saturday?: { closed?: boolean };
-  sunday?: { closed?: boolean };
+  monday?: { closed?: boolean; open?: string; close?: string };
+  tuesday?: { closed?: boolean; open?: string; close?: string };
+  wednesday?: { closed?: boolean; open?: string; close?: string };
+  thursday?: { closed?: boolean; open?: string; close?: string };
+  friday?: { closed?: boolean; open?: string; close?: string };
+  saturday?: { closed?: boolean; open?: string; close?: string };
+  sunday?: { closed?: boolean; open?: string; close?: string };
 }
 
 export interface Business {

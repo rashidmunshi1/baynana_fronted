@@ -49,9 +49,32 @@ const RestaurantCard: React.FC<Props> = ({ business }) => {
       <p className="text-sm text-gray-500 capitalize">{business.city}</p>
 
       {/* Timing */}
-      <p className="text-sm text-green-600 font-semibold mt-1">
-        {business.timings?.monday?.closed ? "Closed Today" : "Open Today"}
-      </p>
+      {(() => {
+        const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+        const currentDay = days[new Date().getDay()] as keyof NonNullable<Business["timings"]>;
+        const todayTiming = business.timings?.[currentDay];
+        const isClosed = todayTiming?.closed;
+        
+        const formatTime = (time?: string) => {
+            if (!time) return "";
+            const [h, m] = time.split(":");
+            if (!h || !m) return time;
+            const hour = parseInt(h, 10);
+            const ampm = hour >= 12 ? "PM" : "AM";
+            const formattedHour = hour % 12 || 12;
+            return `${formattedHour.toString().padStart(2, "0")}:${m} ${ampm}`;
+        };
+        const openTime = formatTime(todayTiming?.open);
+        const closeTime = formatTime(todayTiming?.close);
+
+        return (
+          <p className={`text-sm font-semibold mt-1 ${isClosed ? 'text-red-500' : 'text-green-600'}`}>
+            {isClosed 
+              ? "Closed Today" 
+              : (openTime && closeTime ? `Open Today: ${openTime} - ${closeTime}` : "Open Today")}
+          </p>
+        );
+      })()}
 
       {/* Action Buttons */}
       <div className="grid grid-cols-3 gap-3 mt-4">

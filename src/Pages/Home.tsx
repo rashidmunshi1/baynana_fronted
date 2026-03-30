@@ -455,14 +455,14 @@ const HomePage: React.FC = () => {
               </div>
             </div>
             <div className="mt-5 w-full relative" ref={searchContainerRef}>
-              <div className="flex items-center bg-white rounded-[4px] h-[40px] px-3 shadow-sm lg:h-[48px]">
-                <button onClick={() => { (searchContainerRef.current?.querySelector('input') as HTMLInputElement)?.focus(); }} className="flex items-center">
-                  <FiSearch className="text-gray-600 lg:w-5 lg:h-5" size={16} />
-                </button>
+              <div className="flex items-center bg-white rounded-[8px] h-[44px] lg:h-[54px] shadow-sm overflow-hidden">
+                <div className="pl-4 pr-2 flex items-center h-full">
+                  <FiSearch className="text-gray-400 lg:w-5 lg:h-5" size={18} />
+                </div>
                 <input
                   type="text"
                   placeholder="Search Businesses"
-                  className="w-full h-full px-2 lg:px-4 text-gray-800 bg-transparent outline-none placeholder-gray-400 font-medium text-[13px] lg:text-base"
+                  className="flex-1 h-full py-2 text-gray-800 bg-transparent outline-none border-none placeholder-gray-400 font-medium text-[14px] lg:text-base"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
                   onFocus={() => {
@@ -470,19 +470,24 @@ const HomePage: React.FC = () => {
                     setIsSearchMode(true);
                   }}
                 />
-                {searchText && (
-                  <button onClick={() => { setSearchText(''); setSearchResults([]); }} className="pr-1">
-                    <FiX className="text-gray-400 hover:text-gray-600 transition-colors" size={16} />
+                <div className="flex items-center h-full pr-1">
+                  {searchText && (
+                    <button onClick={() => { setSearchText(''); setSearchResults([]); }} className="p-2 text-gray-400 hover:text-gray-600 transition-colors border-none bg-transparent outline-none">
+                      <FiX size={18} />
+                    </button>
+                  )}
+                  <button 
+                    onClick={handleVoiceSearch} 
+                    className="pl-2 pr-4 flex items-center justify-center h-full border-none bg-transparent outline-none cursor-pointer"
+                  >
+                    <FiMic className={`${isListening ? 'text-red-500 animate-pulse' : 'text-gray-600'} transition-colors lg:w-5 lg:h-5`} size={20} />
                   </button>
-                )}
-                <button onClick={handleVoiceSearch} className="pl-2 lg:pl-4 border-l border-gray-100 flex items-center h-full">
-                  <FiMic className={`${isListening ? 'text-red-500 animate-pulse' : 'text-gray-600'} transition-colors ml-1 lg:w-5 lg:h-5`} size={16} />
-                </button>
+                </div>
               </div>
 
               {/* 📜 SEARCH HISTORY DROPDOWN - Hidden in Search Mode because it shows in body */}
               {isSearchFocused && !isSearchMode && !searchText && searchHistory.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-xl border border-gray-100 z-50 max-h-[320px] overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-xl z-50 max-h-[320px] overflow-y-auto">
                   <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100">
                     <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wide">Recent Searches</p>
                     <button
