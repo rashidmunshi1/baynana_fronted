@@ -658,14 +658,14 @@ const HomePage: React.FC = () => {
 
             {/* 4️⃣ LIST YOUR BUSINESS FREE (Strip banner) */}
             <div className="px-4 sm:px-8 mt-10">
-              <div className="border border-[#abc9fc] rounded-[8px] py-3 px-4 flex items-center justify-between sm:justify-start sm:gap-6 shadow-sm relative overflow-hidden bg-gradient-to-r from-[#f5f9ff] to-white lg:py-5 lg:px-8 hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-2 pl-1">
-                  <h3 className="text-[14px] sm:text-base lg:text-lg font-extrabold text-[#3a3a3a]">List Your Business</h3>
-                  <span className="bg-[#fe4b49] text-white text-[10px] sm:text-xs lg:text-sm font-bold px-2 py-0.5 rounded-[4px] shadow-[0_1px_3px_rgba(254,75,73,0.3)]">Free</span>
+              <div className="border border-[#abc9fc] rounded-[8px] py-2.5 px-3 sm:py-3 sm:px-4 flex items-center justify-between sm:justify-start sm:gap-6 shadow-sm relative overflow-hidden bg-gradient-to-r from-[#f5f9ff] to-white lg:py-5 lg:px-8 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-1.5 sm:gap-2 pl-0.5 sm:pl-1">
+                  <h3 className="text-[12px] sm:text-base lg:text-lg font-extrabold text-[#3a3a3a] whitespace-nowrap">List Your Business</h3>
+                  <span className="bg-[#fe4b49] text-white text-[9px] sm:text-xs lg:text-sm font-bold px-1.5 sm:px-2 py-0.5 rounded-[4px] shadow-[0_1px_3px_rgba(254,75,73,0.3)]">Free</span>
                 </div>
                 <button
                   onClick={() => isLoggedIn ? navigate('/user/add-business') : setIsFreeListingPopupOpen(true)}
-                  className="bg-[#3F87DF] hover:bg-[#326CB2] text-white text-[12px] sm:text-sm lg:text-base font-bold px-4 py-2 sm:px-6 sm:py-2.5 rounded-[6px] active:scale-95 transition-transform ml-auto shadow-sm"
+                  className="bg-[#3F87DF] hover:bg-[#326CB2] text-white text-[11px] sm:text-sm lg:text-base font-bold px-3 py-1.5 sm:px-6 sm:py-2.5 rounded-[6px] active:scale-95 transition-transform ml-auto shadow-sm whitespace-nowrap"
                 >
                   Start Now
                 </button>
