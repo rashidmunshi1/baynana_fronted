@@ -13,6 +13,10 @@ import SignUpPopup from '../Components/SignUpPopup';
 import HomeBanner from '../Components/HomeBanner';
 import baseURL from "../config";
 import LoadingSpinner from "../Components/LoadingSpinner";
+import { motion, AnimatePresence } from "framer-motion";
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 interface User {
   id?: string;
@@ -31,6 +35,8 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [voiceText, setVoiceText] = useState("");
+  const [searchExcelData, setSearchExcelData] = useState<any[]>([]);
+  const [selectedExcelCard, setSelectedExcelCard] = useState<any>(null);
 
   /* 📜 SEARCH HISTORY */
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
@@ -223,10 +229,18 @@ const HomePage: React.FC = () => {
     const delay = setTimeout(async () => {
       try {
         setLoading(true);
+        // Search Businesses
         const res = await axios.get(`${baseURL}/api/user/search`, {
           params: { q: searchText },
         });
         setSearchResults(res.data.businesses || []);
+
+        // Search Excel Data
+        const excelRes = await axios.get(`${baseURL}/api/user/excel-data/search`, {
+          params: { q: searchText },
+        });
+        setSearchExcelData(excelRes.data.data || []);
+
         // Save to search history when results are fetched
         addToSearchHistory(searchText);
       } catch (err) {
@@ -607,7 +621,54 @@ const HomePage: React.FC = () => {
         ) : searchText ? (
           <div className="max-w-7xl mx-auto px-4 mt-6">
             {loading && <LoadingSpinner text="Searching..." size={12} />}
-            {!loading && searchResults.length === 0 && (
+            
+            {/* EXCEL DATA CAROUSEL IN SEARCH */}
+            {!loading && searchExcelData.length > 0 && (
+              <div className="mb-10">
+                <h2 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <span className="w-1.5 h-4 bg-[#3F87DF] rounded-full"></span>
+                  Important Information
+                </h2>
+                <div className="w-full">
+                  <style>{`
+                    .slick-dots li button:before {
+                      font-size: 8px;
+                      color: #3F87DF;
+                    }
+                    .slick-dots li.slick-active button:before {
+                      color: #3F87DF;
+                    }
+                    .slick-dots {
+                      bottom: -20px;
+                    }
+                  `}</style>
+                  <Slider 
+                    dots={true}
+                    infinite={searchExcelData.length > 1}
+                    speed={500}
+                    slidesToShow={1}
+                    slidesToScroll={1}
+                    autoplay={searchExcelData.length > 1}
+                    autoplaySpeed={4000}
+                    arrows={false}
+                  >
+                    {searchExcelData.map((item) => (
+                      <div key={item._id} className="outline-none px-1">
+                        <div 
+                          onClick={() => setSelectedExcelCard(item)}
+                          className="w-full bg-gradient-to-br from-blue-50 to-white border border-blue-100 p-5 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                        >
+                          <h3 className="font-bold text-[#3F87DF] text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-blue-700 transition-colors">{item.title}</h3>
+                          <p className="text-gray-600 text-xs sm:text-sm line-clamp-3 leading-relaxed">{item.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </Slider>
+                </div>
+              </div>
+            )}
+
+            {!loading && searchResults.length === 0 && searchExcelData.length === 0 && (
               <div className="text-center py-10">
                 <p className="text-gray-500 font-medium">No results found for "{searchText}"</p>
               </div>
@@ -799,6 +860,37 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* EXCEL DATA MODAL */}
+      <AnimatePresence>
+        {selectedExcelCard && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedExcelCard(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] z-[101]"
+            >
+              <div className="bg-[#3F87DF] p-4 flex justify-between items-start shrink-0">
+                <h2 className="text-white font-bold text-base sm:text-lg pr-4">{selectedExcelCard.title}</h2>
+                <button onClick={() => setSelectedExcelCard(null)} className="text-white/80 hover:text-white mt-0.5 shrink-0">
+                  <FiX size={22} />
+                </button>
+              </div>
+              <div className="p-4 sm:p-6 overflow-y-auto whitespace-pre-wrap text-gray-700 text-sm sm:text-base leading-relaxed">
+                {selectedExcelCard.description}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* POPUPS */}
       {isFreeListingPopupOpen && <FreeListingPopup onClose={() => setIsFreeListingPopupOpen(false)} />}

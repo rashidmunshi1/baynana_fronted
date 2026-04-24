@@ -5,8 +5,12 @@ import axios from "axios";
 import BusinessListCard from "../../Components/BusinessListCard";
 import UserLayout from "../../DesignLayout/UserLayout";
 import { FaArrowLeft, FaFilter } from "react-icons/fa";
+import { FiX } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import baseURL from "../../config";
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 const CategoryBusinesses = () => {
   const { id } = useParams();
@@ -17,6 +21,8 @@ const CategoryBusinesses = () => {
   const [selectedSub, setSelectedSub] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [categoryName, setCategoryName] = useState("");
+  const [excelDataList, setExcelDataList] = useState<any[]>([]);
+  const [selectedCard, setSelectedCard] = useState<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,6 +52,18 @@ const CategoryBusinesses = () => {
 
     if (id) fetchData();
   }, [id]);
+
+  useEffect(() => {
+    if (categoryName) {
+      axios.get(`${baseURL}/api/user/excel-data/category/${categoryName}`)
+        .then(res => {
+          if(res.data.success) {
+            setExcelDataList(res.data.data || []);
+          }
+        })
+        .catch(err => console.log("Error fetching excel data", err));
+    }
+  }, [categoryName]);
 
   const [sortBy, setSortBy] = useState<string>("newest");
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
@@ -160,6 +178,52 @@ const CategoryBusinesses = () => {
           )}
         </AnimatePresence>
 
+        {/* EXCEL DATA CAROUSEL */}
+        {excelDataList.length > 0 && (
+          <div className="bg-white px-3 sm:px-4 py-4 pb-8 border-b border-gray-100">
+            <h2 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <span className="w-1.5 h-4 bg-[#3F87DF] rounded-full"></span>
+              Important Information
+            </h2>
+            <div className="w-full">
+              <style>{`
+                .slick-dots li button:before {
+                  font-size: 8px;
+                  color: #3F87DF;
+                }
+                .slick-dots li.slick-active button:before {
+                  color: #3F87DF;
+                }
+                .slick-dots {
+                  bottom: -20px;
+                }
+              `}</style>
+              <Slider 
+                dots={true}
+                infinite={excelDataList.length > 1}
+                speed={500}
+                slidesToShow={1}
+                slidesToScroll={1}
+                autoplay={excelDataList.length > 1}
+                autoplaySpeed={4000}
+                arrows={false}
+              >
+                {excelDataList.map((item) => (
+                  <div key={item._id} className="outline-none px-1">
+                    <div 
+                      onClick={() => setSelectedCard(item)}
+                      className="w-full bg-gradient-to-br from-blue-50 to-white border border-blue-100 p-5 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                    >
+                      <h3 className="font-bold text-[#3F87DF] text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-blue-700 transition-colors">{item.title}</h3>
+                      <p className="text-gray-600 text-xs sm:text-sm line-clamp-3 leading-relaxed">{item.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </Slider>
+            </div>
+          </div>
+        )}
+
         {/* SUBCATEGORY SCROLL */}
         {subcategories.length > 0 && (
           <div className="sticky top-[52px] sm:top-[64px] z-10 bg-gray-50/95 backdrop-blur-sm py-2 border-b border-gray-200">
@@ -248,6 +312,37 @@ const CategoryBusinesses = () => {
         </div>
 
       </div>
+
+      {/* EXCEL DATA MODAL */}
+      <AnimatePresence>
+        {selectedCard && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedCard(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] z-[101]"
+            >
+              <div className="bg-[#3F87DF] p-4 flex justify-between items-start shrink-0">
+                <h2 className="text-white font-bold text-base sm:text-lg pr-4">{selectedCard.title}</h2>
+                <button onClick={() => setSelectedCard(null)} className="text-white/80 hover:text-white mt-0.5 shrink-0">
+                  <FiX size={22} />
+                </button>
+              </div>
+              <div className="p-4 sm:p-6 overflow-y-auto whitespace-pre-wrap text-gray-700 text-sm sm:text-base leading-relaxed">
+                {selectedCard.description}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </UserLayout>
   );
 };

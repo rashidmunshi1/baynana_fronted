@@ -12,6 +12,7 @@ import SubCategoryList from "./Pages/Admin/SubCategory/SubCategoryList";
 import AddSubCategory from "./Pages/Admin/SubCategory/AddSubCategory";
 import VideoModule from "./Pages/Admin/VideoModule";
 import EventBanner from "./Pages/Admin/EventBanner";
+import ExcelUpload from "./Pages/Admin/ExcelUpload";
 
 import AdminProfile from "./Pages/Admin/AdminProfile";
 
@@ -87,6 +88,11 @@ const AdminRoutes = [
     path: "/admin/event-banner",
     name: "Event Banner List",
     component: EventBanner,
+  },
+  {
+    path: "/admin/excel-upload",
+    name: "Excel Upload",
+    component: ExcelUpload,
   },
 
 ];
