@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Button, message, Table, Card, Typography } from 'antd';
-import { InboxOutlined, UploadOutlined } from '@ant-design/icons';
+import { Upload, Button, message, Table, Card, Typography, Modal, Space, Popconfirm, Tag } from 'antd';
+import { InboxOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
 import baseURL from '../../config';
@@ -10,36 +10,44 @@ const { Dragger } = Upload;
 
 const ExcelUpload: React.FC = () => {
   const [previewData, setPreviewData] = useState<any[]>([]);
-  const [storedData, setStoredData] = useState<any[]>([]);
-  const [fetching, setFetching] = useState(false);
+  const [uploadsList, setUploadsList] = useState<any[]>([]);
+  const [fetchingUploads, setFetchingUploads] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [currentFileName, setCurrentFileName] = useState('');
+  
+  // Modal states
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalData, setModalData] = useState<any[]>([]);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [selectedUploadName, setSelectedUploadName] = useState('');
+
   const dataRef = useRef<any[]>([]);
 
-  const fetchStoredData = () => {
-    setFetching(true);
-    axios.get(`${baseURL}/api/admin/excel-data`)
+  const fetchUploads = () => {
+    setFetchingUploads(true);
+    axios.get(`${baseURL}/api/admin/excel-uploads`)
       .then((response) => {
         if (response.data.success && response.data.data) {
-          const formatted = response.data.data.map((item: any, i: number) => ({
+          const formatted = response.data.data.map((item: any) => ({
             ...item,
-            key: item._id || String(i),
+            key: item._id,
           }));
-          setStoredData(formatted);
+          setUploadsList(formatted);
         }
       })
       .catch((err) => {
-        console.error("Fetch stored data error:", err);
+        console.error("Fetch uploads error:", err);
       })
       .finally(() => {
-        setFetching(false);
+        setFetchingUploads(false);
       });
   };
 
   useEffect(() => {
-    fetchStoredData();
+    fetchUploads();
   }, []);
 
-  const columns = [
+  const dataColumns = [
     {
       title: 'Title',
       dataIndex: 'title',
@@ -62,13 +70,100 @@ const ExcelUpload: React.FC = () => {
       key: 'categories',
       render: (val: any) => {
         if (!val) return '-';
-        if (Array.isArray(val)) return val.join(', ');
-        return String(val);
+        if (Array.isArray(val)) return val.map((c: string) => <Tag color="blue" key={c}>{c}</Tag>);
+        return <Tag color="blue">{String(val)}</Tag>;
       },
     },
   ];
 
+  const uploadsColumns = [
+    {
+      title: 'File Name',
+      dataIndex: 'fileName',
+      key: 'fileName',
+      render: (text: string) => <strong>{text}</strong>,
+    },
+    {
+      title: 'Records',
+      dataIndex: 'recordCount',
+      key: 'recordCount',
+      align: 'center' as const,
+    },
+    {
+      title: 'Date',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (date: string) => new Date(date).toLocaleString(),
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_: any, record: any) => (
+        <Space size="middle">
+          <Button 
+            type="primary" 
+            icon={<EyeOutlined />} 
+            onClick={() => handleViewData(record)}
+            style={{ backgroundColor: '#1677ff', color: '#fff' }}
+          >
+            View
+          </Button>
+          <Popconfirm
+            title="Delete Upload"
+            description="Are you sure you want to delete this upload and all its associated data?"
+            onConfirm={() => handleDeleteUpload(record._id)}
+            okText="Yes"
+            cancelText="No"
+            okButtonProps={{ danger: true }}
+          >
+            <Button 
+              danger 
+              icon={<DeleteOutlined />}
+              style={{ backgroundColor: '#ff4d4f', color: '#fff' }}
+            >
+              Delete
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
+
+  const handleViewData = (record: any) => {
+    setSelectedUploadName(record.fileName);
+    setIsModalVisible(true);
+    setModalLoading(true);
+    axios.get(`${baseURL}/api/admin/excel-data/upload/${record._id}`)
+      .then((res) => {
+        if (res.data.success) {
+          setModalData(res.data.data.map((item: any) => ({ ...item, key: item._id })));
+        }
+      })
+      .catch((err) => {
+        console.error("Fetch modal data error:", err);
+        message.error("Failed to load upload data");
+      })
+      .finally(() => {
+        setModalLoading(false);
+      });
+  };
+
+  const handleDeleteUpload = (id: string) => {
+    axios.delete(`${baseURL}/api/admin/excel-upload/${id}`)
+      .then((res) => {
+        if (res.data.success) {
+          message.success("Upload deleted successfully");
+          fetchUploads();
+        }
+      })
+      .catch((err) => {
+        console.error("Delete upload error:", err);
+        message.error("Failed to delete upload");
+      });
+  };
+
   const handleFileUpload = (file: File) => {
+    setCurrentFileName(file.name);
     const reader = new FileReader();
 
     reader.onload = (e) => {
@@ -147,19 +242,59 @@ const ExcelUpload: React.FC = () => {
     return false;
   };
 
+  const submitUpload = () => {
+    const items = dataRef.current;
+    if (!items || items.length === 0) {
+      alert('No data to upload');
+      return;
+    }
+
+    setUploading(true);
+
+    const payload = items.map((item: any) => ({
+      title: item.title || '',
+      description: item.description || '',
+      categories: item.categories || [],
+    }));
+
+    axios.post(`${baseURL}/api/admin/excel-data`, { 
+      data: payload,
+      fileName: currentFileName 
+    })
+      .then(response => {
+        const result = response.data;
+        if (result.success) {
+          message.success('Successfully uploaded ' + result.count + ' records!');
+          dataRef.current = [];
+          setPreviewData([]);
+          setCurrentFileName('');
+          fetchUploads();
+        } else {
+          message.error(result.message || 'Upload failed');
+        }
+      })
+      .catch(err => {
+        console.error('Upload error:', err);
+        message.error('Error uploading data');
+      })
+      .finally(() => {
+        setUploading(false);
+      });
+  };
+
   return (
     <>
       <div style={{ padding: '24px', background: '#fff', minHeight: 'calc(100vh - 120px)', borderRadius: '12px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <Title level={3} style={{ margin: 0, color: '#1e293b' }}>
-              Excel Upload
+              Excel Upload Management
             </Title>
-            <Text style={{ color: '#64748b' }}>Upload bulk data entries via Excel (.xlsx, .csv)</Text>
+            <Text style={{ color: '#64748b' }}>Manage your bulk data uploads and view imported records</Text>
           </div>
         </div>
 
-        <Card style={{ marginBottom: '24px' }}>
+        <Card style={{ marginBottom: '24px', border: '1px dashed #d9d9d9', background: '#fafafa' }}>
           <Dragger 
             accept=".xlsx,.xls,.csv" 
             beforeUpload={handleFileUpload} 
@@ -172,95 +307,78 @@ const ExcelUpload: React.FC = () => {
             <p className="ant-upload-hint" style={{ color: '#94a3b8' }}>
               Supported: .xlsx, .xls, .csv
             </p>
-            <div style={{ marginTop: '12px', fontSize: '12px', color: '#94a3b8' }}>
-              <p>Required columns: Title, Description, Category (comma separated for multiple)</p>
-            </div>
+            {currentFileName && (
+              <div style={{ marginTop: '10px' }}>
+                <Tag color="processing" style={{ padding: '4px 12px', fontSize: '14px' }}>
+                  Selected: {currentFileName}
+                </Tag>
+              </div>
+            )}
           </Dragger>
         </Card>
 
         {previewData.length > 0 && (
-          <div style={{ marginTop: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <Title level={5} style={{ margin: 0 }}>Preview Data ({previewData.length} records)</Title>
-              <button
-                disabled={uploading}
-                style={{
-                  padding: '10px 24px',
-                  backgroundColor: uploading ? '#94a3b8' : '#1677ff',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  cursor: uploading ? 'not-allowed' : 'pointer',
-                }}
-                onClick={() => {
-                  const items = dataRef.current;
-                  if (!items || items.length === 0) {
-                    alert('No data to upload');
-                    return;
-                  }
-
-                  setUploading(true);
-
-                  const payload = items.map((item: any) => ({
-                    title: item.title || '',
-                    description: item.description || '',
-                    categories: item.categories || [],
-                  }));
-
-                  fetch(`${baseURL}/api/admin/excel-data`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ data: payload }),
-                  })
-                    .then(res => res.json())
-                    .then(result => {
-                      if (result.success) {
-                        message.success('Successfully uploaded ' + result.count + ' records!');
-                        dataRef.current = [];
-                        setPreviewData([]);
-                        fetchStoredData();
-                      } else {
-                        message.error(result.message || 'Upload failed');
-                      }
-                    })
-                    .catch(err => {
-                      console.error('Upload error:', err);
-                      message.error('Error uploading data');
-                    })
-                    .finally(() => {
-                      setUploading(false);
-                    });
-                }}
+          <Card 
+            title={`Preview Data (${previewData.length} records from "${currentFileName}")`}
+            style={{ marginBottom: '40px' }}
+            extra={
+              <Button
+                type="primary"
+                loading={uploading}
+                onClick={submitUpload}
+                size="large"
+                style={{ borderRadius: '8px', backgroundColor: '#1677ff', color: '#fff' }}
               >
-                {uploading ? 'Uploading...' : `Upload Data (${previewData.length} records)`}
-              </button>
-            </div>
+                Upload to Server
+              </Button>
+            }
+          >
             <Table 
               dataSource={previewData} 
-              columns={columns} 
-              pagination={{ pageSize: 10 }}
+              columns={dataColumns} 
+              pagination={{ pageSize: 5 }}
               scroll={{ x: true }}
               bordered
               size="middle"
             />
-          </div>
+          </Card>
         )}
 
         <div style={{ marginTop: '40px' }}>
-          <Title level={4} style={{ marginBottom: '16px' }}>Stored Data ({storedData.length})</Title>
+          <Title level={4} style={{ marginBottom: '16px' }}>Upload History</Title>
           <Table 
-            dataSource={storedData} 
-            columns={columns} 
+            dataSource={uploadsList} 
+            columns={uploadsColumns} 
             pagination={{ pageSize: 10 }}
             scroll={{ x: true }}
             bordered
             size="middle"
-            loading={fetching}
+            loading={fetchingUploads}
           />
         </div>
       </div>
+
+      <Modal
+        title={`Data for: ${selectedUploadName}`}
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsModalVisible(false)} style={{ border: '1px solid #d9d9d9' }}>
+            Close
+          </Button>
+        ]}
+        width={1000}
+      >
+        <Table 
+          dataSource={modalData} 
+          columns={dataColumns} 
+          pagination={{ pageSize: 10 }}
+          loading={modalLoading}
+          bordered
+          size="middle"
+          scroll={{ y: 500 }}
+        />
+      </Modal>
     </>
   );
 };
