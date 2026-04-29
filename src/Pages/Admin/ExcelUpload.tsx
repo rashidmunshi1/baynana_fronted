@@ -66,13 +66,9 @@ const ExcelUpload: React.FC = () => {
     },
     {
       title: 'Category',
-      dataIndex: 'categories',
-      key: 'categories',
-      render: (val: any) => {
-        if (!val) return '-';
-        if (Array.isArray(val)) return val.map((c: string) => <Tag color="blue" key={c}>{c}</Tag>);
-        return <Tag color="blue">{String(val)}</Tag>;
-      },
+      dataIndex: 'category',
+      key: 'category',
+      render: (val: any) => val ? String(val) : '-',
     },
   ];
 
@@ -170,68 +166,100 @@ const ExcelUpload: React.FC = () => {
       try {
         const fileData = e.target?.result;
         const workbook = XLSX.read(fileData, { type: 'binary' });
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        const parsedData: any[] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        // Pick the sheet that has recognized headers (Catagory/Title/Discription)
+        // If none found, fall back to the sheet with most rows
+        let bestSheet: any = null;
+        let fallbackSheet: any = null;
+        let fallbackRows = 0;
+
+        for (let s = 0; s < workbook.SheetNames.length; s++) {
+          const ws = workbook.Sheets[workbook.SheetNames[s]];
+          if (!ws['!ref']) continue;
+          const range = XLSX.utils.decode_range(ws['!ref']);
+          const rowCount = range.e.r - range.s.r + 1;
+
+          // Check if this sheet has category/title headers in row 0
+          const cellA = ws[XLSX.utils.encode_cell({ r: range.s.r, c: 0 })];
+          const cellB = ws[XLSX.utils.encode_cell({ r: range.s.r, c: 1 })];
+          const a = cellA ? String(cellA.v || '').toLowerCase() : '';
+          const b = cellB ? String(cellB.v || '').toLowerCase() : '';
+
+          if (a.includes('cat') || b.includes('title')) {
+            bestSheet = ws;
+            break; // prefer this sheet
+          }
+
+          if (rowCount > fallbackRows) {
+            fallbackRows = rowCount;
+            fallbackSheet = ws;
+          }
+        }
+
+        const sheet = bestSheet || fallbackSheet;
+        if (!sheet || !sheet['!ref']) {
+          message.warning("The Excel file is empty.");
+          return;
+        }
+
+        const range = XLSX.utils.decode_range(sheet['!ref']);
+
+        // Helper: read raw cell value
+        const getCell = (r: number, c: number): any => {
+          const cell = sheet[XLSX.utils.encode_cell({ r, c })];
+          if (!cell) return null;
+          return cell.v !== undefined && cell.v !== null && cell.v !== '' ? cell.v : null;
+        };
+
+        // Detect columns from header row
+        let catCol = 0, titleCol = 1, descCol = 2;
+        let startRow = range.s.r;
+        const h0 = String(getCell(range.s.r, 0) || '').toLowerCase();
+        const h1 = String(getCell(range.s.r, 1) || '').toLowerCase();
+
+        if (h0.includes('cat') || h1.includes('title')) {
+          startRow = range.s.r + 1; // skip header
+          for (let c = range.s.c; c <= range.e.c; c++) {
+            const hv = String(getCell(range.s.r, c) || '').toLowerCase();
+            if (hv.includes('cat')) catCol = c;
+            if (hv.includes('title')) titleCol = c;
+            if (hv.includes('desc') || hv.includes('disc')) descCol = c;
+          }
+        }
 
         let formattedData: any[] = [];
-        
-        const firstRow: any = parsedData[0] || [];
-        const isStandardHeader = firstRow.some((col: any) => 
-            typeof col === 'string' && ['title', 'category', 'description'].includes(col.toLowerCase())
-        );
+        let currentCategory: any = '';
+        let currentItem: any = null;
+        let idx = 0;
 
-        if (isStandardHeader) {
-            const objectData: any[] = XLSX.utils.sheet_to_json(sheet);
-            formattedData = objectData.map((item: any, index: number) => {
-                let categories: string[] = [];
-                const cat = item.Category || item.category || '';
-                if (cat) {
-                    categories = typeof cat === 'string' ? cat.split(',').map((c: string) => c.trim()) : [String(cat)];
-                }
-                return {
-                    key: String(index),
-                    title: item.title || item.Title || '',
-                    description: item.description || item.Description || '',
-                    categories: categories,
-                };
-            });
-        } else {
-            let currentCategory = '';
-            let currentItem: any = null;
-            let currentIndex = 0;
+        for (let r = startRow; r <= range.e.r; r++) {
+          const catVal = getCell(r, catCol);
+          const titleVal = getCell(r, titleCol);
+          const descVal = getCell(r, descCol);
 
-            parsedData.forEach((row: any) => {
-                if (!row || row.length === 0) return;
-                const colCat = row[0] ? String(row[0]).trim() : '';
-                const colTitle = row[1] ? String(row[1]).trim() : '';
-                const colDesc = row[2] ? String(row[2]).trim() : '';
-                if (colCat) currentCategory = colCat;
-                if (colTitle) {
-                    currentItem = {
-                        key: String(currentIndex++),
-                        title: colTitle,
-                        description: colDesc || '',
-                        categories: currentCategory ? [currentCategory] : []
-                    };
-                    formattedData.push(currentItem);
-                } else if (colDesc && currentItem) {
-                    currentItem.description += (currentItem.description ? '\n\n' : '') + colDesc;
-                } else if (colDesc && !currentItem) {
-                    currentItem = {
-                        key: String(currentIndex++),
-                        title: 'Untitled',
-                        description: colDesc,
-                        categories: currentCategory ? [currentCategory] : []
-                    };
-                    formattedData.push(currentItem);
-                }
-            });
+          if (catVal === null && titleVal === null && descVal === null) continue;
+
+          // Category: exact value from cell, no split, no trim, no change
+          if (catVal !== null) {
+            currentCategory = catVal;
+          }
+
+          if (titleVal !== null) {
+            currentItem = {
+              key: String(idx++),
+              category: currentCategory,  // full comma-separated string as-is
+              title: titleVal,
+              description: descVal !== null ? descVal : '',
+            };
+            formattedData.push(currentItem);
+          } else if (descVal !== null && currentItem) {
+            currentItem.description += (currentItem.description ? '\n\n' : '') + descVal;
+          }
         }
 
         dataRef.current = formattedData;
         setPreviewData(formattedData);
-        message.success('Parsed ' + formattedData.length + ' records. Click Upload Data to save.');
+        message.success('Parsed ' + formattedData.length + ' records.');
       } catch (error) {
         console.error("Parse error:", error);
         message.error('Failed to parse Excel file.');
@@ -251,10 +279,11 @@ const ExcelUpload: React.FC = () => {
 
     setUploading(true);
 
+    // Send category as-is string, no array conversion
     const payload = items.map((item: any) => ({
       title: item.title || '',
       description: item.description || '',
-      categories: item.categories || [],
+      category: item.category || '',
     }));
 
     axios.post(`${baseURL}/api/admin/excel-data`, { 
