@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { FiSearch, FiMapPin, FiMic, FiChevronDown, FiChevronRight, FiPlay, FiBriefcase, FiClock, FiX, FiTrash2 } from "react-icons/fi";
+import { FiSearch, FiMapPin, FiMic, FiChevronDown, FiChevronRight, FiPlay, FiBriefcase, FiClock, FiX, FiTrash2, FiArrowRight } from "react-icons/fi";
 import { FaUserCircle, FaBell } from "react-icons/fa";
 import UserLayout from "../DesignLayout/UserLayout";
 import SidebarMenu from "../Components/SidebarMenu";
@@ -393,9 +393,17 @@ const HomePage: React.FC = () => {
         {/* ═══════════════════════════════════════ */}
         {/* 1️⃣ HEADER — Blue Background + Search + Banner */}
         {/* ═══════════════════════════════════════ */}
+        <div className="overflow-hidden w-full">
         <div
-          className="bg-[#4285F4] pt-5 pb-9 sm:pb-12 px-4 sm:px-8 shadow-sm relative w-full mx-auto"
-          style={{ borderBottomLeftRadius: "50% 40px", borderBottomRightRadius: "50% 40px" }}
+          className="bg-[#4285F4] pt-3 pb-12 sm:pb-14 relative"
+          style={{ 
+            borderBottomLeftRadius: "50% 50px", 
+            borderBottomRightRadius: "50% 50px",
+            marginLeft: "-20px",
+            marginRight: "-20px",
+            paddingLeft: "calc(16px + 20px)",
+            paddingRight: "calc(16px + 20px)"
+          }}
         >
 
           <div className="max-w-7xl mx-auto">
@@ -430,7 +438,7 @@ const HomePage: React.FC = () => {
               {/* Logo Center */}
               <div className="flex-shrink-0 flex justify-center items-center px-1 sm:px-2">
                 {!isSearchMode && (
-                  <img src={logo} alt="Baynana" className="h-[40px] sm:h-[48px] lg:h-[56px] object-contain" />
+                  <img src={logo} alt="Baynana" className="h-[46px] sm:h-[54px] lg:h-[62px] object-contain" />
                 )}
               </div>
 
@@ -468,15 +476,15 @@ const HomePage: React.FC = () => {
                 )}
               </div>
             </div>
-            <div className="mt-5 w-full relative" ref={searchContainerRef}>
-              <div className="flex items-center bg-white rounded-[8px] h-[44px] lg:h-[54px] shadow-sm overflow-hidden">
+            <div className="mt-3 sm:mt-4 w-full relative" ref={searchContainerRef}>
+              <div className="flex items-center bg-white rounded-[5px] h-[48px] sm:h-[50px] lg:h-[56px] border border-gray-200/80 overflow-hidden">
                 <div className="pl-4 pr-2 flex items-center h-full">
-                  <FiSearch className="text-gray-400 lg:w-5 lg:h-5" size={18} />
+                  <FiSearch className="text-gray-500 lg:w-6 lg:h-6" size={20} />
                 </div>
                 <input
                   type="text"
                   placeholder="Search Businesses"
-                  className="flex-1 h-full py-2 text-gray-800 bg-transparent outline-none border-none placeholder-gray-400 font-medium text-[14px] lg:text-base"
+                  className="flex-1 h-full py-2 text-gray-800 bg-transparent outline-none border-none placeholder-gray-400 font-normal text-[15px] sm:text-[16px] lg:text-[17px]"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
                   onFocus={() => {
@@ -484,7 +492,7 @@ const HomePage: React.FC = () => {
                     setIsSearchMode(true);
                   }}
                 />
-                <div className="flex items-center h-full pr-1">
+                <div className="flex items-center h-full pr-2">
                   {searchText && (
                     <button onClick={() => { setSearchText(''); setSearchResults([]); }} className="p-2 text-gray-400 hover:text-gray-600 transition-colors border-none bg-transparent outline-none">
                       <FiX size={18} />
@@ -492,9 +500,9 @@ const HomePage: React.FC = () => {
                   )}
                   <button 
                     onClick={handleVoiceSearch} 
-                    className="pl-2 pr-4 flex items-center justify-center h-full border-none bg-transparent outline-none cursor-pointer"
+                    className="pl-2 pr-3 flex items-center justify-center h-full border-none bg-transparent outline-none cursor-pointer"
                   >
-                    <FiMic className={`${isListening ? 'text-red-500 animate-pulse' : 'text-gray-600'} transition-colors lg:w-5 lg:h-5`} size={20} />
+                    <FiMic className={`${isListening ? 'text-red-500 animate-pulse' : 'text-gray-700'} transition-colors lg:w-6 lg:h-6`} size={22} />
                   </button>
                 </div>
               </div>
@@ -547,8 +555,13 @@ const HomePage: React.FC = () => {
               <div className="mt-4 relative z-0">
                 <HomeBanner banner={banner} loading={bannerLoading} />
                 {(!banner || banner.length === 0) && !bannerLoading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white rounded-2xl shadow-sm aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1] lg:aspect-[4/1]">
-                    <p className="text-[10px] sm:text-xs text-gray-400 font-medium z-10">Paid Promotional Content Here</p>
+                  <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1] lg:aspect-[4/1] flex flex-col items-center justify-center">
+                    <p className="text-[10px] sm:text-xs text-gray-400 font-medium">Paid Promotional Content Here</p>
+                    <div className="flex items-center gap-1.5 mt-3">
+                      {[0,1,2,3,4].map(i => (
+                        <div key={i} className={`w-[6px] h-[6px] rounded-full ${i === 0 ? 'bg-[#4285F4]' : 'bg-gray-300'}`}></div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -556,6 +569,7 @@ const HomePage: React.FC = () => {
 
 
           </div>
+        </div>
         </div>
 
         {/* ═══════════════════════════════════════ */}
@@ -683,14 +697,14 @@ const HomePage: React.FC = () => {
           <div className="max-w-7xl mx-auto">
             {/* 3️⃣ CATEGORY GRID */}
             <div className="px-4 sm:px-8 mt-8">
-              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-10">
+              <div className="grid grid-cols-5 gap-2 sm:gap-4 md:gap-6 lg:gap-8 justify-items-center max-w-[400px] sm:max-w-none mx-auto">
                 {dynamicCategories.slice(0, 9).map((cat, index) => {
                   const color = categoryColors[index % categoryColors.length];
                   return (
-                    <div key={cat._id} className="flex flex-col items-center gap-2 cursor-pointer w-[64px] sm:w-[76px] md:w-[84px] lg:w-[100px] group" onClick={() => navigate(`/category/${cat._id}`)}>
-                      <div className={`w-[56px] h-[56px] sm:w-[68px] sm:h-[68px] md:w-[76px] md:h-[76px] lg:w-[90px] lg:h-[90px] ${cat.icon ? color.bg : 'bg-gray-50 border border-gray-100'} flex items-center justify-center rounded-xl lg:rounded-2xl group-hover:shadow-md transition-all overflow-hidden`}>
+                    <div key={cat._id} className="flex flex-col items-center gap-1.5 sm:gap-2 cursor-pointer w-full max-w-[76px] sm:max-w-[84px] md:max-w-[100px] group" onClick={() => navigate(`/category/${cat._id}`)}>
+                      <div className={`w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] md:w-[76px] md:h-[76px] lg:w-[90px] lg:h-[90px] ${cat.icon ? color.bg : 'bg-gray-50 border border-gray-100'} flex items-center justify-center rounded-xl lg:rounded-2xl group-hover:shadow-md transition-all overflow-hidden`}>
                         {cat.icon ? (
-                          <span className={`text-[20px] sm:text-2xl md:text-3xl lg:text-4xl ${color.text}`}>{cat.icon}</span>
+                          <span className={`text-[18px] sm:text-xl md:text-2xl lg:text-4xl ${color.text}`}>{cat.icon}</span>
                         ) : (
                           <img src={`${baseURL}/uploads/category/${cat.image}`} alt={cat.name} className="w-full h-full object-cover" />
                         )}
@@ -703,10 +717,10 @@ const HomePage: React.FC = () => {
                 })}
                 {/* Static Show More Icon */}
                 {dynamicCategories.length > 4 && (
-                  <div className="flex flex-col items-center gap-2 cursor-pointer w-[64px] sm:w-[76px] md:w-[84px] lg:w-[100px] group" onClick={() => navigate('/categories')}>
-                    <div className="w-[56px] h-[56px] sm:w-[68px] sm:h-[68px] md:w-[76px] md:h-[76px] lg:w-[90px] lg:h-[90px] bg-white border border-gray-100 flex items-center justify-center rounded-xl lg:rounded-2xl group-hover:shadow-md transition-all overflow-hidden">
-                      <div className="w-[30px] h-[30px] sm:w-[36px] sm:h-[36px] md:w-[40px] md:h-[40px] lg:w-[48px] lg:h-[48px] bg-[#4285F4] rounded-full flex items-center justify-center shadow-sm group-hover:bg-blue-600 transition-colors">
-                        <FiChevronDown size={24} className="text-white lg:w-7 lg:h-7" />
+                  <div className="flex flex-col items-center gap-1.5 sm:gap-2 cursor-pointer w-full max-w-[76px] sm:max-w-[84px] md:max-w-[100px] group" onClick={() => navigate('/categories')}>
+                    <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] md:w-[76px] md:h-[76px] lg:w-[90px] lg:h-[90px] bg-white border border-gray-100 flex items-center justify-center rounded-xl lg:rounded-2xl group-hover:shadow-md transition-all overflow-hidden">
+                      <div className="w-[28px] h-[28px] sm:w-[32px] sm:h-[32px] md:w-[40px] md:h-[40px] lg:w-[48px] lg:h-[48px] bg-[#4285F4] rounded-full flex items-center justify-center shadow-sm group-hover:bg-blue-600 transition-colors">
+                        <FiChevronDown size={20} className="text-white lg:w-7 lg:h-7" />
                       </div>
                     </div>
                     <p className="text-[10px] sm:text-[11px] md:text-xs font-bold text-gray-800 text-center leading-tight px-0.5">
@@ -732,6 +746,9 @@ const HomePage: React.FC = () => {
                 </button>
               </div>
             </div>
+
+
+
 
             {/* 6️⃣ EVENTS & ISLAMIC GATHERINGS */}
             {eventBanners.length > 0 && (
@@ -791,23 +808,23 @@ const HomePage: React.FC = () => {
             )}
 
             {/* 8️⃣ DONATE TO NOOR E IMAN */}
-            <div className="mt-14 mb-10 px-4 sm:px-8 text-center flex flex-col items-center" style={{ fontFamily: "'Roboto', sans-serif" }}>
-              <h2 className="text-[22px] sm:text-2xl lg:text-3xl font-extrabold text-[#3a3a3a] mb-5">Donate to Noor E Iman</h2>
+            <div className="mt-8 mb-10 px-4 sm:px-8 text-center flex flex-col items-center" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <h2 className="text-[28px] sm:text-3xl font-[800] text-[#333333] mb-4">Donate to Noor E Iman</h2>
 
-              <div className="w-28 h-28 sm:w-36 sm:h-36 mb-6">
+              <div className="w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] mb-4">
                 <img src="/noor-imaan-1.svg" alt="Noor E Iman Logo" className="w-full h-full object-contain" />
               </div>
 
-              <p className="text-[10px] sm:text-xs lg:text-sm xl:text-base text-gray-800 font-medium max-w-[280px] sm:max-w-md lg:max-w-xl mb-6 lg:mb-8 leading-relaxed">
-                To support baynana and our other work you can donate lillah, sadqah and zakat to our organisation. <span className="text-black font-extrabold border-b border-black pb-[0.5px] cursor-pointer">Learn More</span>
+              <p className="text-[12px] sm:text-[14px] text-[#333333] font-[600] max-w-[320px] sm:max-w-[400px] mb-6 leading-[1.4]">
+                To support baynana and our other work you can<br className="hidden sm:block" /> donate lillah, sadqah and zakat to our<br className="hidden sm:block" /> organisation. <span className="font-[800] border-b-2 border-[#333333] pb-[1px] cursor-pointer">Learn More</span>
               </p>
 
-              <div className="flex items-center gap-4 sm:gap-6 lg:gap-8 justify-center bg-white/50 p-3 sm:p-4 lg:p-5 rounded-lg">
-                <div className="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[100px] lg:h-[100px] bg-white border-4 border-gray-900 flex items-center justify-center p-1 rounded-sm shadow-sm">
+              <div className="flex items-center gap-4 justify-center">
+                <div className="w-[70px] h-[70px] sm:w-[85px] sm:h-[85px] bg-white border-[3px] border-black flex items-center justify-center p-[2px]">
                   {/* Simulated QR Pattern for missing image */}
-                  <div className="w-full h-full bg-[linear-gradient(45deg,#000_25%,transparent_25%,transparent_75%,#000_75%,#000),linear-gradient(45deg,#000_25%,transparent_25%,transparent_75%,#000_75%,#000)] bg-[length:10px_10px] bg-[position:0_0,5px_5px] opacity-80"></div>
+                  <div className="w-full h-full bg-[linear-gradient(45deg,#000_25%,transparent_25%,transparent_75%,#000_75%,#000),linear-gradient(45deg,#000_25%,transparent_25%,transparent_75%,#000_75%,#000)] bg-[length:8px_8px] bg-[position:0_0,4px_4px] opacity-90"></div>
                 </div>
-                <div className="text-left text-[9px] sm:text-[11px] lg:text-sm xl:text-base text-gray-800 font-medium leading-[1.3] lg:leading-[1.5] flex flex-col gap-0.5 lg:gap-1">
+                <div className="text-left text-[12px] sm:text-[14px] text-[#333333] font-[600] leading-[1.3] flex flex-col tracking-wide">
                   <p>Bank of Baroda</p>
                   <p>78020100009407</p>
                   <p>ImranHusain Saiyad</p>

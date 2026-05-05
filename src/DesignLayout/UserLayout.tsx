@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { FiHome, FiPlus, FiMenu, FiUser, FiSearch } from "react-icons/fi"; // Changed FiPlusSquare to FiPlus
+import { FiHome, FiPlusCircle, FiMenu, FiUser, FiSearch, FiMonitor } from "react-icons/fi";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
@@ -8,10 +8,9 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
   const navItems = [
     { icon: FiHome, label: "Home", path: "/" },
-
-    { icon: FiPlus, label: "Add", path: "/user/add-business" },
-    { icon: FiUser, label: "Profile", path: "/user/profile" },
-
+    { icon: FiPlusCircle, label: "Add", path: "/user/add-business" },
+    { icon: FiMonitor, label: "Learn", path: "/videos" },
+    { icon: FiMenu, label: "More", path: "/user/profile" },
   ];
 
   const isActive = (path: string) => {

@@ -91,7 +91,7 @@ const HomeBanner: React.FC<BannerProps> = ({ banner, loading }) => {
     };
 
     return (
-        <div className="w-full h-full bg-white rounded-2xl shadow-md overflow-hidden relative group">
+        <div className="w-full h-full bg-white rounded-xl sm:rounded-2xl shadow-md overflow-hidden relative group">
             <style>{`
                 .slick-dots li {
                     margin: 0;
