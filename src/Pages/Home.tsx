@@ -395,7 +395,7 @@ const HomePage: React.FC = () => {
         {/* ═══════════════════════════════════════ */}
         <div className="overflow-hidden w-full">
         <div
-          className="bg-[#4285F4] pt-3 pb-12 sm:pb-14 relative"
+          className="bg-[#3F87DF] pt-3 pb-12 sm:pb-14 relative"
           style={{ 
             borderBottomLeftRadius: "50% 50px", 
             borderBottomRightRadius: "50% 50px",

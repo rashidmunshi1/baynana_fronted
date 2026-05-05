@@ -11,29 +11,6 @@ interface BannerProps {
     loading: boolean;
 }
 
-const CustomPrevArrow = (props: any) => {
-    const { onClick } = props;
-    return (
-        <div
-            onClick={onClick}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center bg-white/50 backdrop-blur-md rounded-full text-gray-800 shadow-md hover:bg-white transition-all cursor-pointer"
-        >
-            <FaChevronLeft size={18} />
-        </div>
-    );
-};
-
-const CustomNextArrow = (props: any) => {
-    const { onClick } = props;
-    return (
-        <div
-            onClick={onClick}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center bg-white/50 backdrop-blur-md rounded-full text-gray-800 shadow-md hover:bg-white transition-all cursor-pointer"
-        >
-            <FaChevronRight size={18} />
-        </div>
-    );
-};
 
 const BannerImage = ({ src, alt }: { src: string; alt: string }) => {
     const [isLoaded, setIsLoaded] = useState(false);
@@ -77,10 +54,9 @@ const HomeBanner: React.FC<BannerProps> = ({ banner, loading }) => {
         slidesToScroll: 1,
         autoplay: banner.length > 1,
         autoplaySpeed: 3000,
-        prevArrow: <CustomPrevArrow />,
-        nextArrow: <CustomNextArrow />,
+        arrows: false,
         appendDots: (dots: any) => (
-            <div style={{ bottom: '10px' }}>
+            <div style={{ position: 'absolute', bottom: '10px', width: '100%' }}>
                 <ul className="m-0 p-0 flex justify-center gap-[4px]">{dots}</ul>
             </div>
         ),
@@ -91,7 +67,7 @@ const HomeBanner: React.FC<BannerProps> = ({ banner, loading }) => {
     };
 
     return (
-        <div className="w-full h-full bg-white rounded-xl sm:rounded-2xl shadow-md overflow-hidden relative group">
+        <div className="w-full h-full bg-transparent rounded-xl sm:rounded-2xl shadow-md overflow-hidden relative group leading-none flex flex-col">
             <style>{`
                 .slick-dots li {
                     margin: 0;
