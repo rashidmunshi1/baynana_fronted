@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { FiSearch, FiMapPin, FiMic, FiChevronDown, FiChevronRight, FiPlay, FiBriefcase, FiClock, FiX, FiTrash2, FiArrowRight } from "react-icons/fi";
+import { FiSearch, FiMapPin, FiMic, FiChevronDown, FiChevronRight, FiPlay, FiBriefcase, FiClock, FiX, FiTrash2, FiArrowRight, FiTrendingUp } from "react-icons/fi";
 import { FaUserCircle, FaBell } from "react-icons/fa";
 import UserLayout from "../DesignLayout/UserLayout";
 import SidebarMenu from "../Components/SidebarMenu";
@@ -579,32 +579,34 @@ const HomePage: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 mt-8">
             {/* 🕰️ RECENT SEARCHES */}
             {searchHistory.length > 0 && (
-              <div className="mb-8">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                    <FiClock className="text-blue-500" />
+              <div className="mb-8 pt-4" style={{ fontFamily: "'Inter', sans-serif" }}>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-[14px] sm:text-[15px] font-[700] text-[#333333] tracking-wide">
                     Recent Searches
                   </h3>
-                  <button onClick={clearSearchHistory} className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors">
+                  <button onClick={clearSearchHistory} className="text-[12px] font-[600] text-red-500 hover:text-red-600 transition-colors">
                     Clear All
                   </button>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col gap-1.5 sm:gap-2">
                   {searchHistory.map((item, index) => (
                     <div
                       key={index}
-                      className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium cursor-pointer transition-colors flex items-center gap-2 group"
+                      className="flex items-center gap-3 cursor-pointer group"
                       onClick={() => setSearchText(item)}
                     >
-                      <span>{item}</span>
+                      <div className="w-[36px] h-[36px] sm:w-[40px] sm:h-[40px] bg-[#3c3c3c] rounded-[8px] flex items-center justify-center shrink-0">
+                        <FiSearch size={20} className="text-white" />
+                      </div>
+                      <span className="text-[#333333] font-[500] text-[14px] sm:text-[15px] tracking-wide flex-1 truncate">{item}</span>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           removeFromSearchHistory(item);
                         }}
-                        className="text-gray-400 hover:text-red-500"
+                        className="text-gray-300 hover:text-red-500 pr-1 transition-colors"
                       >
-                        <FiX size={14} />
+                        <FiX size={18} />
                       </button>
                     </div>
                   ))}
@@ -613,20 +615,21 @@ const HomePage: React.FC = () => {
             )}
 
             {/* 📈 TRENDING SEARCHES */}
-            <div className="mb-8">
-              <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2 mb-4">
-                <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
+            <div className="mb-8 border-t border-gray-200 pt-6" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <h3 className="text-[14px] sm:text-[15px] font-[700] text-[#333333] tracking-wide mb-6">
                 Trending Searches
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-col gap-1.5 sm:gap-2">
                 {trendingSearches.map((term, index) => (
                   <div
                     key={index}
                     onClick={() => setSearchText(term)}
-                    className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium cursor-pointer transition-colors flex items-center gap-2"
+                    className="flex items-center gap-3 cursor-pointer group"
                   >
-                    <FiSearch size={14} className="opacity-70" />
-                    <span>{term}</span>
+                    <div className="w-[36px] h-[36px] sm:w-[40px] sm:h-[40px] bg-[#3c3c3c] rounded-[8px] flex items-center justify-center shrink-0">
+                      <FiTrendingUp size={20} className="text-white" />
+                    </div>
+                    <span className="text-[#333333] font-[500] text-[14px] sm:text-[15px] tracking-wide">{term}</span>
                   </div>
                 ))}
               </div>
