@@ -96,15 +96,15 @@ const AddBusiness = () => {
 
     const formData = new FormData();
     Object.keys(values).forEach((key) => {
-      if (!["services", "subcategories"].includes(key)) {
+      if (!["services", "subcategories", "socialLinks", ...days].includes(key)) {
         formData.append(key, values[key]);
       }
     });
 
     formData.append("category", derivedCategoryId);
     (values.subcategories || []).forEach((id) => formData.append("subcategories", id));
-    (values.services || []).forEach((s) => formData.append("services", s));
-    (values.socialLinks || []).forEach((link) => formData.append("socialLinks", link));
+    (values.services || []).filter((s) => s && s.trim() !== "").forEach((s) => formData.append("services", s));
+    (values.socialLinks || []).filter((link) => link && link.trim() !== "").forEach((link) => formData.append("socialLinks", link));
 
     formData.append("timings", JSON.stringify(timings));
     fileList.forEach((file) => formData.append("images", file));

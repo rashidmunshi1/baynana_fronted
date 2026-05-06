@@ -119,7 +119,7 @@ const UpdateBusiness = () => {
     // Append standard fields
     Object.keys(values).forEach((key) => {
       // Exclude complex objects or special handling fields from direct append if needed
-      if (!["services", "subcategories", "images", ...days].includes(key)) {
+      if (!["services", "subcategories", "images", "socialLinks", ...days].includes(key)) {
         formData.append(key, values[key]);
       }
     });
@@ -131,25 +131,24 @@ const UpdateBusiness = () => {
     (values.subcategories || []).forEach((id: string) => formData.append("subcategories", id));
 
     // Append Services
-    (values.services || []).forEach((s: string) => formData.append("services", s));
+    (values.services || []).filter((s: string) => s && s.trim() !== "").forEach((s: string) => formData.append("services", s));
 
     // Append Social Links
-    (values.socialLinks || []).forEach((link: string) => formData.append("socialLinks", link));
+    (values.socialLinks || []).filter((link: string) => link && link.trim() !== "").forEach((link: string) => formData.append("socialLinks", link));
 
     // Append Timings
     formData.append("timings", JSON.stringify(timings));
 
     // Append Images
-    // 1. Existing images (URLs) might need handling if backend expects them specifically or if we only send NEW files.
-    // Usually with FormData, we only send NEW binary files.
-    // If backend replaces ALL images, we need logic to keep old ones.
-    // let's check current backend logic.
-    // updateBusiness controller uses `req.files`. If provided, it normally adds or replaces?
-    // Let's assume we append new files. Old files might need to be passed if backend logic requires "images" array of strings for existing.
-    // For now, let's append NEW files.
     fileList.forEach((file) => {
       if (file.originFileObj) {
         formData.append("images", file.originFileObj);
+      } else if (file instanceof File || file instanceof Blob) {
+        formData.append("images", file);
+      } else if (file.url) {
+        // Existing image
+        const filename = file.url.split('/').pop();
+        if (filename) formData.append("existingImages", filename);
       }
     });
 
