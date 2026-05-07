@@ -575,20 +575,8 @@ const HomePage: React.FC = () => {
         {searchText && !loading && searchExcelData.length > 0 && (
           <div className="max-w-7xl mx-auto px-4 -mt-10 sm:-mt-12 relative z-10 mb-4">
             <div className="w-full">
-              <style>{`
-                .slick-dots li button:before {
-                  font-size: 8px;
-                  color: rgba(255, 255, 255, 0.7);
-                }
-                .slick-dots li.slick-active button:before {
-                  color: #3F87DF;
-                }
-                .slick-dots {
-                  bottom: -20px;
-                }
-              `}</style>
               <Slider 
-                dots={true}
+                dots={false}
                 infinite={searchExcelData.length > 1}
                 speed={500}
                 slidesToShow={1}
