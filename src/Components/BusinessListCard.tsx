@@ -59,7 +59,7 @@ const BusinessListCard: React.FC<Props> = ({ business }) => {
     return (
         <>
             <div
-                className="bg-white pb-5 border-b-[6px] border-gray-100 cursor-pointer"
+                className="bg-white pb-3 border-b-[6px] border-gray-100 cursor-pointer"
                 onClick={() => navigate(`/business/${business._id}`)}
             >
                 {/* Images Row */}

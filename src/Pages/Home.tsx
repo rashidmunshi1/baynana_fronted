@@ -567,6 +567,47 @@ const HomePage: React.FC = () => {
               </div>
             )}
 
+            {/* EXCEL DATA CAROUSEL IN SEARCH */}
+            {searchText && !loading && searchExcelData.length > 0 && (
+              <div className="mt-4 relative z-0 px-1 sm:px-0 mb-2">
+                <div className="w-full">
+                  <style>{`
+                    .slick-dots li button:before {
+                      font-size: 8px;
+                      color: rgba(255, 255, 255, 0.7);
+                    }
+                    .slick-dots li.slick-active button:before {
+                      color: white;
+                    }
+                    .slick-dots {
+                      bottom: -20px;
+                    }
+                  `}</style>
+                  <Slider 
+                    dots={true}
+                    infinite={searchExcelData.length > 1}
+                    speed={500}
+                    slidesToShow={1}
+                    slidesToScroll={1}
+                    autoplay={searchExcelData.length > 1}
+                    autoplaySpeed={4000}
+                    arrows={false}
+                  >
+                    {searchExcelData.map((item) => (
+                      <div key={item._id} className="outline-none px-1">
+                        <div 
+                          onClick={() => setSelectedExcelCard(item)}
+                          className="w-full bg-white border border-blue-100 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                        >
+                          <h3 className="font-bold text-[#3F87DF] text-sm sm:text-base mb-1 line-clamp-1 group-hover:text-blue-700 transition-colors">{item.title}</h3>
+                          <p className="text-gray-600 text-xs sm:text-sm line-clamp-2 leading-relaxed">{item.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </Slider>
+                </div>
+              </div>
+            )}
 
           </div>
         </div>
@@ -636,61 +677,16 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         ) : searchText ? (
-          <div className="max-w-7xl mx-auto px-4 mt-6">
+          <div className="max-w-7xl mx-auto mt-2">
             {loading && <LoadingSpinner text="Searching..." size={12} />}
             
-            {/* EXCEL DATA CAROUSEL IN SEARCH */}
-            {!loading && searchExcelData.length > 0 && (
-              <div className="mb-10">
-                <h2 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-                  <span className="w-1.5 h-4 bg-[#3F87DF] rounded-full"></span>
-                  Important Information
-                </h2>
-                <div className="w-full">
-                  <style>{`
-                    .slick-dots li button:before {
-                      font-size: 8px;
-                      color: #3F87DF;
-                    }
-                    .slick-dots li.slick-active button:before {
-                      color: #3F87DF;
-                    }
-                    .slick-dots {
-                      bottom: -20px;
-                    }
-                  `}</style>
-                  <Slider 
-                    dots={true}
-                    infinite={searchExcelData.length > 1}
-                    speed={500}
-                    slidesToShow={1}
-                    slidesToScroll={1}
-                    autoplay={searchExcelData.length > 1}
-                    autoplaySpeed={4000}
-                    arrows={false}
-                  >
-                    {searchExcelData.map((item) => (
-                      <div key={item._id} className="outline-none px-1">
-                        <div 
-                          onClick={() => setSelectedExcelCard(item)}
-                          className="w-full bg-gradient-to-br from-blue-50 to-white border border-blue-100 p-5 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group"
-                        >
-                          <h3 className="font-bold text-[#3F87DF] text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-blue-700 transition-colors">{item.title}</h3>
-                          <p className="text-gray-600 text-xs sm:text-sm line-clamp-3 leading-relaxed">{item.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </Slider>
-                </div>
-              </div>
-            )}
 
             {!loading && searchResults.length === 0 && searchExcelData.length === 0 && (
-              <div className="text-center py-10">
+              <div className="text-center py-10 px-4">
                 <p className="text-gray-500 font-medium">No results found for "{searchText}"</p>
               </div>
             )}
-            <div className="space-y-4">
+            <div className="flex flex-col">
               {searchResults.map((biz) => (
                 <BusinessListCard key={biz._id} business={biz} />
               ))}
