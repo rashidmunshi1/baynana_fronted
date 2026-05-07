@@ -38,6 +38,24 @@ const HomePage: React.FC = () => {
   const [searchExcelData, setSearchExcelData] = useState<any[]>([]);
   const [selectedExcelCard, setSelectedExcelCard] = useState<any>(null);
 
+  /* 🔃 SORT STATE */
+  const [sortBy, setSortBy] = useState("Newest First");
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+
+  const sortedSearchResults = React.useMemo(() => {
+    let results = [...searchResults];
+    if (sortBy === "Top Rated") {
+      results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else if (sortBy === "Name (A to Z)") {
+      results.sort((a, b) => (a.businessName || "").localeCompare(b.businessName || ""));
+    } else if (sortBy === "Name (Z to A)") {
+      results.sort((a, b) => (b.businessName || "").localeCompare(a.businessName || ""));
+    } else {
+      results.sort((a, b) => (b._id || "").localeCompare(a._id || ""));
+    }
+    return results;
+  }, [searchResults, sortBy]);
+
   /* 📜 SEARCH HISTORY */
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -292,7 +310,7 @@ const HomePage: React.FC = () => {
       }
 
       setVoiceText(finalTranscript || interimTranscript);
-      
+
       if (finalTranscript) {
         setSearchText(finalTranscript);
         setIsListening(false);
@@ -394,189 +412,189 @@ const HomePage: React.FC = () => {
         {/* 1️⃣ HEADER — Blue Background + Search + Banner */}
         {/* ═══════════════════════════════════════ */}
         <div className="overflow-hidden w-full">
-        <div
-          className="bg-[#3F87DF] pt-3 pb-12 sm:pb-14 relative"
-          style={{ 
-            borderBottomLeftRadius: "50% 50px", 
-            borderBottomRightRadius: "50% 50px",
-            marginLeft: "-20px",
-            marginRight: "-20px",
-            paddingLeft: "calc(16px + 20px)",
-            paddingRight: "calc(16px + 20px)"
-          }}
-        >
+          <div
+            className="bg-[#3F87DF] pt-3 pb-12 sm:pb-14 relative"
+            style={{
+              borderBottomLeftRadius: "50% 50px",
+              borderBottomRightRadius: "50% 50px",
+              marginLeft: "-20px",
+              marginRight: "-20px",
+              paddingLeft: "calc(16px + 20px)",
+              paddingRight: "calc(16px + 20px)"
+            }}
+          >
 
-          <div className="max-w-7xl mx-auto">
-            {/* Top row: Location, Logo, Profile */}
-            <div className="flex justify-between items-center w-full">
-              {/* Desktop Location (or spacer on mobile) */}
-              <div className="flex-1 flex items-center justify-start">
-                {isSearchMode ? (
+            <div className="max-w-7xl mx-auto">
+              {/* Top row: Location, Logo, Profile */}
+              <div className="flex justify-between items-center w-full">
+                {/* Desktop Location (or spacer on mobile) */}
+                <div className="flex-1 flex items-center justify-start">
+                  {!isSearchMode && (
+                    null
+                    /* 
+                    <div className="hidden sm:flex items-center gap-1 cursor-pointer bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-white transition-colors" onClick={requestLocation}>
+                      <FiMapPin size={14} />
+                      <span className="text-[13px] font-bold tracking-wide">{locationName}</span>
+                      <FiChevronDown size={14} />
+                    </div>
+                    */
+                  )}
+                </div>
+
+                {/* Logo Center */}
+                <div className="flex-shrink-0 flex justify-center items-center px-1 sm:px-2">
+                  {!isSearchMode && (
+                    <img src={logo} alt="Baynana" className="h-[46px] sm:h-[54px] lg:h-[62px] object-contain" />
+                  )}
+                </div>
+
+                {/* Right Profile Icon / Auth Buttons */}
+                <div className="flex-1 flex justify-end items-center">
+                  {!isLoggedIn ? (
+                    !isSearchMode && (
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <button
+                          onClick={() => setIsLoginPopupOpen(true)}
+                          className="text-white text-[10px] sm:text-xs font-bold bg-black/20 hover:bg-black/30 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors"
+                        >
+                          Login
+                        </button>
+                        <button
+                          onClick={() => setIsSignUpPopupOpen(true)}
+                          className="text-[#3F87DF] text-[10px] sm:text-xs font-bold bg-white hover:bg-gray-50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors shadow-sm"
+                        >
+                          Register
+                        </button>
+                      </div>
+                    )
+                  ) : (
+                    !isSearchMode && (
+                      <div onClick={() => setSidebarOpen(true)} className="cursor-pointer">
+                        <div className="w-[30px] h-[30px] rounded-full bg-black/40 text-white flex items-center justify-center shadow-sm overflow-hidden">
+                          {currentUser?.profileImage ? (
+                            <img src={`${baseURL}/${currentUser.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
+                          ) : (
+                            <FaUserCircle size={18} />
+                          )}
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+              <div className={`mt-3 sm:mt-4 w-full flex items-center gap-2 sm:gap-3 relative ${isSearchMode && searchText ? 'mb-10 sm:mb-12' : ''}`} ref={searchContainerRef}>
+                {isSearchMode && (
                   <button
                     onClick={() => {
                       setIsSearchMode(false);
                       setIsSearchFocused(false);
                       setSearchText("");
                     }}
-                    className="flex items-center gap-2 text-white hover:bg-white/10 px-3 py-1.5 rounded-full transition-colors"
+                    className="flex items-center justify-center text-white hover:bg-white/10 rounded-full transition-colors flex-shrink-0"
                   >
-                    <FiChevronDown className="rotate-90" size={20} />
-                    <span className="text-[13px] font-bold">Back</span>
+                    <FiChevronDown className="rotate-90" size={32} />
                   </button>
-                ) : (
-                  null
-                  /* 
-                  <div className="hidden sm:flex items-center gap-1 cursor-pointer bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-white transition-colors" onClick={requestLocation}>
-                    <FiMapPin size={14} />
-                    <span className="text-[13px] font-bold tracking-wide">{locationName}</span>
-                    <FiChevronDown size={14} />
+                )}
+                <div className="flex-1 flex items-center bg-white rounded-[5px] h-[48px] sm:h-[50px] lg:h-[56px] border border-gray-200/80 overflow-hidden">
+                  <div className="pl-4 pr-2 flex items-center h-full">
+                    <FiSearch className="text-gray-500 lg:w-6 lg:h-6" size={20} />
                   </div>
-                  */
-                )}
-              </div>
-
-              {/* Logo Center */}
-              <div className="flex-shrink-0 flex justify-center items-center px-1 sm:px-2">
-                {!isSearchMode && (
-                  <img src={logo} alt="Baynana" className="h-[46px] sm:h-[54px] lg:h-[62px] object-contain" />
-                )}
-              </div>
-
-              {/* Right Profile Icon / Auth Buttons */}
-              <div className="flex-1 flex justify-end items-center">
-                {!isLoggedIn ? (
-                  !isSearchMode && (
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <button
-                        onClick={() => setIsLoginPopupOpen(true)}
-                        className="text-white text-[10px] sm:text-xs font-bold bg-black/20 hover:bg-black/30 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors"
-                      >
-                        Login
+                  <input
+                    type="text"
+                    placeholder="Search Businesses"
+                    className="flex-1 h-full py-2 text-gray-800 bg-transparent outline-none border-none placeholder-gray-400 font-normal text-[15px] sm:text-[16px] lg:text-[17px]"
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    onFocus={() => {
+                      setIsSearchFocused(true);
+                      setIsSearchMode(true);
+                    }}
+                  />
+                  <div className="flex items-center h-full pr-2">
+                    {searchText && (
+                      <button onClick={() => { setSearchText(''); setSearchResults([]); }} className="p-2 text-gray-400 hover:text-gray-600 transition-colors border-none bg-transparent outline-none">
+                        <FiX size={18} />
                       </button>
-                      <button
-                        onClick={() => setIsSignUpPopupOpen(true)}
-                        className="text-[#3F87DF] text-[10px] sm:text-xs font-bold bg-white hover:bg-gray-50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors shadow-sm"
-                      >
-                        Register
-                      </button>
-                    </div>
-                  )
-                ) : (
-                  !isSearchMode && (
-                    <div onClick={() => setSidebarOpen(true)} className="cursor-pointer">
-                      <div className="w-[30px] h-[30px] rounded-full bg-black/40 text-white flex items-center justify-center shadow-sm overflow-hidden">
-                        {currentUser?.profileImage ? (
-                          <img src={`${baseURL}/${currentUser.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
-                        ) : (
-                          <FaUserCircle size={18} />
-                        )}
-                      </div>
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-            <div className={`mt-3 sm:mt-4 w-full relative ${isSearchMode && searchText ? 'mb-10 sm:mb-12' : ''}`} ref={searchContainerRef}>
-              <div className="flex items-center bg-white rounded-[5px] h-[48px] sm:h-[50px] lg:h-[56px] border border-gray-200/80 overflow-hidden">
-                <div className="pl-4 pr-2 flex items-center h-full">
-                  <FiSearch className="text-gray-500 lg:w-6 lg:h-6" size={20} />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search Businesses"
-                  className="flex-1 h-full py-2 text-gray-800 bg-transparent outline-none border-none placeholder-gray-400 font-normal text-[15px] sm:text-[16px] lg:text-[17px]"
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  onFocus={() => {
-                    setIsSearchFocused(true);
-                    setIsSearchMode(true);
-                  }}
-                />
-                <div className="flex items-center h-full pr-2">
-                  {searchText && (
-                    <button onClick={() => { setSearchText(''); setSearchResults([]); }} className="p-2 text-gray-400 hover:text-gray-600 transition-colors border-none bg-transparent outline-none">
-                      <FiX size={18} />
-                    </button>
-                  )}
-                  <button 
-                    onClick={handleVoiceSearch} 
-                    className="pl-2 pr-3 flex items-center justify-center h-full border-none bg-transparent outline-none cursor-pointer"
-                  >
-                    <FiMic className={`${isListening ? 'text-red-500 animate-pulse' : 'text-gray-700'} transition-colors lg:w-6 lg:h-6`} size={22} />
-                  </button>
-                </div>
-              </div>
-
-              {/* 📜 SEARCH HISTORY DROPDOWN - Hidden in Search Mode because it shows in body */}
-              {isSearchFocused && !isSearchMode && !searchText && searchHistory.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-xl z-50 max-h-[320px] overflow-y-auto">
-                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100">
-                    <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wide">Recent Searches</p>
+                    )}
                     <button
-                      onClick={clearSearchHistory}
-                      className="text-[11px] font-bold text-red-400 hover:text-red-600 transition-colors flex items-center gap-1"
+                      onClick={handleVoiceSearch}
+                      className="pl-2 pr-3 flex items-center justify-center h-full border-none bg-transparent outline-none cursor-pointer"
                     >
-                      <FiTrash2 size={12} />
-                      Clear All
+                      <FiMic className={`${isListening ? 'text-red-500 animate-pulse' : 'text-gray-700'} transition-colors lg:w-6 lg:h-6`} size={22} />
                     </button>
                   </div>
-                  {searchHistory.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors group"
-                    >
-                      <div
-                        className="flex items-center gap-3 flex-1 min-w-0"
-                        onClick={() => {
-                          setSearchText(item);
-                          setIsSearchFocused(false);
-                        }}
-                      >
-                        <FiClock className="text-gray-400 flex-shrink-0" size={14} />
-                        <span className="text-[13px] text-gray-700 font-medium truncate">{item}</span>
-                      </div>
+                </div>
+
+                {/* 📜 SEARCH HISTORY DROPDOWN - Hidden in Search Mode because it shows in body */}
+                {isSearchFocused && !isSearchMode && !searchText && searchHistory.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-xl z-50 max-h-[320px] overflow-y-auto">
+                    <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100">
+                      <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wide">Recent Searches</p>
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeFromSearchHistory(item);
-                        }}
-                        className="text-gray-300 hover:text-red-400 transition-colors ml-2 opacity-0 group-hover:opacity-100"
+                        onClick={clearSearchHistory}
+                        className="text-[11px] font-bold text-red-400 hover:text-red-600 transition-colors flex items-center gap-1"
                       >
-                        <FiX size={14} />
+                        <FiTrash2 size={12} />
+                        Clear All
                       </button>
                     </div>
-                  ))}
+                    {searchHistory.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors group"
+                      >
+                        <div
+                          className="flex items-center gap-3 flex-1 min-w-0"
+                          onClick={() => {
+                            setSearchText(item);
+                            setIsSearchFocused(false);
+                          }}
+                        >
+                          <FiClock className="text-gray-400 flex-shrink-0" size={14} />
+                          <span className="text-[13px] text-gray-700 font-medium truncate">{item}</span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFromSearchHistory(item);
+                          }}
+                          className="text-gray-300 hover:text-red-400 transition-colors ml-2 opacity-0 group-hover:opacity-100"
+                        >
+                          <FiX size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Banner Block — Hidden when search is active */}
+              {!isSearchMode && !searchText && (
+                <div className="mt-4 relative z-0">
+                  <HomeBanner banner={banner} loading={bannerLoading} />
+                  {(!banner || banner.length === 0) && !bannerLoading && (
+                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1] lg:aspect-[4/1] flex flex-col items-center justify-center">
+                      <p className="text-[10px] sm:text-xs text-gray-400 font-medium">Paid Promotional Content Here</p>
+                      <div className="flex items-center gap-1.5 mt-3">
+                        {[0, 1, 2, 3, 4].map(i => (
+                          <div key={i} className={`w-[6px] h-[6px] rounded-full ${i === 0 ? 'bg-[#4285F4]' : 'bg-gray-300'}`}></div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
+
             </div>
-
-            {/* Banner Block — Hidden when search is active */}
-            {!isSearchMode && !searchText && (
-              <div className="mt-4 relative z-0">
-                <HomeBanner banner={banner} loading={bannerLoading} />
-                {(!banner || banner.length === 0) && !bannerLoading && (
-                  <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1] lg:aspect-[4/1] flex flex-col items-center justify-center">
-                    <p className="text-[10px] sm:text-xs text-gray-400 font-medium">Paid Promotional Content Here</p>
-                    <div className="flex items-center gap-1.5 mt-3">
-                      {[0,1,2,3,4].map(i => (
-                        <div key={i} className={`w-[6px] h-[6px] rounded-full ${i === 0 ? 'bg-[#4285F4]' : 'bg-gray-300'}`}></div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
           </div>
-        </div>
         </div>
 
         {/* EXCEL DATA CAROUSEL IN SEARCH */}
         {searchText && !loading && searchExcelData.length > 0 && (
           <div className="max-w-7xl mx-auto px-4 -mt-10 sm:-mt-12 relative z-10 mb-4">
-            <div className="w-full">
-              <Slider 
-                dots={false}
+            <div className="w-full pb-6">
+              <Slider
+                dots={true}
                 infinite={searchExcelData.length > 1}
                 speed={500}
                 slidesToShow={1}
@@ -587,7 +605,7 @@ const HomePage: React.FC = () => {
               >
                 {searchExcelData.map((item) => (
                   <div key={item._id} className="outline-none px-1">
-                    <div 
+                    <div
                       onClick={() => setSelectedExcelCard(item)}
                       className="w-full bg-white border border-blue-100 p-4 rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer group"
                     >
@@ -667,15 +685,32 @@ const HomePage: React.FC = () => {
         ) : searchText ? (
           <div className="max-w-7xl mx-auto mt-2">
             {loading && <LoadingSpinner text="Searching..." size={12} />}
-            
+
 
             {!loading && searchResults.length === 0 && searchExcelData.length === 0 && (
               <div className="text-center py-10 px-4">
                 <p className="text-gray-500 font-medium">No results found for "{searchText}"</p>
               </div>
             )}
+
+            {!loading && searchResults.length > 0 && (
+              <div className="px-4 pb-3 pt-1 flex flex-col gap-4">
+                <div className="flex">
+                  <button
+                    onClick={() => setIsSortDropdownOpen(true)}
+                    className="flex items-center gap-1 border-2 border-gray-200 rounded-lg px-4 py-1.5 text-[14px] text-gray-700 font-bold hover:bg-gray-50 transition-colors"
+                  >
+                    Sort by <FiChevronDown size={16} className="text-gray-500" />
+                  </button>
+                </div>
+                <h2 className="text-[#333333] font-bold text-[18px]">
+                  {searchResults.length} Results for your search
+                </h2>
+              </div>
+            )}
+
             <div className="flex flex-col">
-              {searchResults.map((biz) => (
+              {sortedSearchResults.map((biz) => (
                 <BusinessListCard key={biz._id} business={biz} />
               ))}
             </div>
@@ -827,13 +862,13 @@ const HomePage: React.FC = () => {
       {/* 🎤 GOOGLE-STYLE VOICE SEARCH OVERLAY */}
       {isListening && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 backdrop-blur-md transition-all duration-300">
-          <button 
+          <button
             onClick={() => setIsListening(false)}
             className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 transition-colors"
           >
             <FiX size={28} />
           </button>
-          
+
           <div className="flex-1 flex flex-col items-center justify-center gap-12 w-full max-w-lg px-6">
             {/* Real-time transcribed text */}
             <div className="min-h-[120px] w-full text-center">
@@ -849,17 +884,17 @@ const HomePage: React.FC = () => {
               <div className="goog-dot bg-[#FBBC05]"></div>
               <div className="goog-dot bg-[#34A853]"></div>
             </div>
-            
+
             <div className="relative mt-8">
-               <div className="pulse-ring absolute inset-0"></div>
-               <div className="relative z-10 w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-xl">
-                 <FiMic size={36} />
-               </div>
+              <div className="pulse-ring absolute inset-0"></div>
+              <div className="relative z-10 w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-xl">
+                <FiMic size={36} />
+              </div>
             </div>
 
             <p className="text-gray-400 font-medium tracking-wide flex items-center gap-2">
-               <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span>
-               Recording...
+              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span>
+              Recording...
             </p>
           </div>
         </div>
@@ -900,6 +935,46 @@ const HomePage: React.FC = () => {
       {isFreeListingPopupOpen && <FreeListingPopup onClose={() => setIsFreeListingPopupOpen(false)} />}
       {isLoginPopupOpen && <LoginPopup onClose={() => setIsLoginPopupOpen(false)} onLoginSuccess={checkAuth} />}
       {isSignUpPopupOpen && <SignUpPopup onClose={() => setIsSignUpPopupOpen(false)} onSignUpSuccess={checkAuth} />}
+
+      {/* SORT BY BOTTOM SHEET / MODAL */}
+      <AnimatePresence>
+        {isSortDropdownOpen && (
+          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50" onClick={() => setIsSortDropdownOpen(false)}>
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md bg-white rounded-t-2xl sm:rounded-2xl pb-8 pt-5 px-4 shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-4 px-2">
+                <h3 className="text-[12px] font-extrabold text-gray-500 uppercase tracking-widest">Sort By</h3>
+                <button onClick={() => setIsSortDropdownOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors bg-gray-100 hover:bg-gray-200 rounded-full p-1.5">
+                  <FiX size={18} />
+                </button>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {["Newest First", "Top Rated", "Name (A to Z)", "Name (Z to A)"].map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => {
+                      setSortBy(option);
+                      setIsSortDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-3.5 rounded-xl text-[14px] font-semibold transition-all ${sortBy === option
+                        ? "bg-[#f4effc] text-[#814df2]"
+                        : "text-gray-700 hover:bg-gray-50"
+                      }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </UserLayout >
   );
 }
