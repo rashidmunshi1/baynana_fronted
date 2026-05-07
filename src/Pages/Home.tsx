@@ -476,7 +476,7 @@ const HomePage: React.FC = () => {
                 )}
               </div>
             </div>
-            <div className="mt-3 sm:mt-4 w-full relative" ref={searchContainerRef}>
+            <div className={`mt-3 sm:mt-4 w-full relative ${isSearchMode && searchText ? 'mb-10 sm:mb-12' : ''}`} ref={searchContainerRef}>
               <div className="flex items-center bg-white rounded-[5px] h-[48px] sm:h-[50px] lg:h-[56px] border border-gray-200/80 overflow-hidden">
                 <div className="pl-4 pr-2 flex items-center h-full">
                   <FiSearch className="text-gray-500 lg:w-6 lg:h-6" size={20} />
@@ -567,51 +567,51 @@ const HomePage: React.FC = () => {
               </div>
             )}
 
-            {/* EXCEL DATA CAROUSEL IN SEARCH */}
-            {searchText && !loading && searchExcelData.length > 0 && (
-              <div className="mt-4 relative z-0 px-1 sm:px-0 mb-2">
-                <div className="w-full">
-                  <style>{`
-                    .slick-dots li button:before {
-                      font-size: 8px;
-                      color: rgba(255, 255, 255, 0.7);
-                    }
-                    .slick-dots li.slick-active button:before {
-                      color: white;
-                    }
-                    .slick-dots {
-                      bottom: -20px;
-                    }
-                  `}</style>
-                  <Slider 
-                    dots={true}
-                    infinite={searchExcelData.length > 1}
-                    speed={500}
-                    slidesToShow={1}
-                    slidesToScroll={1}
-                    autoplay={searchExcelData.length > 1}
-                    autoplaySpeed={4000}
-                    arrows={false}
-                  >
-                    {searchExcelData.map((item) => (
-                      <div key={item._id} className="outline-none px-1">
-                        <div 
-                          onClick={() => setSelectedExcelCard(item)}
-                          className="w-full bg-white border border-blue-100 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group"
-                        >
-                          <h3 className="font-bold text-[#3F87DF] text-sm sm:text-base mb-1 line-clamp-1 group-hover:text-blue-700 transition-colors">{item.title}</h3>
-                          <p className="text-gray-600 text-xs sm:text-sm line-clamp-2 leading-relaxed">{item.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </Slider>
-                </div>
-              </div>
-            )}
-
           </div>
         </div>
         </div>
+
+        {/* EXCEL DATA CAROUSEL IN SEARCH */}
+        {searchText && !loading && searchExcelData.length > 0 && (
+          <div className="max-w-7xl mx-auto px-4 -mt-10 sm:-mt-12 relative z-10 mb-4">
+            <div className="w-full">
+              <style>{`
+                .slick-dots li button:before {
+                  font-size: 8px;
+                  color: rgba(255, 255, 255, 0.7);
+                }
+                .slick-dots li.slick-active button:before {
+                  color: #3F87DF;
+                }
+                .slick-dots {
+                  bottom: -20px;
+                }
+              `}</style>
+              <Slider 
+                dots={true}
+                infinite={searchExcelData.length > 1}
+                speed={500}
+                slidesToShow={1}
+                slidesToScroll={1}
+                autoplay={searchExcelData.length > 1}
+                autoplaySpeed={4000}
+                arrows={false}
+              >
+                {searchExcelData.map((item) => (
+                  <div key={item._id} className="outline-none px-1">
+                    <div 
+                      onClick={() => setSelectedExcelCard(item)}
+                      className="w-full bg-white border border-blue-100 p-4 rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer group"
+                    >
+                      <h3 className="font-bold text-[#3F87DF] text-sm sm:text-base mb-1 line-clamp-1 group-hover:text-blue-700 transition-colors">{item.title}</h3>
+                      <p className="text-gray-600 text-xs sm:text-sm line-clamp-2 leading-relaxed">{item.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </Slider>
+            </div>
+          </div>
+        )}
 
         {/* ═══════════════════════════════════════ */}
         {/* MAIN BODY                               */}
