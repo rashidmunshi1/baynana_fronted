@@ -152,7 +152,6 @@ const BusinessDetailPage: React.FC = () => {
                                 <h1 className="text-[20px] font-bold truncate pr-2">{business.businessName}</h1>
                             </div>
                             <div className="flex items-center gap-4 flex-shrink-0">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                                 <FiSend size={18} onClick={handleShare} className="cursor-pointer" />
                             </div>
                         </div>
@@ -207,25 +206,25 @@ const BusinessDetailPage: React.FC = () => {
                     <div className="-mt-8 relative z-10 w-full mb-6 flex justify-center gap-3">
                         <a href={`tel:${business.mobile}`} className="flex flex-col items-center gap-1 w-16">
                             <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm text-[#2a73e8] flex justify-center items-center w-full">
-                                <IoCallOutline size={22} />
+                                <IoCallOutline size={26} />
                             </div>
                             <span className="text-[11px] font-medium text-gray-700">Call</span>
                         </a>
                         <a href={`https://wa.me/91${business.mobile}`} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 w-16">
                             <div className="bg-[#25d366] rounded-lg p-3 shadow-sm text-white flex justify-center items-center w-full">
-                                <FaWhatsapp size={22} />
+                                <FaWhatsapp size={26} />
                             </div>
                             <span className="text-[11px] font-medium text-gray-700">Whatsapp</span>
                         </a>
                         <a href={`https://www.google.com/maps/dir/?api=1&destination=${business.address}+${business.city}`} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 w-16">
                             <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm text-[#2a73e8] flex justify-center items-center w-full">
-                                <IoLocationOutline size={22} />
+                                <IoLocationOutline size={26} />
                             </div>
                             <span className="text-[11px] font-medium text-gray-700">Direction</span>
                         </a>
                         <div onClick={handleOpenReviewModal} className="flex flex-col items-center gap-1 w-16 cursor-pointer">
                             <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm text-[#2a73e8] flex justify-center items-center w-full">
-                                <FaRegStar size={22} />
+                                <FaRegStar size={26} />
                             </div>
                             <span className="text-[11px] font-medium text-gray-700">Review</span>
                         </div>
@@ -436,16 +435,16 @@ const BusinessDetailPage: React.FC = () => {
 
                     {/* Whatsapp Box */}
                     <div className="mb-4">
-                        <div className="bg-[#fff9f5] rounded-md p-3">
-                            <p className="text-[12px] text-gray-700 mb-2">
+                        <div className="bg-[#fff9f5] rounded-xl p-4 sm:p-5">
+                            <p className="text-[14px] sm:text-[15px] text-gray-700 mb-3">
                                 Send your requirement on <span className="font-bold">WhatsApp</span>
                             </p>
-                            <div className="flex items-center gap-2 mb-2">
-                                <div className="flex-1 bg-white border border-gray-200 rounded px-2 py-1.5 flex items-center">
-                                    <FaWhatsapp className="text-green-500 mr-2" size={14} />
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 sm:py-2.5 flex items-center">
+                                    <FaWhatsapp className="text-green-500 mr-2" size={20} />
                                     <input
                                         type="text"
-                                        className="w-full text-[11px] text-gray-600 outline-none"
+                                        className="w-full text-[13px] sm:text-[14px] text-gray-600 outline-none"
                                         defaultValue="Hi, I found your business on baynana"
                                         id="waRequirementInput"
                                     />
@@ -455,15 +454,15 @@ const BusinessDetailPage: React.FC = () => {
                                         const msg = (document.getElementById('waRequirementInput') as HTMLInputElement)?.value || "";
                                         window.open(`https://wa.me/91${business.mobile}?text=${encodeURIComponent(msg)}`, "_blank");
                                     }}
-                                    className="bg-[#3F87DF] text-white p-2 rounded flex items-center justify-center"
+                                    className="bg-[#3F87DF] text-white p-2.5 sm:p-3 rounded-lg flex items-center justify-center transition-colors hover:bg-blue-600"
                                 >
-                                    <RiSendPlaneFill size={14} />
+                                    <RiSendPlaneFill size={18} />
                                 </button>
                             </div>
                             <div className="flex justify-between items-center">
-                                <span className="text-[10px] text-gray-500">Or call the business instantly</span>
-                                <a href={`tel:${business.mobile}`} className="text-[11px] text-[#2a73e8] flex items-center gap-1 hover:underline">
-                                    <FaPhoneAlt size={9} /> Call Now
+                                <span className="text-[12px] sm:text-[13px] text-gray-500">Or call the business instantly</span>
+                                <a href={`tel:${business.mobile}`} className="text-[13px] sm:text-[14px] font-medium text-[#2a73e8] flex items-center gap-1.5 hover:underline">
+                                    <FaPhoneAlt size={12} /> Call Now
                                 </a>
                             </div>
                         </div>

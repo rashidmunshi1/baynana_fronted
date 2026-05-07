@@ -30,17 +30,39 @@ const CategoryBusinesses = () => {
         setLoading(true);
         // 1️⃣ Fetch Subcategories
         const subRes = await axios.get(`${baseURL}/api/admin/subcategory/parent/${id}`);
-        setSubcategories(subRes.data.subcategories || []);
+        const subs = Array.isArray(subRes.data) ? subRes.data : (subRes.data.subcategories || []);
+        setSubcategories(subs);
 
         // 2️⃣ Fetch Businesses
         const bizRes = await axios.get(`${baseURL}/api/user/business-by-category/${id}`);
-        setBusinesses(bizRes.data.businesses || []);
+        const bizs = bizRes.data.businesses || [];
+        setBusinesses(bizs);
 
         // 3️⃣ Get Category Name
+        let catName = "";
         if (bizRes.data.categoryName) {
-          setCategoryName(bizRes.data.categoryName);
+          catName = bizRes.data.categoryName;
         } else if (subRes.data.categoryName) {
-          setCategoryName(subRes.data.categoryName);
+          catName = subRes.data.categoryName;
+        } else if (bizs.length > 0 && bizs[0].category) {
+          catName = bizs[0].category.name;
+        } else if (subs.length > 0 && subs[0].parentCategory) {
+          catName = subs[0].parentCategory.name;
+        }
+
+        if (catName) {
+          setCategoryName(catName);
+        } else {
+          // Fallback: fetch all categories to find the name
+          try {
+            const allCat = await axios.get(`${baseURL}/api/admin/all-category`);
+            if (Array.isArray(allCat.data)) {
+              const found = allCat.data.find((c: any) => c._id === id);
+              if (found) setCategoryName(found.name);
+            }
+          } catch(e) {
+            console.error("Failed to fetch all categories for fallback name");
+          }
         }
 
       } catch (err) {
@@ -109,7 +131,7 @@ const CategoryBusinesses = () => {
             </button>
             <div className="min-w-0">
               <h1 className="text-base sm:text-xl font-bold text-[#3F87DF] truncate">
-                {categoryName || "Explore Services"}
+                {categoryName}
               </h1>
               <p className="text-[10px] sm:text-xs text-gray-500">{businesses.length} results found</p>
             </div>
@@ -222,36 +244,7 @@ const CategoryBusinesses = () => {
           </div>
         )}
 
-        {/* SUBCATEGORY SCROLL */}
-        {subcategories.length > 0 && (
-          <div className="sticky top-[52px] sm:top-[64px] z-10 bg-gray-50/95 backdrop-blur-sm py-2 border-b border-gray-200">
-            <div className="flex gap-2 px-3 sm:px-4 overflow-x-auto no-scrollbar pb-1">
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedSub(null)}
-                className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all shadow-sm whitespace-nowrap ${!selectedSub
-                  ? 'bg-violet-600 text-white shadow-violet-200 ring-2 ring-violet-200 ring-offset-1'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
-                  }`}
-              >
-                All
-              </motion.button>
-              {subcategories.map((sub) => (
-                <motion.button
-                  key={sub._id}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setSelectedSub(sub._id)}
-                  className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all shadow-sm ${selectedSub === sub._id
-                    ? 'bg-violet-600 text-white shadow-violet-200 ring-2 ring-violet-200 ring-offset-1'
-                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
-                    }`}
-                >
-                  {sub.name}
-                </motion.button>
-              ))}
-            </div>
-          </div>
-        )}
+
 
         {/* CONTENT AREA */}
         <div className="w-full">
