@@ -128,9 +128,7 @@ const CategoryBusinesses = () => {
             }
           `}</style>
           {[
-            { id: 'filter', label: 'Filter' },
-            { id: 'sort', label: 'Sort by' },
-            { id: 'price', label: 'Price' }
+            { id: 'sort', label: 'Sort by' }
           ].map((badge) => (
             <button
               key={badge.id}

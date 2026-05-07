@@ -505,6 +505,11 @@ const HomePage: React.FC = () => {
                     className="flex-1 h-full py-2 text-gray-800 bg-transparent outline-none border-none placeholder-gray-400 font-normal text-[15px] sm:text-[16px] lg:text-[17px]"
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.currentTarget.blur();
+                      }
+                    }}
                     onFocus={() => {
                       setIsSearchFocused(true);
                       setIsSearchMode(true);
