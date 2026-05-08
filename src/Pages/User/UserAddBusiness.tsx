@@ -779,6 +779,7 @@ const UserAddBusiness = () => {
 
                     {/* ── Navigation Buttons (OUTSIDE Form to prevent accidental submit) ── */}
                     <div
+                        className="nav-buttons-container"
                         style={{
                             display: "flex",
                             justifyContent: "space-between",
@@ -858,13 +859,24 @@ const UserAddBusiness = () => {
                         from { opacity: 0; transform: translateY(12px); }
                         to { opacity: 1; transform: translateY(0); }
                     }
-                    }
                     @media (max-width: 576px) {
                         .ant-card-body {
                             padding: 16px 12px 14px !important;
                         }
                         .ant-form-item {
                             margin-bottom: 12px !important;
+                        }
+                        .nav-buttons-container {
+                            gap: 8px !important;
+                        }
+                        .nav-buttons-container .ant-btn {
+                            padding-inline: 12px !important;
+                            font-size: 13px !important;
+                        }
+                        .nav-buttons-container .ant-btn span {
+                            white-space: normal;
+                            text-align: center;
+                            line-height: 1.2;
                         }
                     }
                     .leaflet-container {

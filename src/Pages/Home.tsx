@@ -897,28 +897,12 @@ const HomePage: React.FC = () => {
 
             {/* 8️⃣ DONATE TO NOOR E IMAN */}
             <div className="mt-8 mb-10 px-4 sm:px-8 text-center flex flex-col items-center" style={{ fontFamily: "'Inter', sans-serif" }}>
-              <h2 className="text-[28px] sm:text-3xl font-[800] text-[#333333] mb-4">Donate to Noor E Iman</h2>
+              {/* <h2 className="text-[28px] sm:text-3xl font-[800] text-[#333333] mb-4">Donate to Noor E Iman</h2> */}
 
               <div className="w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] mb-4">
                 <img src="/noor-imaan-1.svg" alt="Noor E Iman Logo" className="w-full h-full object-contain" />
               </div>
 
-              <p className="text-[12px] sm:text-[14px] text-[#333333] font-[600] max-w-[320px] sm:max-w-[400px] mb-6 leading-[1.4]">
-                To support baynana and our other work you can<br className="hidden sm:block" /> donate lillah, sadqah and zakat to our<br className="hidden sm:block" /> organisation. <span className="font-[800] border-b-2 border-[#333333] pb-[1px] cursor-pointer">Learn More</span>
-              </p>
-
-              <div className="flex items-center gap-4 justify-center">
-                <div className="w-[70px] h-[70px] sm:w-[85px] sm:h-[85px] bg-white border-[3px] border-black flex items-center justify-center p-[2px]">
-                  {/* Simulated QR Pattern for missing image */}
-                  <div className="w-full h-full bg-[linear-gradient(45deg,#000_25%,transparent_25%,transparent_75%,#000_75%,#000),linear-gradient(45deg,#000_25%,transparent_25%,transparent_75%,#000_75%,#000)] bg-[length:8px_8px] bg-[position:0_0,4px_4px] opacity-90"></div>
-                </div>
-                <div className="text-left text-[12px] sm:text-[14px] text-[#333333] font-[600] leading-[1.3] flex flex-col tracking-wide">
-                  <p>Bank of Baroda</p>
-                  <p>78020100009407</p>
-                  <p>ImranHusain Saiyad</p>
-                  <p>BARBOVJRAJK</p>
-                </div>
-              </div>
             </div>
 
           </div>
