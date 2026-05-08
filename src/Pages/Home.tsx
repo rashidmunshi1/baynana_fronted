@@ -67,6 +67,7 @@ const HomePage: React.FC = () => {
 
   /* 📂 CATEGORY STATES */
   const [dynamicCategories, setDynamicCategories] = useState<any[]>([]);
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
   /* 🖼️ BANNER STATE */
   const [banner, setBanner] = useState<any[]>([]);
@@ -699,18 +700,66 @@ const HomePage: React.FC = () => {
             )}
 
             {!loading && searchResults.length > 0 && (
-              <div className="px-4 pb-3 pt-1 flex flex-col gap-4">
-                <div className="flex">
-                  <button
-                    onClick={() => setIsSortDropdownOpen(true)}
-                    className="flex items-center gap-1 border-2 border-gray-200 rounded-lg px-4 py-1.5 text-[14px] text-gray-700 font-bold hover:bg-gray-50 transition-colors"
-                  >
-                    Sort by <FiChevronDown size={16} className="text-gray-500" />
-                  </button>
+              <div className="w-full">
+                {/* BADGE FILTERS (Horizontally Scrollable) */}
+                <div
+                  className="bg-white px-3 sm:px-4 py-3 border-b border-gray-100 flex gap-2 overflow-x-auto whitespace-nowrap w-full hide-scroll"
+                  style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {[
+                    { id: 'sort', label: 'Sort by' }
+                  ].map((badge) => (
+                    <button
+                      key={badge.id}
+                      onClick={() => {
+                        if (badge.id === 'sort') setIsSortDropdownOpen(!isSortDropdownOpen);
+                      }}
+                      className={`flex-shrink-0 flex items-center justify-center whitespace-nowrap px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-semibold transition-colors
+                        ${badge.id === 'sort' && isSortDropdownOpen ? 'bg-violet-50 text-violet-700 border-violet-300' : 'text-gray-700 hover:bg-gray-50'}`}
+                    >
+                      {badge.label}
+                    </button>
+                  ))}
                 </div>
-                <h2 className="text-[#333333] font-bold text-[18px]">
-                  {searchResults.length} Results for your search
-                </h2>
+
+                {/* Sort Dropdown Panel */}
+                <AnimatePresence>
+                  {isSortDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="bg-white border-b border-gray-100 shadow-sm overflow-hidden"
+                    >
+                      <div className="px-4 py-2 flex flex-col gap-1">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Sort By</p>
+                        {[
+                          { id: 'Newest First', label: 'Newest First' },
+                          { id: 'Top Rated', label: 'Top Rated' },
+                          { id: 'Name (A to Z)', label: 'Name (A to Z)' },
+                          { id: 'Name (Z to A)', label: 'Name (Z to A)' },
+                        ].map((option) => (
+                          <button
+                            key={option.id}
+                            onClick={() => {
+                              setSortBy(option.id);
+                              setIsSortDropdownOpen(false);
+                            }}
+                            className={`text-left px-3 py-2 text-sm rounded transition-colors ${sortBy === option.id ? 'bg-violet-50 text-violet-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'}`}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className="px-4 pb-3 pt-3 flex flex-col gap-4">
+                  <h2 className="text-[#333333] font-bold text-[18px]">
+                    {searchResults.length} Results for your search
+                  </h2>
+                </div>
               </div>
             )}
 
@@ -725,7 +774,7 @@ const HomePage: React.FC = () => {
             {/* 3️⃣ CATEGORY GRID */}
             <div className="px-4 sm:px-8 mt-8">
               <div className="grid grid-cols-5 gap-2 sm:gap-4 md:gap-6 lg:gap-8 justify-items-center max-w-[400px] sm:max-w-none mx-auto">
-                {dynamicCategories.slice(0, 9).map((cat, index) => {
+                {(showAllCategories ? dynamicCategories : dynamicCategories.slice(0, 4)).map((cat, index) => {
                   const color = categoryColors[index % categoryColors.length];
                   return (
                     <div key={cat._id} className="flex flex-col items-center gap-1.5 sm:gap-2 cursor-pointer w-full max-w-[76px] sm:max-w-[84px] md:max-w-[100px] group" onClick={() => navigate(`/category/${cat._id}`)}>
@@ -742,9 +791,9 @@ const HomePage: React.FC = () => {
                     </div>
                   );
                 })}
-                {/* Static Show More Icon */}
-                {dynamicCategories.length > 4 && (
-                  <div className="flex flex-col items-center gap-1.5 sm:gap-2 cursor-pointer w-full max-w-[76px] sm:max-w-[84px] md:max-w-[100px] group" onClick={() => navigate('/categories')}>
+                {/* Static Show More/Less Icon */}
+                {!showAllCategories && dynamicCategories.length > 4 && (
+                  <div className="flex flex-col items-center gap-1.5 sm:gap-2 cursor-pointer w-full max-w-[76px] sm:max-w-[84px] md:max-w-[100px] group" onClick={() => setShowAllCategories(true)}>
                     <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] md:w-[76px] md:h-[76px] lg:w-[90px] lg:h-[90px] bg-white border border-gray-100 flex items-center justify-center rounded-xl lg:rounded-2xl group-hover:shadow-md transition-all overflow-hidden">
                       <div className="w-[28px] h-[28px] sm:w-[32px] sm:h-[32px] md:w-[40px] md:h-[40px] lg:w-[48px] lg:h-[48px] bg-[#4285F4] rounded-full flex items-center justify-center shadow-sm group-hover:bg-blue-600 transition-colors">
                         <FiChevronDown size={20} className="text-white lg:w-7 lg:h-7" />
@@ -752,6 +801,18 @@ const HomePage: React.FC = () => {
                     </div>
                     <p className="text-[10px] sm:text-[11px] md:text-xs font-bold text-gray-800 text-center leading-tight px-0.5">
                       Show More
+                    </p>
+                  </div>
+                )}
+                {showAllCategories && dynamicCategories.length > 4 && (
+                  <div className="flex flex-col items-center gap-1.5 sm:gap-2 cursor-pointer w-full max-w-[76px] sm:max-w-[84px] md:max-w-[100px] group" onClick={() => setShowAllCategories(false)}>
+                    <div className="w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] md:w-[76px] md:h-[76px] lg:w-[90px] lg:h-[90px] bg-white border border-gray-100 flex items-center justify-center rounded-xl lg:rounded-2xl group-hover:shadow-md transition-all overflow-hidden">
+                      <div className="w-[28px] h-[28px] sm:w-[32px] sm:h-[32px] md:w-[40px] md:h-[40px] lg:w-[48px] lg:h-[48px] bg-[#4285F4] rounded-full flex items-center justify-center shadow-sm group-hover:bg-blue-600 transition-colors">
+                        <FiChevronDown size={20} className="text-white lg:w-7 lg:h-7 rotate-180" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] sm:text-[11px] md:text-xs font-bold text-gray-800 text-center leading-tight px-0.5">
+                      Show Less
                     </p>
                   </div>
                 )}
@@ -941,45 +1002,7 @@ const HomePage: React.FC = () => {
       {isLoginPopupOpen && <LoginPopup onClose={() => setIsLoginPopupOpen(false)} onLoginSuccess={checkAuth} />}
       {isSignUpPopupOpen && <SignUpPopup onClose={() => setIsSignUpPopupOpen(false)} onSignUpSuccess={checkAuth} />}
 
-      {/* SORT BY BOTTOM SHEET / MODAL */}
-      <AnimatePresence>
-        {isSortDropdownOpen && (
-          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50" onClick={() => setIsSortDropdownOpen(false)}>
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-white rounded-t-2xl sm:rounded-2xl pb-8 pt-5 px-4 shadow-xl"
-            >
-              <div className="flex items-center justify-between mb-4 px-2">
-                <h3 className="text-[12px] font-extrabold text-gray-500 uppercase tracking-widest">Sort By</h3>
-                <button onClick={() => setIsSortDropdownOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors bg-gray-100 hover:bg-gray-200 rounded-full p-1.5">
-                  <FiX size={18} />
-                </button>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                {["Newest First", "Top Rated", "Name (A to Z)", "Name (Z to A)"].map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => {
-                      setSortBy(option);
-                      setIsSortDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-3.5 rounded-xl text-[14px] font-semibold transition-all ${sortBy === option
-                        ? "bg-[#f4effc] text-[#814df2]"
-                        : "text-gray-700 hover:bg-gray-50"
-                      }`}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* SORT BY MODAL MOVED INLINE */}
     </UserLayout >
   );
 }

@@ -104,7 +104,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, businessId, 
                         className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative z-10"
                     >
                         {/* Header */}
-                        <div className="bg-gradient-to-r from-violet-600 to-indigo-600 p-4 flex justify-between items-center text-white">
+                        <div className="bg-[#2a73e8] p-4 flex justify-between items-center text-white">
                             <h3 className="font-bold text-lg">{existingReviewId ? "Edit your Review" : "Write a Review"}</h3>
                             <button type="button" onClick={onClose} className="text-white/80 hover:text-white transition">
                                 <FaTimes size={20} />
@@ -153,7 +153,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, businessId, 
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
                                         placeholder="Tell us about your experience..."
-                                        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none resize-none text-sm"
+                                        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#2a73e8] focus:border-transparent outline-none resize-none text-sm"
                                         required
                                     ></textarea>
                                 </div>
@@ -162,7 +162,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, businessId, 
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className={`w-full py-3 rounded-lg text-white font-semibold transition-all shadow-md ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-violet-600 hover:bg-violet-700 hover:shadow-lg active:scale-[0.98]"
+                                    className={`w-full py-3 rounded-lg text-white font-semibold transition-all shadow-md ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-[#2a73e8] hover:bg-blue-700 hover:shadow-lg active:scale-[0.98]"
                                         }`}
                                 >
                                     {loading ? (existingReviewId ? "Updating..." : "Submitting...") : (existingReviewId ? "Update Review" : "Submit Review")}

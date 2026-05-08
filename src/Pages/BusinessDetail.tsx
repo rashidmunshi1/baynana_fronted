@@ -54,7 +54,7 @@ const BusinessDetailPage: React.FC = () => {
     const [business, setBusiness] = useState<BusinessDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [isReviewOpen, setIsReviewOpen] = useState(false);
-    const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [previewImageIndex, setPreviewImageIndex] = useState<number | null>(null);
     const [editReviewData, setEditReviewData] = useState<{ id: string | null; rating: number; review: string }>({ id: null, rating: 0, review: '' });
     const [isHoursOpen, setIsHoursOpen] = useState(false);
 
@@ -234,17 +234,17 @@ const BusinessDetailPage: React.FC = () => {
                     {business.images && business.images.length > 0 && (
                         <div className={`grid gap-2 h-48 md:h-64 mb-6 min-h-0 ${business.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
                             {business.images.length === 1 && (
-                                <div className="bg-gray-200 rounded-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[0]}`)}>
+                                <div className="bg-gray-200 rounded-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImageIndex(0)}>
                                     <img src={`${baseURL}/uploads/business/${business.images[0]}`} alt="b-1" className="w-full h-full object-cover" />
                                 </div>
                             )}
 
                             {business.images.length === 2 && (
                                 <>
-                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[0]}`)}>
+                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImageIndex(0)}>
                                         <img src={`${baseURL}/uploads/business/${business.images[0]}`} alt="b-1" className="w-full h-full object-cover" />
                                     </div>
-                                    <div className="bg-gray-200 rounded-r-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[1]}`)}>
+                                    <div className="bg-gray-200 rounded-r-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImageIndex(1)}>
                                         <img src={`${baseURL}/uploads/business/${business.images[1]}`} alt="b-2" className="w-full h-full object-cover" />
                                     </div>
                                 </>
@@ -252,14 +252,14 @@ const BusinessDetailPage: React.FC = () => {
 
                             {business.images.length === 3 && (
                                 <>
-                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[0]}`)}>
+                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImageIndex(0)}>
                                         <img src={`${baseURL}/uploads/business/${business.images[0]}`} alt="b-1" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="grid grid-rows-2 gap-2 h-full min-h-0">
-                                        <div className="bg-gray-200 rounded-tr-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[1]}`)}>
+                                        <div className="bg-gray-200 rounded-tr-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImageIndex(1)}>
                                             <img src={`${baseURL}/uploads/business/${business.images[1]}`} alt="b-2" className="w-full h-full object-cover" />
                                         </div>
-                                        <div className="bg-gray-200 rounded-br-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[2]}`)}>
+                                        <div className="bg-gray-200 rounded-br-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImageIndex(2)}>
                                             <img src={`${baseURL}/uploads/business/${business.images[2]}`} alt="b-3" className="w-full h-full object-cover" />
                                         </div>
                                     </div>
@@ -268,18 +268,18 @@ const BusinessDetailPage: React.FC = () => {
 
                             {business.images.length >= 4 && (
                                 <>
-                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[0]}`)}>
+                                    <div className="bg-gray-200 rounded-l-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImageIndex(0)}>
                                         <img src={`${baseURL}/uploads/business/${business.images[0]}`} alt="b-1" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="grid grid-rows-2 gap-2 h-full min-h-0">
-                                        <div className="bg-gray-200 rounded-tr-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[1]}`)}>
+                                        <div className="bg-gray-200 rounded-tr-xl h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImageIndex(1)}>
                                             <img src={`${baseURL}/uploads/business/${business.images[1]}`} alt="b-2" className="w-full h-full object-cover" />
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 h-full min-h-0">
-                                            <div className="bg-gray-200 h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[2]}`)}>
+                                            <div className="bg-gray-200 h-full min-h-0 overflow-hidden cursor-pointer" onClick={() => setPreviewImageIndex(2)}>
                                                 <img src={`${baseURL}/uploads/business/${business.images[2]}`} alt="b-3" className="w-full h-full object-cover" />
                                             </div>
-                                            <div className="bg-gray-200 rounded-br-xl h-full min-h-0 overflow-hidden relative cursor-pointer" onClick={() => setPreviewImage(`${baseURL}/uploads/business/${business.images[3]}`)}>
+                                            <div className="bg-gray-200 rounded-br-xl h-full min-h-0 overflow-hidden relative cursor-pointer" onClick={() => setPreviewImageIndex(3)}>
                                                 <img src={`${baseURL}/uploads/business/${business.images[3]}`} alt="b-4" className="w-full h-full object-cover" />
                                                 {business.images.length > 4 && (
                                                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold text-lg md:text-2xl">
@@ -548,28 +548,61 @@ const BusinessDetailPage: React.FC = () => {
                 }}
             />
 
-            {/* Image Preview Modal */}
-            {previewImage && (
+            {/* Image Preview Modal (Gallery Mode) */}
+            {previewImageIndex !== null && business.images && (
                 <div 
-                    className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 md:p-10 transition-opacity duration-300"
-                    onClick={() => setPreviewImage(null)}
+                    className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center transition-opacity duration-300"
+                    onClick={() => setPreviewImageIndex(null)}
                 >
-                    <button 
-                        className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-[110]"
-                        onClick={(e) => { e.stopPropagation(); setPreviewImage(null); }}
-                    >
-                        <svg className="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                    {/* Top Action Bar */}
+                    <div className="absolute top-0 left-0 w-full p-4 flex justify-between items-center z-[110] bg-gradient-to-b from-black/60 to-transparent">
+                        <div className="text-white font-medium">
+                            {previewImageIndex + 1} / {business.images.length}
+                        </div>
+                        <button 
+                            className="text-white hover:text-gray-300 transition-colors bg-black/40 rounded-full p-1"
+                            onClick={(e) => { e.stopPropagation(); setPreviewImageIndex(null); }}
+                        >
+                            <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Navigation Arrows */}
+                    {business.images.length > 1 && (
+                        <>
+                            <button 
+                                className={`absolute left-4 top-1/2 -translate-y-1/2 z-[110] text-white p-2 rounded-full bg-black/40 hover:bg-black/60 transition-all ${previewImageIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                onClick={(e) => { 
+                                    e.stopPropagation(); 
+                                    if (previewImageIndex > 0) setPreviewImageIndex(previewImageIndex - 1); 
+                                }}
+                                disabled={previewImageIndex === 0}
+                            >
+                                <IoIosArrowBack size={32} />
+                            </button>
+                            <button 
+                                className={`absolute right-4 top-1/2 -translate-y-1/2 z-[110] text-white p-2 rounded-full bg-black/40 hover:bg-black/60 transition-all ${previewImageIndex === business.images.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                onClick={(e) => { 
+                                    e.stopPropagation(); 
+                                    if (previewImageIndex < business.images.length - 1) setPreviewImageIndex(previewImageIndex + 1); 
+                                }}
+                                disabled={previewImageIndex === business.images.length - 1}
+                            >
+                                <IoIosArrowForward size={32} />
+                            </button>
+                        </>
+                    )}
+
                     <div 
-                        className="relative max-w-full max-h-full"
+                        className="relative max-w-full max-h-full px-4 md:px-16"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <img 
-                            src={previewImage} 
-                            alt="Preview" 
-                            className="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain border-2 border-white/10"
+                            src={`${baseURL}/uploads/business/${business.images[previewImageIndex]}`} 
+                            alt={`Preview ${previewImageIndex + 1}`} 
+                            className="max-w-full max-h-[85vh] rounded object-contain"
                         />
                     </div>
                 </div>

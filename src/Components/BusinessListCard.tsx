@@ -65,7 +65,7 @@ const BusinessListCard: React.FC<Props> = ({ business }) => {
                 {/* Images Row */}
                 <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 pt-4 pb-3">
                     {business.images && business.images.length > 0 ? (
-                        business.images.slice(0, 3).map((img: string, idx: number) => (
+                        business.images.map((img: string, idx: number) => (
                             <div key={idx} className="w-[110px] sm:w-[130px] h-[140px] flex-shrink-0 bg-[#e5e5e5] rounded-xl overflow-hidden shadow-sm">
                                 <img src={`${baseURL}/uploads/business/${img}`} alt="" className="w-full h-full object-cover" />
                             </div>
