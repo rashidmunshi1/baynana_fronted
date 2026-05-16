@@ -96,6 +96,10 @@ const CategoryBusinesses = () => {
     ? businesses.filter((b: any) => b.subcategories && b.subcategories.some((s: any) => s._id === selectedSub))
     : [...businesses];
 
+  const maxRating = filteredBusinesses.length > 0 
+    ? Math.max(...filteredBusinesses.map((b: any) => b.rating || 0))
+    : 0;
+
   // Apply Sorting
   filteredBusinesses = filteredBusinesses.sort((a, b) => {
     if (sortBy === "top_rated") {
@@ -268,7 +272,7 @@ const CategoryBusinesses = () => {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <BusinessListCard business={biz} />
+                      <BusinessListCard business={biz} isTopRated={maxRating > 0 && (biz.rating || 0) === maxRating} />
                     </motion.div>
                   ))
                 ) : (

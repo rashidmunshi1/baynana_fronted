@@ -57,13 +57,28 @@ const BusinessDetailPage: React.FC = () => {
     const [previewImageIndex, setPreviewImageIndex] = useState<number | null>(null);
     const [editReviewData, setEditReviewData] = useState<{ id: string | null; rating: number; review: string }>({ id: null, rating: 0, review: '' });
     const [isHoursOpen, setIsHoursOpen] = useState(false);
+    const [isTopRated, setIsTopRated] = useState(false);
 
     const currentUserId = localStorage.getItem("userId");
 
     const fetchBusiness = async () => {
         try {
             const res = await axios.get(`${baseURL}/api/user/business/${id}`);
-            setBusiness(res.data);
+            const fetchedBusiness = res.data;
+            setBusiness(fetchedBusiness);
+            
+            if (fetchedBusiness && fetchedBusiness.category && fetchedBusiness.category._id) {
+                try {
+                    const catRes = await axios.get(`${baseURL}/api/user/business-by-category/${fetchedBusiness.category._id}`);
+                    const bizs = catRes.data.businesses || [];
+                    if (bizs.length > 0) {
+                        const maxRating = Math.max(...bizs.map((b: any) => b.rating || 0));
+                        setIsTopRated(maxRating > 0 && (fetchedBusiness.rating || 0) === maxRating);
+                    }
+                } catch (catErr) {
+                    console.error("Failed to fetch category businesses:", catErr);
+                }
+            }
         } catch (err) {
             console.error("Failed to fetch business:", err);
         } finally {
@@ -183,17 +198,23 @@ const BusinessDetailPage: React.FC = () => {
                             })()}
                             
                             <div className="flex items-center gap-3 mt-1.5 text-[11px] font-bold">
-                                <div className="flex items-center gap-1">
-                                    <MdVerified size={14} /> verified
-                                </div>
-                                <div className="flex items-center gap-1 text-yellow-300">
-                                    <div className="bg-yellow-300 text-[#2a73e8] rounded-full p-[1px]">
-                                        <FaStar size={8} />
-                                    </div> trusted
-                                </div>
-                                <div className="flex items-center gap-1 text-white">
-                                    <FaStar size={12} className="text-white" /> top rated
-                                </div>
+                                {business.isPaid && (
+                                    <>
+                                        <div className="flex items-center gap-1">
+                                            <MdVerified size={14} /> verified
+                                        </div>
+                                        <div className="flex items-center gap-1 text-yellow-300">
+                                            <div className="bg-yellow-300 text-[#2a73e8] rounded-full p-[1px]">
+                                                <FaStar size={8} />
+                                            </div> trusted
+                                        </div>
+                                    </>
+                                )}
+                                {isTopRated && (
+                                    <div className="flex items-center gap-1 text-white">
+                                        <FaStar size={12} className="text-white" /> top rated
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

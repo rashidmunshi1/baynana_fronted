@@ -25,9 +25,10 @@ interface Business {
 
 interface Props {
     business: Business;
+    isTopRated?: boolean;
 }
 
-const BusinessListCard: React.FC<Props> = ({ business }) => {
+const BusinessListCard: React.FC<Props> = ({ business, isTopRated }) => {
     const navigate = useNavigate();
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
@@ -83,21 +84,25 @@ const BusinessListCard: React.FC<Props> = ({ business }) => {
                     {/* Badges Area */}
                     <div className="flex items-center gap-3 mb-2.5">
                         {business.isPaid && (
-                            <div className="flex items-center gap-1 text-[#006aff]">
-                                <MdVerified size={16} />
-                                <span className="text-[13px] font-bold tracking-tight lowercase">verified</span>
+                            <>
+                                <div className="flex items-center gap-1 text-[#006aff]">
+                                    <MdVerified size={16} />
+                                    <span className="text-[13px] font-bold tracking-tight lowercase">verified</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-[#ffc107]">
+                                    <div className="bg-[#ffc107] text-white rounded-full p-[2px] flex items-center justify-center">
+                                        <FaStar size={10} />
+                                    </div>
+                                    <span className="text-[13px] font-bold tracking-tight lowercase">trusted</span>
+                                </div>
+                            </>
+                        )}
+                        {isTopRated && (
+                            <div className="flex items-center gap-1 text-black">
+                                <FaRegThumbsUp size={14} className="mt-[-2px]" />
+                                <span className="text-[13px] font-bold tracking-tight lowercase">top rated</span>
                             </div>
                         )}
-                        <div className="flex items-center gap-1 text-[#ffc107]">
-                            <div className="bg-[#ffc107] text-white rounded-full p-[2px] flex items-center justify-center">
-                                <FaStar size={10} />
-                            </div>
-                            <span className="text-[13px] font-bold tracking-tight lowercase">trusted</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-black">
-                            <FaRegThumbsUp size={14} className="mt-[-2px]" />
-                            <span className="text-[13px] font-bold tracking-tight lowercase">top rated</span>
-                        </div>
                     </div>
 
                     {/* Title & Subtitle */}

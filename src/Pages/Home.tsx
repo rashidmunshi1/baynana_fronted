@@ -56,6 +56,11 @@ const HomePage: React.FC = () => {
     return results;
   }, [searchResults, sortBy]);
 
+  const maxRatingSearch = sortedSearchResults.length > 0
+    ? Math.max(...sortedSearchResults.map((b: any) => b.rating || 0))
+    : 0;
+
+
   /* 📜 SEARCH HISTORY */
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -771,7 +776,7 @@ const HomePage: React.FC = () => {
 
             <div className="flex flex-col">
               {sortedSearchResults.map((biz) => (
-                <BusinessListCard key={biz._id} business={biz} />
+                <BusinessListCard key={biz._id} business={biz} isTopRated={maxRatingSearch > 0 && (biz.rating || 0) === maxRatingSearch} />
               ))}
             </div>
           </div>

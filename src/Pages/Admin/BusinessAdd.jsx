@@ -338,7 +338,16 @@ const AddBusiness = () => {
                 <Form.Item label="Business Images">
                   <Upload
                     listType="picture"
-                    beforeUpload={(file) => {
+                    fileList={fileList}
+                    multiple
+                    maxCount={8}
+                    beforeUpload={(file, fileListArg) => {
+                      if (fileList.length + fileListArg.indexOf(file) >= 8) {
+                        if (fileList.length + fileListArg.indexOf(file) === 8) {
+                          message.error("You can only upload up to 8 images!");
+                        }
+                        return false;
+                      }
                       setFileList((prev) => [...prev, file]);
                       return false;
                     }}
@@ -346,9 +355,11 @@ const AddBusiness = () => {
                       setFileList((prev) => prev.filter((f) => f.uid !== file.uid))
                     }
                   >
-                    <Button size="large" icon={<UploadOutlined />} style={{ borderRadius: 10 }}>
-                      Select Images
-                    </Button>
+                    {fileList.length < 8 && (
+                      <Button size="large" icon={<UploadOutlined />} style={{ borderRadius: 10 }}>
+                        Select Images (Max 8)
+                      </Button>
+                    )}
                   </Upload>
                 </Form.Item>
               </Col>
