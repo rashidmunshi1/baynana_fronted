@@ -73,7 +73,10 @@ const CategoryBusinesses = () => {
       }
     };
 
-    if (id) fetchData();
+    if (id) {
+      window.scrollTo(0, 0);
+      fetchData();
+    }
   }, [id]);
 
   useEffect(() => {
