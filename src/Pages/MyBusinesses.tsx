@@ -6,7 +6,6 @@ import { IoArrowForward } from "react-icons/io5";
 import UserLayout from "../DesignLayout/UserLayout";
 import { Business } from "../Components/types";
 import baseURL from "../config";
-import LoadingSpinner from "../Components/LoadingSpinner";
 
 const MyBusinesses: React.FC = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);

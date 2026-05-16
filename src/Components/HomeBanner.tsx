@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Slider from 'react-slick';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { RotateLoader } from 'react-spinners';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import baseURL from "../config";
@@ -17,13 +16,8 @@ const BannerImage = ({ src, alt }: { src: string; alt: string }) => {
     const [isLoaded, setIsLoaded] = useState(false);
 
     return (
-        <div className="relative w-full aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1] bg-gray-200 overflow-hidden">
+        <div className={`relative w-full aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1] bg-gray-200 overflow-hidden ${!isLoaded ? 'animate-pulse' : ''}`}>
             {/* Loading Skeleton/Spinner */}
-            {!isLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <RotateLoader color="#3F87DF" size={10} />
-                </div>
-            )}
             <img
                 src={src}
                 alt={alt}

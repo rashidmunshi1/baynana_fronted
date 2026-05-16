@@ -12,7 +12,6 @@ import LoginPopup from '../Components/LoginPopup';
 import SignUpPopup from '../Components/SignUpPopup';
 import HomeBanner from '../Components/HomeBanner';
 import baseURL from "../config";
-import LoadingSpinner from "../Components/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShimmerBusinessCard, ShimmerCategory, ShimmerBanner } from '../Components/ShimmerCard';
 import Slider from 'react-slick';

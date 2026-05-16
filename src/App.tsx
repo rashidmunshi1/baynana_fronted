@@ -16,7 +16,6 @@ import CategoryBusinesses from "./Pages/Category/CategoryBusinesses";
 import BusinessDetailPage from "./Pages/BusinessDetail";
 import AllEvents from "./Pages/AllEvents";
 import AllVideos from "./Pages/AllVideos";
-import { RouteLoader } from "./Components/RouteLoader";
 // Helper component for protected routes
 const RequireAuth = ({ children }: { children: JSX.Element }) => {
   const token = localStorage.getItem("token");
@@ -29,7 +28,6 @@ const RequireAuth = ({ children }: { children: JSX.Element }) => {
 const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <RouteLoader />
       <Routes>
 
         {/* ROOT FIX */}
