@@ -14,6 +14,7 @@ import HomeBanner from '../Components/HomeBanner';
 import baseURL from "../config";
 import LoadingSpinner from "../Components/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
+import { ShimmerBusinessCard, ShimmerCategory, ShimmerBanner } from '../Components/ShimmerCard';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -690,7 +691,13 @@ const HomePage: React.FC = () => {
           </div>
         ) : searchText ? (
           <div className="max-w-7xl mx-auto mt-2">
-            {loading && <LoadingSpinner text="Searching..." size={12} />}
+            {loading && (
+              <div className="flex flex-col">
+                <ShimmerBusinessCard />
+                <ShimmerBusinessCard />
+                <ShimmerBusinessCard />
+              </div>
+            )}
 
 
             {!loading && searchResults.length === 0 && searchExcelData.length === 0 && (
@@ -774,7 +781,9 @@ const HomePage: React.FC = () => {
             {/* 3️⃣ CATEGORY GRID */}
             <div className="px-4 sm:px-8 mt-8">
               <div className="grid grid-cols-5 gap-2 sm:gap-4 md:gap-6 lg:gap-8 justify-items-center max-w-[400px] sm:max-w-none mx-auto">
-                {(showAllCategories ? dynamicCategories : dynamicCategories.slice(0, 4)).map((cat, index) => {
+                {dynamicCategories.length === 0 ? (
+                  Array.from({ length: 5 }).map((_, index) => <ShimmerCategory key={index} />)
+                ) : (showAllCategories ? dynamicCategories : dynamicCategories.slice(0, 4)).map((cat, index) => {
                   const color = categoryColors[index % categoryColors.length];
                   return (
                     <div key={cat._id} className="flex flex-col items-center gap-1.5 sm:gap-2 cursor-pointer w-full max-w-[76px] sm:max-w-[84px] md:max-w-[100px] group" onClick={() => navigate(`/category/${cat._id}`)}>

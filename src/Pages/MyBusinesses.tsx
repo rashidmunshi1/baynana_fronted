@@ -91,7 +91,27 @@ const MyBusinesses: React.FC = () => {
 
         {/* 📋 BUSINESS LIST */}
         {loading ? (
-          <LoadingSpinner text="Fetching your businesses..." />
+          <div className="grid gap-4">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex gap-3 mb-3 animate-pulse">
+                <div className="w-24 h-24 flex-shrink-0 bg-gray-200 rounded-md"></div>
+                <div className="flex-1 flex flex-col justify-between">
+                  <div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2 mb-3"></div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 bg-gray-200 rounded w-12"></div>
+                      <div className="h-3 bg-gray-200 rounded w-16"></div>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <div className="h-6 bg-gray-200 rounded w-20"></div>
+                    <div className="h-6 bg-gray-200 rounded w-20"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : businesses.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
             <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png" alt="Empty" className="w-40 mx-auto opacity-50 mb-3" />

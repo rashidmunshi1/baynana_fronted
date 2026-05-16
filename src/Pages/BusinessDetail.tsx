@@ -15,7 +15,7 @@ import { FiSend } from "react-icons/fi";
 import UserLayout from "../DesignLayout/UserLayout";
 import ReviewModal from "../Components/ReviewModal";
 import baseURL from "../config";
-import LoadingSpinner from "../Components/LoadingSpinner";
+import { ShimmerBusinessDetail } from '../Components/ShimmerCard';
 
 interface BusinessDetail {
     _id: string;
@@ -122,9 +122,7 @@ const BusinessDetailPage: React.FC = () => {
     if (loading) {
         return (
             <UserLayout>
-                <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-                    <LoadingSpinner text="Loading business details..." />
-                </div>
+                <ShimmerBusinessDetail />
             </UserLayout>
         );
     }

@@ -5,6 +5,7 @@ import { RotateLoader } from 'react-spinners';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import baseURL from "../config";
+import { ShimmerBanner } from './ShimmerCard';
 
 interface BannerProps {
     banner: any[];
@@ -38,9 +39,7 @@ const BannerImage = ({ src, alt }: { src: string; alt: string }) => {
 const HomeBanner: React.FC<BannerProps> = ({ banner, loading }) => {
     if (loading) {
         return (
-            <div className="mt-6 w-full aspect-[16/7] sm:aspect-[21/9] md:aspect-[3/1] bg-gray-200 rounded-2xl animate-pulse flex items-center justify-center">
-                <RotateLoader color="#3F87DF" size={12} />
-            </div>
+            <ShimmerBanner />
         );
     }
 
