@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiArrowLeft, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 import UserLayout from "../DesignLayout/UserLayout";
 import baseURL from "../config";
 import LoadingSpinner from "../Components/LoadingSpinner";
@@ -9,6 +10,7 @@ import LoadingSpinner from "../Components/LoadingSpinner";
 const AllEvents: React.FC = () => {
   const navigate = useNavigate();
   const [eventBanners, setEventBanners] = useState<any[]>([]);
+  const [selectedEventBanner, setSelectedEventBanner] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,7 +60,7 @@ const AllEvents: React.FC = () => {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
               {eventBanners.map((eventBanner) => (
-                <div key={eventBanner._id} className="cursor-pointer group">
+                <div key={eventBanner._id} className="cursor-pointer group" onClick={() => setSelectedEventBanner(eventBanner)}>
                   <div className="w-full aspect-[4/5] bg-[#fdf3f0] rounded-xl overflow-hidden group-hover:shadow-lg transition-all duration-300 border border-gray-100 group-hover:border-gray-200">
                     <img
                       src={`${baseURL}/${eventBanner.image}`}
@@ -77,6 +79,39 @@ const AllEvents: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* EVENT BANNER IMAGE PREVIEW MODAL */}
+      <AnimatePresence>
+        {selectedEventBanner && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-8">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedEventBanner(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-3xl max-h-[90vh] flex flex-col items-center justify-center z-[111]"
+            >
+              <button
+                onClick={() => setSelectedEventBanner(null)}
+                className="absolute -top-10 right-0 sm:-right-10 text-white hover:text-gray-300 transition-colors bg-black/50 hover:bg-black/80 p-2 rounded-full"
+              >
+                <FiX size={24} />
+              </button>
+              <img
+                src={`${baseURL}/${selectedEventBanner.image}`}
+                alt={selectedEventBanner.title || "Event Banner"}
+                className="w-full h-auto max-h-[85vh] object-contain rounded-lg shadow-2xl"
+              />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </UserLayout>
   );
 };

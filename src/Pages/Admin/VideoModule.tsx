@@ -220,7 +220,15 @@ const VideoModule: React.FC = () => {
 
     const uploadProps = {
         onRemove: (file: any) => { setFileList([]); },
-        beforeUpload: (file: any) => { setFileList([file]); return false; },
+        beforeUpload: (file: any) => { 
+            const isLt20M = file.size / 1024 / 1024 <= 20;
+            if (!isLt20M) {
+                message.error('Video must be smaller than 20MB!');
+                return Upload.LIST_IGNORE;
+            }
+            setFileList([file]); 
+            return false; 
+        },
         fileList,
         accept: "video/*"
     };

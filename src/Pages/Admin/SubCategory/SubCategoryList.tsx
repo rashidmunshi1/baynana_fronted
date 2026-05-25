@@ -20,6 +20,7 @@ interface SubCategory {
 
 const SubCategoryList: React.FC = () => {
     const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+    const [searchText, setSearchText] = useState("");
     const [loading, setLoading] = useState(true);
     const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -196,24 +197,38 @@ const SubCategoryList: React.FC = () => {
         }
     ];
 
+    const filteredSubCategories = subCategories.filter(subCategory =>
+        subCategory.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        (subCategory.parentCategory && subCategory.parentCategory.name.toLowerCase().includes(searchText.toLowerCase()))
+    );
+
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">Sub Categories</h2>
-                <Link to="/admin/subcategory-add">
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
+                <div className="flex gap-4">
+                    <Input.Search
+                        placeholder="Search Subcategory..."
+                        allowClear
+                        onChange={(e) => setSearchText(e.target.value)}
+                        style={{ width: 250 }}
                         size="large"
-                        style={{ backgroundColor: "#7C3AED", borderColor: "#7C3AED" }}
-                    >
-                        Add New Sub Category
-                    </Button>
-                </Link>
+                    />
+                    <Link to="/admin/subcategory-add">
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            size="large"
+                            style={{ backgroundColor: "#7C3AED", borderColor: "#7C3AED" }}
+                        >
+                            Add New Sub Category
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             <Table
-                dataSource={subCategories}
+                dataSource={filteredSubCategories}
                 columns={columns}
                 rowKey="_id"
                 loading={loading}

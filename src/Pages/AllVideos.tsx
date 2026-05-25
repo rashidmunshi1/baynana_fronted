@@ -66,6 +66,14 @@ const AllVideos: React.FC = () => {
                       controls
                       playsInline
                       preload="metadata"
+                      onPlay={(e) => {
+                        const allVideos = document.querySelectorAll('video');
+                        allVideos.forEach((vid) => {
+                          if (vid !== e.target) {
+                            vid.pause();
+                          }
+                        });
+                      }}
                     />
                   </div>
                   <p className="text-xs sm:text-sm text-gray-800 font-medium mt-2.5 leading-snug line-clamp-2">

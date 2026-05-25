@@ -83,6 +83,7 @@ const HomePage: React.FC = () => {
 
   /* 🎉 EVENT BANNER STATE */
   const [eventBanners, setEventBanners] = useState<any[]>([]);
+  const [selectedEventBanner, setSelectedEventBanner] = useState<any>(null);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -863,7 +864,7 @@ const HomePage: React.FC = () => {
                 </div>
                 <div className="flex overflow-x-auto hide-scrollbar px-4 sm:px-8 gap-4 md:gap-6 lg:gap-8 pb-4 snap-x">
                   {eventBanners.slice(0, 4).map((eventBanner) => (
-                    <div key={eventBanner._id} className="flex-shrink-0 w-[140px] sm:w-[180px] md:w-[240px] lg:w-[280px] xl:w-[340px] snap-center cursor-pointer">
+                    <div key={eventBanner._id} className="flex-shrink-0 w-[140px] sm:w-[180px] md:w-[240px] lg:w-[280px] xl:w-[340px] snap-center cursor-pointer" onClick={() => setSelectedEventBanner(eventBanner)}>
                       <div className="w-full aspect-[4/5] bg-[#fdf3f0] rounded-[8px] xl:rounded-[12px] overflow-hidden hover:shadow-md transition-all border border-gray-100">
                         <img
                           src={`${baseURL}/${eventBanner.image}`}
@@ -897,6 +898,14 @@ const HomePage: React.FC = () => {
                           controls
                           playsInline
                           preload="metadata"
+                          onPlay={(e) => {
+                            const allVideos = document.querySelectorAll('video');
+                            allVideos.forEach((vid) => {
+                              if (vid !== e.target) {
+                                vid.pause();
+                              }
+                            });
+                          }}
                         />
                       </div>
                       <p className="text-[9px] sm:text-[10px] md:text-xs xl:text-sm text-gray-800 font-medium mt-1.5 xl:mt-2.5 leading-[1.2] lg:leading-[1.4] line-clamp-2 pr-2">
@@ -989,6 +998,39 @@ const HomePage: React.FC = () => {
               <div className="p-4 sm:p-6 overflow-y-auto whitespace-pre-wrap text-gray-700 text-sm sm:text-base leading-relaxed">
                 {selectedExcelCard.description}
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* EVENT BANNER IMAGE PREVIEW MODAL */}
+      <AnimatePresence>
+        {selectedEventBanner && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-8">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedEventBanner(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-3xl max-h-[90vh] flex flex-col items-center justify-center z-[111]"
+            >
+              <button
+                onClick={() => setSelectedEventBanner(null)}
+                className="absolute -top-10 right-0 sm:-right-10 text-white hover:text-gray-300 transition-colors bg-black/50 hover:bg-black/80 p-2 rounded-full"
+              >
+                <FiX size={24} />
+              </button>
+              <img
+                src={`${baseURL}/${selectedEventBanner.image}`}
+                alt={selectedEventBanner.title || "Event Banner"}
+                className="w-full h-auto max-h-[85vh] object-contain rounded-lg shadow-2xl"
+              />
             </motion.div>
           </div>
         )}

@@ -220,8 +220,17 @@ const EventBanner: React.FC = () => {
 
     const uploadProps = {
         onRemove: (file: any) => { setFileList([]); },
-        beforeUpload: (file: any) => { setFileList([file]); return false; },
+        beforeUpload: (file: any) => { 
+            const isLt5M = file.size / 1024 / 1024 <= 5;
+            if (!isLt5M) {
+                message.error('Image must be smaller than 5MB!');
+                return Upload.LIST_IGNORE;
+            }
+            setFileList([file]); 
+            return false; 
+        },
         fileList,
+        accept: "image/*"
     };
 
     return (

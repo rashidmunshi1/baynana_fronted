@@ -26,6 +26,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user }) => {
     localStorage.removeItem('userPhone');
     localStorage.removeItem('userId');
     localStorage.removeItem('profileImage');
+    localStorage.removeItem('user'); // Also remove user key
     onClose();
     window.location.reload();
   };
