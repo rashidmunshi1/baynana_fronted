@@ -35,7 +35,10 @@ const UpdateBusiness = () => {
     // Fetch Subcategories
     axios
       .get(`${baseURL}/api/admin/all-subcategory`)
-      .then((res) => setSubcategories(res.data))
+      .then((res) => {
+        const sorted = (res.data || []).sort((a: any, b: any) => (a.name || "").localeCompare(b.name || ""));
+        setSubcategories(sorted);
+      })
       .catch(() => message.error("Failed to load subcategories"));
 
     // Fetch Business Data
@@ -195,6 +198,10 @@ const UpdateBusiness = () => {
                 size="large"
                 placeholder="Select Sub Categories"
                 style={{ borderRadius: 8 }}
+                showSearch
+                filterOption={(input, option: any) =>
+                  (option?.label ?? '').toLowerCase().startsWith(input.toLowerCase())
+                }
                 options={subcategories.map((s) => ({ label: s.name, value: s._id }))}
               />
             </Form.Item>

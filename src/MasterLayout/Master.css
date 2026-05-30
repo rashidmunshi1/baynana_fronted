@@ -126,3 +126,56 @@
 .mobile-screen-sidebar::-webkit-scrollbar {
   width: 0;
 }
+
+/* ============================================
+   ADMIN HORIZONTAL SCROLLBAR (MOBILE)
+   ============================================ */
+.admin-horizontal-scroll {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 16px;
+  gap: 8px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-horizontal-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-scroll-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  background-color: #f1f5f9;
+  text-decoration: none;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+}
+
+.admin-scroll-item:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.admin-scroll-item-active {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.admin-scroll-item-active:hover {
+  color: #ffffff !important;
+}
+
+.admin-scroll-item .admin-icon {
+  font-size: 14px;
+}

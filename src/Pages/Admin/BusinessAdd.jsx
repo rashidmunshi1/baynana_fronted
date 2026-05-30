@@ -51,7 +51,10 @@ const AddBusiness = () => {
   useEffect(() => {
     axios
       .get(`${baseURL}/api/admin/all-subcategory`)
-      .then((res) => setSubcategories(res.data))
+      .then((res) => {
+        const sorted = (res.data || []).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        setSubcategories(sorted);
+      })
       .catch(() => message.error("Failed to load subcategories"));
   }, []);
 
@@ -235,6 +238,10 @@ const AddBusiness = () => {
                     size="large"
                     placeholder="Select Sub Categories"
                     style={{ borderRadius: 10 }}
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.label ?? '').toLowerCase().startsWith(input.toLowerCase())
+                    }
                     options={subcategories.map((s) => ({ label: s.name, value: s._id }))}
                   />
                 </Form.Item>

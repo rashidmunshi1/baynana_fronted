@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FiSearch, FiMapPin, FiMic, FiChevronDown, FiChevronRight, FiPlay, FiBriefcase, FiClock, FiX, FiTrash2, FiArrowRight, FiTrendingUp } from "react-icons/fi";
-import { FaUserCircle, FaBell } from "react-icons/fa";
+import { FaUserCircle, FaBell, FaWrench, FaUtensils, FaShoppingBag, FaHeartbeat, FaGraduationCap, FaCar } from "react-icons/fa";
 import UserLayout from "../DesignLayout/UserLayout";
 import SidebarMenu from "../Components/SidebarMenu";
 import BusinessListCard from "../Components/BusinessListCard";
@@ -24,6 +24,29 @@ interface User {
   mobile?: string;
   profileImage?: string;
 }
+
+const getCategoryFallbackIcon = (name: string) => {
+  const lower = (name || '').toLowerCase();
+  if (lower.includes('food') || lower.includes('restaurant') || lower.includes('cafe') || lower.includes('hotel') || lower.includes('bakery') || lower.includes('eat') || lower.includes('dry') || lower.includes('sweet') || lower.includes('snack')) {
+    return <FaUtensils />;
+  }
+  if (lower.includes('doctor') || lower.includes('health') || lower.includes('medical') || lower.includes('hospital') || lower.includes('clinic') || lower.includes('dental') || lower.includes('pharma')) {
+    return <FaHeartbeat />;
+  }
+  if (lower.includes('car') || lower.includes('auto') || lower.includes('bike') || lower.includes('travel') || lower.includes('cab') || lower.includes('taxi') || lower.includes('transport') || lower.includes('tours')) {
+    return <FaCar />;
+  }
+  if (lower.includes('school') || lower.includes('college') || lower.includes('education') || lower.includes('academy') || lower.includes('class') || lower.includes('learn') || lower.includes('coaching')) {
+    return <FaGraduationCap />;
+  }
+  if (lower.includes('repair') || lower.includes('service') || lower.includes('plumber') || lower.includes('electrician') || lower.includes('carpenter') || lower.includes('mechanic') || lower.includes('hardware') || lower.includes('hammer') || lower.includes('ac')) {
+    return <FaWrench />;
+  }
+  if (lower.includes('shop') || lower.includes('grocery') || lower.includes('store') || lower.includes('market') || lower.includes('mall') || lower.includes('buy') || lower.includes('sell') || lower.includes('gift') || lower.includes('supermarket')) {
+    return <FaShoppingBag />;
+  }
+  return null;
+};
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -73,6 +96,7 @@ const HomePage: React.FC = () => {
   /* 📂 CATEGORY STATES */
   const [dynamicCategories, setDynamicCategories] = useState<any[]>([]);
   const [showAllCategories, setShowAllCategories] = useState(false);
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
 
   /* 🖼️ BANNER STATE */
   const [banner, setBanner] = useState<any[]>([]);
@@ -178,7 +202,8 @@ const HomePage: React.FC = () => {
     const fetchCategories = async () => {
       try {
         const res = await axios.get(`${baseURL}/api/user/category/list`);
-        setDynamicCategories(res.data || []);
+        const sorted = (res.data || []).sort((a: any, b: any) => (a.name || "").localeCompare(b.name || ""));
+        setDynamicCategories(sorted);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
       }
@@ -790,13 +815,27 @@ const HomePage: React.FC = () => {
                   Array.from({ length: 5 }).map((_, index) => <ShimmerCategory key={index} />)
                 ) : (showAllCategories ? dynamicCategories : dynamicCategories.slice(0, 4)).map((cat, index) => {
                   const color = categoryColors[index % categoryColors.length];
+                  const hasImage = cat.image && !failedImages[cat._id];
+                  const fallbackIcon = getCategoryFallbackIcon(cat.name);
+
                   return (
                     <div key={cat._id} className="flex flex-col items-center gap-1.5 sm:gap-2 cursor-pointer w-full max-w-[76px] sm:max-w-[84px] md:max-w-[100px] group" onClick={() => navigate(`/category/${cat._id}`)}>
-                      <div className={`w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] md:w-[76px] md:h-[76px] lg:w-[90px] lg:h-[90px] ${cat.icon ? color.bg : 'bg-gray-50 border border-gray-100'} flex items-center justify-center rounded-xl lg:rounded-2xl group-hover:shadow-md transition-all overflow-hidden`}>
+                      <div className={`w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] md:w-[76px] md:h-[76px] lg:w-[90px] lg:h-[90px] ${(cat.icon || !hasImage) ? color.bg : 'bg-gray-50 border border-gray-100'} flex items-center justify-center rounded-xl lg:rounded-2xl group-hover:shadow-md transition-all overflow-hidden`}>
                         {cat.icon ? (
                           <span className={`text-[18px] sm:text-xl md:text-2xl lg:text-4xl ${color.text}`}>{cat.icon}</span>
+                        ) : hasImage ? (
+                          <img 
+                            src={`${baseURL}/uploads/category/${cat.image}`} 
+                            alt={cat.name} 
+                            className="w-full h-full object-cover" 
+                            onError={() => setFailedImages(prev => ({ ...prev, [cat._id]: true }))}
+                          />
+                        ) : fallbackIcon ? (
+                          <span className={`text-[18px] sm:text-xl md:text-2xl lg:text-4xl ${color.text}`}>{fallbackIcon}</span>
                         ) : (
-                          <img src={`${baseURL}/uploads/category/${cat.image}`} alt={cat.name} className="w-full h-full object-cover" />
+                          <span className={`text-[18px] sm:text-xl md:text-2xl lg:text-3xl font-extrabold ${color.text}`}>
+                            {(cat.name || 'B').charAt(0).toUpperCase()}
+                          </span>
                         )}
                       </div>
                       <p className="text-[10px] sm:text-[11px] md:text-xs font-bold text-gray-800 text-center leading-tight break-words px-0.5">
