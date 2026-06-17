@@ -100,7 +100,9 @@ const AddBusiness = () => {
     const formData = new FormData();
     Object.keys(values).forEach((key) => {
       if (!["services", "subcategories", "socialLinks", ...days].includes(key)) {
-        formData.append(key, values[key]);
+        if (values[key] !== undefined && values[key] !== null) {
+          formData.append(key, values[key]);
+        }
       }
     });
 

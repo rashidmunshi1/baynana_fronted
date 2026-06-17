@@ -123,7 +123,9 @@ const UpdateBusiness = () => {
     Object.keys(values).forEach((key) => {
       // Exclude complex objects or special handling fields from direct append if needed
       if (!["services", "subcategories", "images", "socialLinks", ...days].includes(key)) {
-        formData.append(key, values[key]);
+        if (values[key] !== undefined && values[key] !== null) {
+          formData.append(key, values[key]);
+        }
       }
     });
 
