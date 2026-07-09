@@ -30,6 +30,10 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ onClose, onSignUpSuccess }) =
             // Using the specific signup send-otp which checks duplicates
             const res = await axios.post(`${baseURL}/api/user/signup/send-otp`, { phoneNumber });
             if (res.data.success) {
+                // Auto-fill OTP if returned from backend (testing mode)
+                if (res.data.otp) {
+                    setOtp(res.data.otp);
+                }
                 setStep(2);
             } else {
                 setError(res.data.message || 'Error sending OTP.');

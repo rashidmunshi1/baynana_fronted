@@ -28,6 +28,10 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ onClose, onLoginSuccess }) => {
         try {
             const res = await axios.post(`${baseURL}/api/user/login/send-otp`, { phoneNumber });
             if (res.data.success) {
+                // Auto-fill OTP if returned from backend (testing mode)
+                if (res.data.otp) {
+                    setOtp(res.data.otp);
+                }
                 setStep(2);
             } else {
                 setError(res.data.message || 'Error sending OTP.');

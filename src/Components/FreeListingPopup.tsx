@@ -27,6 +27,10 @@ const FreeListingPopup: React.FC<FreeListingPopupProps> = ({ onClose }) => {
       const res = await axios.post(`${baseURL}/api/user/send-otp`, { phoneNumber });
       console.log('OTP sent to', phoneNumber);
       if (res.data.success) {
+        // Auto-fill OTP if returned from backend (testing mode)
+        if (res.data.otp) {
+          setOtp(res.data.otp);
+        }
         setStep(2);
       } else {
         setError('Failed to send OTP. Please try again.');
