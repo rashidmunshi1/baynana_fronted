@@ -17,7 +17,6 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ onClose, onSignUpSuccess }) =
     const [name, setName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [otpAutofilled, setOtpAutofilled] = useState(false);
 
     const handleSendOtp = async () => {
         if (!/^\d{10}$/.test(phoneNumber)) {
@@ -31,13 +30,6 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ onClose, onSignUpSuccess }) =
             // Using the specific signup send-otp which checks duplicates
             const res = await axios.post(`${baseURL}/api/user/signup/send-otp`, { phoneNumber });
             if (res.data.success) {
-                // Auto-fill OTP if returned from backend (testing mode)
-                if (res.data.otp) {
-                    setOtp(res.data.otp);
-                    setOtpAutofilled(true);
-                } else {
-                    setOtpAutofilled(false);
-                }
                 setStep(2);
             } else {
                 setError(res.data.message || 'Error sending OTP.');
@@ -150,12 +142,6 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ onClose, onSignUpSuccess }) =
                         </div>
 
                         <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">One Time Password (OTP)</label>
-                        {otpAutofilled && (
-                            <div className="bg-green-50 text-green-600 p-2 rounded mb-3 text-sm text-center border border-green-200 flex items-center justify-center gap-2">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                                OTP Auto-filled (Testing Mode)
-                            </div>
-                        )}
                         <input
                             type="text"
                             id="otp"
@@ -164,6 +150,7 @@ const SignUpPopup: React.FC<SignUpPopupProps> = ({ onClose, onSignUpSuccess }) =
                             placeholder="Enter 6-digit OTP"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#7C3AED] focus:border-[#7C3AED] text-center text-lg tracking-widest"
                             maxLength={6}
+                            autoComplete="one-time-code"
                         />
 
                         <button
