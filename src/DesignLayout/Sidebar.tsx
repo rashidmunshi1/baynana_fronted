@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import '../MasterLayout/Master.css';
 import { FaListAlt, FaRegUser, FaFileExcel } from "react-icons/fa";
 import { FileTextOutlined, HomeOutlined, UsbOutlined, VideoCameraOutlined } from "@ant-design/icons";
-import { AppstoreOutlined } from "@ant-design/icons";
+import { AppstoreOutlined, SettingOutlined } from "@ant-design/icons";
 const { Sider } = Layout;
 
 interface SidebarProps {
@@ -31,6 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse, onMouseEnter, 
     { key: '8', icon: <VideoCameraOutlined />, text: 'Learn Islamic Method of Business', link: '/admin/video' },
     { key: '9', icon: <FileTextOutlined />, text: 'Event Banners', link: '/admin/event-banner' },
     { key: '10', icon: <FaFileExcel />, text: 'Excel Upload', link: '/admin/excel-upload' },
+    { key: '11', icon: <SettingOutlined />, text: 'Settings', link: '/admin/settings' },
   ];
 
   // Determine active key from URL

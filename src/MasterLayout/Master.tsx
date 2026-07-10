@@ -5,7 +5,7 @@ import FooterEnd from '../DesignLayout/Footer';
 import Sidebar from '../DesignLayout/Sidebar';
 import { Link, useLocation } from 'react-router-dom';
 import { FaListAlt, FaRegUser, FaFileExcel } from "react-icons/fa";
-import { FileTextOutlined, HomeOutlined, UsbOutlined, VideoCameraOutlined, AppstoreOutlined } from "@ant-design/icons";
+import { FileTextOutlined, HomeOutlined, UsbOutlined, VideoCameraOutlined, AppstoreOutlined, SettingOutlined } from "@ant-design/icons";
 
 const { Content } = Layout;
 
@@ -23,6 +23,7 @@ const menuItems = [
   { key: '8', icon: <VideoCameraOutlined className="admin-icon" />, text: 'Islamic Method', link: '/admin/video' },
   { key: '9', icon: <FileTextOutlined className="admin-icon" />, text: 'Event Banners', link: '/admin/event-banner' },
   { key: '10', icon: <FaFileExcel className="admin-icon" />, text: 'Excel Upload', link: '/admin/excel-upload' },
+  { key: '11', icon: <SettingOutlined className="admin-icon" />, text: 'Settings', link: '/admin/settings' },
 ];
 
 const Master: React.FC<MasterProps> = ({ children }) => {

@@ -16,6 +16,8 @@ import ExcelUpload from "./Pages/Admin/ExcelUpload";
 
 import AdminProfile from "./Pages/Admin/AdminProfile";
 
+import Settings from "./Pages/Admin/Settings";
+
 const AdminRoutes = [
   {
     path: "/admin/home",
@@ -93,6 +95,11 @@ const AdminRoutes = [
     path: "/admin/excel-upload",
     name: "Excel Upload",
     component: ExcelUpload,
+  },
+  {
+    path: "/admin/settings",
+    name: "Settings",
+    component: Settings,
   },
 
 ];
