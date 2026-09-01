@@ -17,6 +17,7 @@ import ExcelUpload from "./Pages/Admin/ExcelUpload";
 import AdminProfile from "./Pages/Admin/AdminProfile";
 
 import Settings from "./Pages/Admin/Settings";
+import WhatsAppIntegration from "./Pages/Admin/WhatsAppIntegration";
 
 const AdminRoutes = [
   {
@@ -101,7 +102,11 @@ const AdminRoutes = [
     name: "Settings",
     component: Settings,
   },
-
+  {
+    path: "/admin/whatsapp",
+    name: "WhatsApp Integration",
+    component: WhatsAppIntegration,
+  },
 ];
 
 export { AdminRoutes };

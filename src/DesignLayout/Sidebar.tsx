@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Drawer, Layout, Menu } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
 import '../MasterLayout/Master.css';
-import { FaListAlt, FaRegUser, FaFileExcel } from "react-icons/fa";
+import { FaListAlt, FaRegUser, FaFileExcel, FaWhatsapp } from "react-icons/fa";
 import { FileTextOutlined, HomeOutlined, UsbOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import { AppstoreOutlined, SettingOutlined } from "@ant-design/icons";
+import type { MenuProps } from 'antd';
+
 const { Sider } = Layout;
 
 interface SidebarProps {
@@ -32,6 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse, onMouseEnter, 
     { key: '9', icon: <FileTextOutlined />, text: 'Event Banners', link: '/admin/event-banner' },
     { key: '10', icon: <FaFileExcel />, text: 'Excel Upload', link: '/admin/excel-upload' },
     { key: '11', icon: <SettingOutlined />, text: 'Settings', link: '/admin/settings' },
+    { key: '12', icon: <FaWhatsapp style={{ color: '#25D366', fontSize: '18px' }} />, text: 'WhatsApp Integration', link: '/admin/whatsapp' },
   ];
 
   // Determine active key from URL
@@ -43,6 +46,50 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse, onMouseEnter, 
   const SecondStyle = hoverEffectActive && !isSmallScreen ? 'mobile-screen-sidebar' : 'desktop-screen-sidebar';
 
   const sidebarBg = '#0f172a'; // --sidebar-bg
+
+  const items: MenuProps['items'] = [
+    ...(!collapsed && !isSmallScreen
+      ? [
+          {
+            key: 'nav-group-header',
+            type: 'group' as const,
+            label: (
+              <span
+                style={{
+                  fontSize: '10px',
+                  fontWeight: 600,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: '#475569',
+                }}
+              >
+                Navigation
+              </span>
+            ),
+          },
+        ]
+      : []),
+    ...menuItems.map((item) => ({
+      key: item.key,
+      icon: item.icon,
+      label: (
+        <Link
+          to={item.link}
+          style={{
+            textDecoration: 'none',
+            color: 'inherit',
+            whiteSpace: 'normal',
+            overflow: 'visible',
+            display: 'inline-block',
+            width: '100%',
+            lineHeight: '1.2',
+          }}
+        >
+          {item.text}
+        </Link>
+      ),
+    })),
+  ];
 
   const logoSection = (
     <div
@@ -76,6 +123,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse, onMouseEnter, 
       mode="inline"
       theme="dark"
       selectedKeys={[activeKey]}
+      items={items}
       style={{
         minHeight: 'calc(100vh - 64px)',
         backgroundColor: sidebarBg,
@@ -83,55 +131,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse, onMouseEnter, 
         border: 'none',
         paddingTop: '8px',
       }}
-    >
-      {!collapsed && !isSmallScreen && (
-        <div
-          style={{
-            padding: '8px 24px 12px',
-            fontSize: '10px',
-            fontWeight: 600,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase' as const,
-            color: '#475569',
-          }}
-        >
-          Navigation
-        </div>
-      )}
-      {menuItems.map((item) => (
-        <Menu.Item
-          key={item.key}
-          icon={item.icon}
-          className="sidebar-menu-active"
-          style={{
-            background: 'transparent',
-            color: '#94a3b8',
-            minHeight: '42px',
-            height: 'auto',
-            paddingTop: '6px',
-            paddingBottom: '6px',
-            lineHeight: '1.4',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <Link
-            to={item.link}
-            style={{
-              textDecoration: 'none',
-              color: 'inherit',
-              whiteSpace: 'normal',
-              overflow: 'visible',
-              display: 'inline-block',
-              width: '100%',
-              lineHeight: '1.2'
-            }}
-          >
-            {item.text}
-          </Link>
-        </Menu.Item>
-      ))}
-    </Menu>
+    />
   );
 
   return (
@@ -144,7 +144,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse, onMouseEnter, 
           width="240px"
           open={collapsed}
           maskClosable
-          styles={{ body: { padding: 0 } }}
+          bodyStyle={{ padding: 0 }}
         >
           {logoSection}
           {menuContent}

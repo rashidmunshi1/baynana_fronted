@@ -1,9 +1,9 @@
 import React from 'react';
 import { MenuOutlined } from '@ant-design/icons';
-import { Button, Col, Layout, Row } from 'antd';
-import { Avatar, Dropdown, Menu } from "antd";
+import { Button, Col, Layout, Row, Avatar, Dropdown } from 'antd';
 import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import { Link, useLocation } from 'react-router-dom';
+import type { MenuProps } from 'antd';
 
 const { Header } = Layout;
 
@@ -25,6 +25,11 @@ const pageTitles: Record<string, string> = {
   '/admin/banner': 'Banners',
   '/admin/subcategory-list': 'Sub Categories',
   '/admin/subcategory-add': 'Add Sub Category',
+  '/admin/video': 'Learn Islamic Method of Business',
+  '/admin/event-banner': 'Event Banners',
+  '/admin/excel-upload': 'Excel Upload',
+  '/admin/settings': 'Settings',
+  '/admin/whatsapp': 'WhatsApp Integration',
   '/admin/profile': 'My Profile',
 };
 
@@ -39,29 +44,25 @@ const Navbar: React.FC<NavbarProps> = ({ collapsed, toggleSidebar, disableHoverE
     currentTitle = 'Update Business';
   }
 
-  const menu = (
-    <Menu
-      items={[
-        {
-          key: "1",
-          label: <Link to="/admin/profile">My Profile</Link>,
-          icon: <UserOutlined />,
-        },
-        {
-          type: "divider" as const,
-        },
-        {
-          key: "2",
-          label: <span style={{ color: "#ef4444", fontWeight: 500 }}>Logout</span>,
-          icon: <LogoutOutlined style={{ color: "#ef4444" }} />,
-          onClick: () => {
-            localStorage.clear();
-            window.location.href = "/";
-          },
-        },
-      ]}
-    />
-  );
+  const dropdownMenuItems: MenuProps['items'] = [
+    {
+      key: "1",
+      label: <Link to="/admin/profile">My Profile</Link>,
+      icon: <UserOutlined />,
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "2",
+      label: <span style={{ color: "#ef4444", fontWeight: 500 }}>Logout</span>,
+      icon: <LogoutOutlined style={{ color: "#ef4444" }} />,
+      onClick: () => {
+        localStorage.clear();
+        window.location.href = "/";
+      },
+    },
+  ];
 
   return (
     <Header
@@ -116,7 +117,7 @@ const Navbar: React.FC<NavbarProps> = ({ collapsed, toggleSidebar, disableHoverE
         </Col>
 
         <Col xs={6} sm={6} md={6} xl={6} xxl={6} className="flex justify-end items-center">
-          <Dropdown overlay={menu} placement="bottomRight" trigger={["click"]}>
+          <Dropdown menu={{ items: dropdownMenuItems }} placement="bottomRight" trigger={["click"]}>
             <div
               className="flex items-center cursor-pointer"
               style={{

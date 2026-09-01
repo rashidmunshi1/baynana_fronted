@@ -4,7 +4,7 @@ import Navbar from '../DesignLayout/Header';
 import FooterEnd from '../DesignLayout/Footer';
 import Sidebar from '../DesignLayout/Sidebar';
 import { Link, useLocation } from 'react-router-dom';
-import { FaListAlt, FaRegUser, FaFileExcel } from "react-icons/fa";
+import { FaListAlt, FaRegUser, FaFileExcel, FaWhatsapp } from "react-icons/fa";
 import { FileTextOutlined, HomeOutlined, UsbOutlined, VideoCameraOutlined, AppstoreOutlined, SettingOutlined } from "@ant-design/icons";
 
 const { Content } = Layout;
@@ -24,6 +24,7 @@ const menuItems = [
   { key: '9', icon: <FileTextOutlined className="admin-icon" />, text: 'Event Banners', link: '/admin/event-banner' },
   { key: '10', icon: <FaFileExcel className="admin-icon" />, text: 'Excel Upload', link: '/admin/excel-upload' },
   { key: '11', icon: <SettingOutlined className="admin-icon" />, text: 'Settings', link: '/admin/settings' },
+  { key: '12', icon: <FaWhatsapp className="admin-icon" style={{ color: '#25D366' }} />, text: 'WhatsApp Integration', link: '/admin/whatsapp' },
 ];
 
 const Master: React.FC<MasterProps> = ({ children }) => {
