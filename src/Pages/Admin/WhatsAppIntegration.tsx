@@ -5,10 +5,8 @@ import {
   Input,
   message,
   Tag,
-  Typography,
   Spin,
   Modal,
-  Badge,
   Tooltip,
   Popconfirm,
   Empty
@@ -21,7 +19,6 @@ import {
   SendOutlined,
   CheckCircleFilled,
   SyncOutlined,
-  QrcodeOutlined,
   PhoneOutlined,
   UserOutlined,
   StarFilled,
@@ -35,7 +32,6 @@ import io, { Socket } from 'socket.io-client';
 import axios from 'axios';
 import baseURL from '../../config';
 
-const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
 
 export interface WhatsAppSessionItem {
@@ -72,9 +68,9 @@ const WhatsAppIntegration: React.FC = () => {
   );
   const [sendingTest, setSendingTest] = useState<boolean>(false);
 
-  const fetchSessions = useCallback(async () => {
+  const fetchSessions = useCallback(async (showLoading = false) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const res = await axios.get(`${baseURL}/api/admin/whatsapp/sessions`);
       if (res.data && res.data.data) {
         setSessions(res.data.data);
@@ -82,12 +78,17 @@ const WhatsAppIntegration: React.FC = () => {
     } catch (err) {
       console.error('Failed to fetch WhatsApp sessions:', err);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchSessions();
+    fetchSessions(true);
+
+    // Auto-poll every 3s as fallback for environments without direct WebSocket support
+    const pollInterval = setInterval(() => {
+      fetchSessions(false);
+    }, 3000);
 
     const socket: Socket = io(baseURL, {
       transports: ['websocket', 'polling'],
@@ -97,11 +98,11 @@ const WhatsAppIntegration: React.FC = () => {
 
     socket.on('connect', () => {
       console.log('⚡ Socket connected to WhatsApp Multi-Session service');
+      fetchSessions(false);
     });
 
     // Real-time updates for all sessions
     socket.on('whatsapp_sessions_list', (data: WhatsAppSessionItem[]) => {
-      console.log('Sessions list updated:', data);
       setSessions(data);
       setLoading(false);
     });
@@ -137,6 +138,7 @@ const WhatsAppIntegration: React.FC = () => {
     });
 
     return () => {
+      clearInterval(pollInterval);
       socket.disconnect();
     };
   }, [fetchSessions]);
@@ -153,13 +155,13 @@ const WhatsAppIntegration: React.FC = () => {
 
     try {
       setAddingAccount(true);
-      const res = await axios.post(`${baseURL}/api/admin/whatsapp/sessions/create`, {
+      await axios.post(`${baseURL}/api/admin/whatsapp/sessions/create`, {
         label: newAccountLabel.trim()
       });
-      message.success('New WhatsApp account session created! Please scan the QR code.');
+      message.success('New WhatsApp account session created! Generating QR code...');
       setIsAddModalOpen(false);
       setNewAccountLabel('');
-      await fetchSessions();
+      await fetchSessions(false);
     } catch (err: any) {
       message.error(err.response?.data?.message || 'Failed to create WhatsApp session');
     } finally {
@@ -172,7 +174,7 @@ const WhatsAppIntegration: React.FC = () => {
       setBtnLoading(session.sessionId, true);
       await axios.post(`${baseURL}/api/admin/whatsapp/sessions/${session.sessionId}/set-active`);
       message.success(`"${session.label}" is now set as the active OTP sender!`);
-      await fetchSessions();
+      await fetchSessions(false);
     } catch (err: any) {
       message.error(err.response?.data?.message || 'Failed to set active session');
     } finally {
@@ -186,7 +188,7 @@ const WhatsAppIntegration: React.FC = () => {
       message.loading({ content: 'Generating fresh QR Code...', key: `qr-${sessionId}` });
       await axios.post(`${baseURL}/api/admin/whatsapp/sessions/${sessionId}/restart`);
       message.success({ content: 'QR code generation initialized...', key: `qr-${sessionId}` });
-      await fetchSessions();
+      await fetchSessions(false);
     } catch (err: any) {
       message.error({ content: err.response?.data?.message || 'Failed to restart session', key: `qr-${sessionId}` });
     } finally {
@@ -199,7 +201,7 @@ const WhatsAppIntegration: React.FC = () => {
       setBtnLoading(sessionId, true);
       await axios.post(`${baseURL}/api/admin/whatsapp/sessions/${sessionId}/logout`);
       message.success('WhatsApp session disconnected');
-      await fetchSessions();
+      await fetchSessions(false);
     } catch (err: any) {
       message.error(err.response?.data?.message || 'Failed to logout session');
     } finally {
@@ -212,7 +214,7 @@ const WhatsAppIntegration: React.FC = () => {
       setBtnLoading(sessionId, true);
       await axios.delete(`${baseURL}/api/admin/whatsapp/sessions/${sessionId}`);
       message.success('WhatsApp session removed successfully');
-      await fetchSessions();
+      await fetchSessions(false);
     } catch (err: any) {
       message.error(err.response?.data?.message || 'Failed to delete session');
     } finally {
@@ -324,7 +326,7 @@ const WhatsAppIntegration: React.FC = () => {
             </Button>
             <Button
               icon={<ReloadOutlined />}
-              onClick={fetchSessions}
+              onClick={() => fetchSessions(true)}
               loading={loading}
               className="bg-white/20 hover:bg-white/30 text-white border-white/30 rounded-xl h-11 px-4 font-medium"
             >
@@ -457,9 +459,17 @@ const WhatsAppIntegration: React.FC = () => {
                       </div>
                     ) : sess.status === 'INITIALIZING' ? (
                       /* Initializing State */
-                      <div className="py-10 flex flex-col items-center justify-center text-center gap-2 bg-slate-50 rounded-xl">
+                      <div className="py-10 flex flex-col items-center justify-center text-center gap-3 bg-slate-50 rounded-xl">
                         <Spin size="default" />
                         <span className="text-xs text-gray-500 font-medium">Starting engine & generating QR...</span>
+                        <Button
+                          size="small"
+                          icon={<ReloadOutlined />}
+                          onClick={() => fetchSessions(true)}
+                          className="rounded-lg text-xs"
+                        >
+                          Check QR Status
+                        </Button>
                       </div>
                     ) : (
                       /* Disconnected */
