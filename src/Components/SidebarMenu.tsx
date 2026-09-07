@@ -15,9 +15,10 @@ interface SidebarProps {
   open: boolean;
   onClose: () => void;
   user: User | null;
+  onLoginClick?: () => void;
 }
 
-const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user }) => {
+const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user, onLoginClick }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -75,7 +76,10 @@ const SidebarMenu: React.FC<SidebarProps> = ({ open, onClose, user }) => {
           <div className="flex flex-col items-center gap-3 p-4 bg-gray-50 rounded-lg">
             <p className="text-gray-600 font-medium">Welcome Guest</p>
             <button
-              onClick={() => { onClose(); /* Trigger login popup from parent if possible, or navigate */ }}
+              onClick={() => {
+                onClose();
+                if (onLoginClick) onLoginClick();
+              }}
               className="bg-[#3F87DF] text-white px-6 py-2 rounded-full font-semibold text-sm w-full"
             >
               Login / Sign Up

@@ -391,7 +391,12 @@ const HomePage: React.FC = () => {
 
   return (
     <UserLayout>
-      <SidebarMenu open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={currentUser} />
+      <SidebarMenu 
+        open={sidebarOpen} 
+        onClose={() => setSidebarOpen(false)} 
+        user={currentUser} 
+        onLoginClick={() => setIsLoginPopupOpen(true)}
+      />
 
       <style>{`
         @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
